@@ -11,3 +11,4 @@ Each decision with meaningful tradeoffs gets its own file (`NNNN-<slug>.md`). AD
 | [0005](0005-confidence-self-consistency.md) | Confidence via self-consistency; reserved `unknown` category | accepted |
 | [0006](0006-text-extraction-per-format-libs.md) | Per-format Python text extraction (`.doc` handling open) | accepted |
 | [0007](0007-sharepoint-app-only-auth.md) | SharePoint access via app-only (client-credentials) auth | accepted |
+| [0008](0008-prompt-structured-output.md) | Prompt shape & structured output (label-only enum, cached prefix) | accepted |

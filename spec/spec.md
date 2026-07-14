@@ -1,6 +1,6 @@
 # spec — Document Classifier
 
-Status: draft
+Status: approved
 
 ## Purpose
 
@@ -37,6 +37,9 @@ Output persisted as a **CSV file on the local filesystem**. No database in initi
 **Confidence via self-consistency.** Logprobs are unavailable on the Anthropic Messages API (Haiku 4.5), so confidence is derived by **classifying each document N times and using the agreement rate as the score** (e.g. 5/5 identical → 1.0, 3/5 → 0.6). The winning category is the modal (most-frequent) label across the N runs; ties or a modal count at/below a threshold resolve to `unknown`.
 > Decision: [ADR-0005](adr/0005-confidence-self-consistency.md) — N-run self-consistency (default N configurable, e.g. 5) + reserved `unknown` category. Logprob-based scoring was rejected because the Anthropic API does not expose logprobs. Open tunables (N, the tie/threshold rule) are pinned during Phase 1.
 
+**Prompt & output format.** Each call returns exactly one category via **structured output** (`output_config.format`, JSON schema whose `category` field is an `enum` of the defined categories + `unknown`, built once at run start), **label-only** (no per-call reasoning). The static category block (definitions + few-shot examples) is placed first as a **prompt-cache prefix**; the document text goes last. Variation across the N self-consistency runs comes from `temperature`.
+> Decision: [ADR-0008](adr/0008-prompt-structured-output.md). Tunables (`temperature`, over-context handling) pinned during Phase 1.
+
 ## Constraints / Rules
 
 - **Single-label:** each file is assigned exactly one category (categories are mutually exclusive). `confidence` is metadata, not a second label.
@@ -58,10 +61,13 @@ Microsoft Graph, app-only (client-credentials) auth.
 
 Target: **< 100 files per run.** Sequential processing is acceptable — no batching, concurrency, or resumability required in v1. (Revisit if volumes grow — would warrant its own ADR.)
 
-## Open questions (to resolve during Phase 1 iteration)
+## Deferred implementation specifics
 
-1. **Prompt shape / structured output** — how the category Markdown (definitions + few-shot examples) is rendered into the Haiku prompt, and how `category` + `confidence` are reliably returned. Recommendation: structured output / a tool call so parsing is deterministic. **Not yet decided — needs its own ADR.**
-2. **Deferred implementation specifics** (decisions made, details to pin in Phase 1): the concrete `.doc` handler ([ADR-0006](adr/0006-text-extraction-per-format-libs.md)); Graph app registration + scopes ([ADR-0007](adr/0007-sharepoint-app-only-auth.md)).
+All architectural decisions are made (see the ADRs). These details are deliberately left to Phase 1 issue planning:
+
+- Concrete legacy-`.doc` handler ([ADR-0006](adr/0006-text-extraction-per-format-libs.md)).
+- Graph app registration + exact scopes ([ADR-0007](adr/0007-sharepoint-app-only-auth.md)).
+- `temperature` and `N` tuning, and over-context (large-document) handling ([ADR-0008](adr/0008-prompt-structured-output.md)).
 
 ## Acceptance criteria
 
