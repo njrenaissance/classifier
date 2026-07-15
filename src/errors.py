@@ -12,3 +12,11 @@ class AppError(Exception):
 
 class CategoryFileError(AppError):
     """The category-definition Markdown file is missing or malformed."""
+
+
+class ExtractionError(AppError):
+    """Text extraction from a document failed and must not be swallowed."""
+
+
+class UnsupportedFormatError(ExtractionError):
+    """The document's file type has no registered text extractor."""
