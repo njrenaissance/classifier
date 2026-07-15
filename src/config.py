@@ -25,9 +25,7 @@ class Settings(BaseSettings):
     anthropic_api_key: SecretStr = Field(validation_alias="ANTHROPIC_API_KEY")
     self_consistency_n: int = Field(default=5, ge=1, validation_alias="CLASSIFIER_N")
     temperature: float = Field(default=0.4, ge=0.0, le=1.0, validation_alias="CLASSIFIER_TEMPERATURE")
-    confidence_threshold: float = Field(
-        default=0.6, ge=0.0, le=1.0, validation_alias="CLASSIFIER_CONFIDENCE_THRESHOLD"
-    )
+    confidence_threshold: float = Field(default=0.6, ge=0.0, le=1.0, validation_alias="CLASSIFIER_CONFIDENCE_THRESHOLD")
 
 
 @lru_cache(maxsize=1)

@@ -36,13 +36,16 @@ def test_defaults_applied(monkeypatch):
     assert s.confidence_threshold == 0.6
 
 
-@pytest.mark.parametrize("field,value", [
-    ("CLASSIFIER_N", "0"),
-    ("CLASSIFIER_TEMPERATURE", "1.5"),
-    ("CLASSIFIER_TEMPERATURE", "-0.1"),
-    ("CLASSIFIER_CONFIDENCE_THRESHOLD", "1.2"),
-    ("CLASSIFIER_CONFIDENCE_THRESHOLD", "-0.5"),
-])
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("CLASSIFIER_N", "0"),
+        ("CLASSIFIER_TEMPERATURE", "1.5"),
+        ("CLASSIFIER_TEMPERATURE", "-0.1"),
+        ("CLASSIFIER_CONFIDENCE_THRESHOLD", "1.2"),
+        ("CLASSIFIER_CONFIDENCE_THRESHOLD", "-0.5"),
+    ],
+)
 def test_out_of_bounds_rejected(monkeypatch, field, value):
     _base_env(monkeypatch)
     monkeypatch.setenv(field, value)
