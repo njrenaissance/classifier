@@ -3,6 +3,8 @@ import pytest
 from categories import CategorySet, parse_categories, parse_category_file
 from errors import CategoryFileError
 
+pytestmark = pytest.mark.unit
+
 WELL_FORMED = """\
 # Categories
 
@@ -48,6 +50,18 @@ def test_unknown_in_file_is_not_duplicated():
     assert result.enum_values.count("unknown") == 1
 
 
+def test_unknown_dedup_is_case_insensitive():
+    text = "## Invoice\n- inv example\n\n## Unknown\n- something odd\n"
+    result = parse_categories(text)
+    assert result.names == ("Invoice",)
+    assert result.enum_values == ("Invoice", "unknown")
+
+
+def test_star_and_plus_bullets_are_examples():
+    result = parse_categories("## Receipt\n* starred example\n+ plussed example\n")
+    assert result.categories[0].examples == ("starred example", "plussed example")
+
+
 def test_parse_category_file_reads_from_disk(tmp_path):
     path = tmp_path / "categories.md"
     path.write_text(WELL_FORMED)
@@ -66,6 +80,7 @@ def test_missing_file_errors(tmp_path):
         pytest.param("# Categories\n\nJust prose, no headings.\n", id="no_categories"),
         pytest.param("## Invoice\n- a\n\n## Invoice\n- b\n", id="duplicate_names"),
         pytest.param("## Invoice\nNo examples here.\n", id="category_without_examples"),
+        pytest.param("## Invoice\n- a\n##Contract\n- b\n", id="heading_missing_space"),
     ],
 )
 def test_malformed_markdown_errors(markdown):

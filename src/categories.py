@@ -25,6 +25,7 @@ from errors import CategoryFileError
 UNKNOWN_CATEGORY = "unknown"
 
 _H2_HEADING = re.compile(r"^##\s+(.+?)\s*$")
+_MALFORMED_HEADING = re.compile(r"^#{2,6}\S")
 _BULLET = re.compile(r"^\s*[-*+]\s+(.+?)\s*$")
 
 
@@ -87,6 +88,8 @@ def _split_into_blocks(markdown: str) -> list[tuple[str, list[str]]]:
         heading = _H2_HEADING.match(line)
         if heading:
             blocks.append((heading.group(1), []))
+        elif _MALFORMED_HEADING.match(line):
+            raise CategoryFileError(f"Malformed heading (missing space after '#'): {line!r}")
         elif blocks:
             blocks[-1][1].append(line)
     return blocks
