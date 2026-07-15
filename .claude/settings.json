@@ -28,7 +28,10 @@
       "Bash(uv run mypy *)",
       "Bash(openwiki)",
       "Bash(openwiki *)",
-      "Bash(npm install -g openwiki)"
+      "Bash(npm install -g openwiki)",
+      "mcp__github__pull_request_read",
+      "mcp__github__issue_read",
+      "mcp__github__get_job_logs"
     ]
   }
 }
