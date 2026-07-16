@@ -75,7 +75,7 @@ Product-level, observable behaviors that define done. These are *what to verify*
 
 - Given a local PDF (and a DOCX, and a DOC) plus a category file, the tool produces a CSV row assigning the correct single category and a confidence value to each.
 - Every file in a target source (local dir or SharePoint location) appears **exactly once** in the output CSV.
-- An unsupported file type is handled explicitly (skipped-with-warning or errored — TBD), not silently mis-processed.
+- An unsupported file type is handled explicitly, not silently mis-processed. At the **source** (enumeration) it is **skipped with a `WARNING`** so a run over a mixed directory still proceeds ([ADR-0010](adr/0010-uniform-document-source.md)); at **extraction** time a file pointed at directly is rejected with `UnsupportedFormatError` ([ADR-0006](adr/0006-text-extraction-per-format-libs.md), [ADR-0009](adr/0009-defer-legacy-doc-extraction.md)).
 - The allowed categories are read from the Markdown file; a category not defined there is never emitted.
 - SharePoint and local-filesystem sources produce the same CSV shape for equivalent files.
 - (Criteria refined as issues are planned; each issue decomposes the relevant ones into concrete tests.)

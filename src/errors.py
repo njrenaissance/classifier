@@ -14,6 +14,10 @@ class CategoryFileError(AppError):
     """The category-definition Markdown file is missing or malformed."""
 
 
+class SourceError(AppError):
+    """A document source path is missing or is not a file or directory."""
+
+
 class ExtractionError(AppError):
     """Text extraction from a document failed and must not be swallowed."""
 
