@@ -47,6 +47,10 @@ class LocalFileSystemSource:
         result is sorted for deterministic, reproducible output. Unsupported
         files are skipped with a ``WARNING``; a missing or invalid root path
         raises :class:`~errors.SourceError`.
+
+        Symlinked *sub-directories* are not descended into (``rglob`` runs with
+        its ``recurse_symlinks=False`` default), which keeps the walk loop-safe;
+        a symlink *to a supported file* is still enumerated like any other file.
         """
         return [path for path in self._candidate_files() if self._is_supported(path)]
 

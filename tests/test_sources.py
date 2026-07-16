@@ -39,6 +39,28 @@ def test_directory_walk_is_recursive(tmp_path: Path):
     assert _documents(tmp_path) == sorted([top, nested])
 
 
+def test_symlinked_subdirectory_is_not_traversed(tmp_path: Path):
+    outside = tmp_path / "outside"
+    _touch(outside / "target.pdf")
+    root = tmp_path / "root"
+    root.mkdir()
+    kept = _touch(root / "kept.pdf")
+    (root / "linked").symlink_to(outside, target_is_directory=True)
+
+    # The document behind the symlinked directory is not enumerated (loop-safe walk).
+    assert _documents(root) == [kept]
+
+
+def test_symlink_to_supported_file_is_enumerated(tmp_path: Path):
+    real = _touch(tmp_path / "real.pdf")
+    root = tmp_path / "root"
+    root.mkdir()
+    alias = root / "alias.pdf"
+    alias.symlink_to(real)
+
+    assert _documents(root) == [alias]
+
+
 @pytest.mark.parametrize(
     "name",
     [
@@ -69,7 +91,7 @@ def test_single_unsupported_file_yields_nothing_and_warns(tmp_path: Path, caplog
         result = _documents(unsupported)
 
     assert result == []
-    assert any("legacy.doc" in record.message for record in caplog.records)
+    assert any("legacy.doc" in message for message in caplog.messages)
 
 
 def test_unsupported_files_in_directory_are_skipped_with_warning(tmp_path: Path, caplog):
@@ -81,7 +103,7 @@ def test_unsupported_files_in_directory_are_skipped_with_warning(tmp_path: Path,
         result = _documents(tmp_path)
 
     assert result == [pdf]
-    warned = " ".join(record.message for record in caplog.records)
+    warned = " ".join(caplog.messages)
     assert "notes.txt" in warned
     assert "legacy.doc" in warned
 
