@@ -13,3 +13,4 @@ Each decision with meaningful tradeoffs gets its own file (`NNNN-<slug>.md`). AD
 | [0007](0007-sharepoint-app-only-auth.md) | SharePoint access via app-only (client-credentials) auth | accepted |
 | [0008](0008-prompt-structured-output.md) | Prompt shape & structured output (label-only enum, cached prefix) | accepted |
 | [0009](0009-defer-legacy-doc-extraction.md) | Defer legacy `.doc` extraction (PDF/DOCX only for now) | accepted |
+| [0010](0010-uniform-document-source.md) | Uniform `DocumentSource` abstraction (local + SharePoint behind one protocol) | accepted |
