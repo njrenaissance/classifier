@@ -2,7 +2,7 @@
 name = "classifier"
 version = "0.1.0"
 description = "classifier"
-requires-python = ">=3.14"
+requires-python = ">=3.13"
 dependencies = [
     "pydantic-settings>=2.6.0",
     "python-dotenv>=1.0.0",
@@ -31,7 +31,7 @@ show_missing = true
 
 [tool.ruff]
 line-length = 120
-target-version = "py314"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "N", "ARG", "SIM", "ERA", "PLR", "C901"]
@@ -44,7 +44,7 @@ max-complexity = 10
 "tests/**" = ["PLR2004"]
 
 [tool.mypy]
-python_version = "3.14"
+python_version = "3.13"
 files = ["src"]
 disallow_untyped_defs = true
 warn_return_any = true
