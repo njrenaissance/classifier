@@ -24,9 +24,9 @@ Cross-cutting concerns enabled for this project:
 
 ```text
 ├── src/
-│   └── main.py       # greet()
+│   └── main.py       # CLI entry point (local end-to-end)
 ├── tests/
-│   └── test_main.py  # test for greet()
+│   └── test_main.py  # tests for the CLI
 └── pyproject.toml
 ```
 
