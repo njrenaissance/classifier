@@ -58,12 +58,12 @@ def write_results_csv(results: Iterable[ClassificationResult], path: Path) -> No
     quoting/escaping. Raises :class:`~errors.OutputError` if the path cannot be
     written.
     """
-    rows = list(results)
+    rows = [result.row() for result in results]
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", newline="", encoding="utf-8") as handle:
             writer = csv.writer(handle)
             writer.writerow(ClassificationResult.headers())
-            writer.writerows(result.row() for result in rows)
+            writer.writerows(rows)
     except OSError as err:
         raise OutputError(f"Cannot write results CSV: {path}") from err

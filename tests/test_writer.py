@@ -113,6 +113,8 @@ def test_accepts_a_lazy_iterator(tmp_path: Path):
         pytest.param("a,b.pdf", "in,voice", id="comma"),
         pytest.param('quote".pdf', 'ca"tegory', id="double_quote"),
         pytest.param("line\nbreak.pdf", "multi\nline", id="newline"),
+        pytest.param("café.pdf", "correspondance générale", id="accented"),
+        pytest.param("契約書.docx", "契約", id="cjk"),
     ],
 )
 def test_special_characters_survive_round_trip(tmp_path: Path, filename: str, category: str):
