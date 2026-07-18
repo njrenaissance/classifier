@@ -56,13 +56,14 @@ jobs:
       - name: Open or update docs PR
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
-          # Commit the generated wiki plus the section OpenWiki maintains in
-          # CLAUDE.md — but nothing else `openwiki code --update` writes.
-          # add-paths is an allowlist, so the two other files it touches are
-          # left uncommitted: the workflow file (the default GITHUB_TOKEN may
-          # not push `.github/workflows/**`, and no `workflows` permission
-          # scope exists to grant it) and an AGENTS.md this project doesn't
-          # use (also git-ignored).
+          # Commit the generated wiki plus the OPENWIKI block openwiki
+          # maintains in CLAUDE.md. add-paths is an allowlist, so the other
+          # two files `openwiki code --update` writes stay uncommitted:
+          #   - the workflow file — the default GITHUB_TOKEN may not push
+          #     `.github/workflows/**`, and no `workflows` permission scope
+          #     exists to grant it; and
+          #   - AGENTS.md — openwiki's non-Claude counterpart to CLAUDE.md,
+          #     which this project deliberately keeps out (also git-ignored).
           add-paths: |
             openwiki
             CLAUDE.md
