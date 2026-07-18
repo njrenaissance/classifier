@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 from docx import Document
+from pydantic import ValidationError
 
 import main
 from errors import CategoryFileError, ClassificationError, ExtractionError
@@ -96,22 +97,37 @@ def test_build_parser_requires_all_arguments(argv):
 
 def test_run_wires_pipeline_and_returns_zero(mocker, tmp_path):
     results = [ClassificationResult("a.pdf", "Invoice", 1.0)]
-    mocker.patch("main.get_settings")
-    mocker.patch("main.parse_category_file")
-    mocker.patch("main.create_self_consistency_classifier")
-    mocker.patch("main.LocalFileSystemSource")
-    mocker.patch("main.classify_documents", return_value=results)
+    settings = mocker.patch("main.get_settings").return_value
+    categories = mocker.patch("main.parse_category_file").return_value
+    voter = mocker.patch("main.create_self_consistency_classifier").return_value
+    source = mocker.patch("main.LocalFileSystemSource").return_value
+    classify = mocker.patch("main.classify_documents", return_value=results)
     write = mocker.patch("main.write_results_csv")
 
     exit_code = main.run([str(tmp_path), "-c", "cats.md", "-o", "out.csv"])
 
     assert exit_code == 0
+    main.parse_category_file.assert_called_once_with(Path("cats.md"))
+    main.create_self_consistency_classifier.assert_called_once_with(categories, settings)
+    main.LocalFileSystemSource.assert_called_once_with(tmp_path)
+    classify.assert_called_once_with(source, voter, tmp_path)
     write.assert_called_once_with(results, Path("out.csv"))
 
 
 def test_run_returns_one_on_app_error(mocker, caplog):
     mocker.patch("main.get_settings")
     mocker.patch("main.parse_category_file", side_effect=CategoryFileError("bad file"))
+
+    with caplog.at_level("ERROR"):
+        exit_code = main.run(["docs", "-c", "cats.md", "-o", "out.csv"])
+
+    assert exit_code == 1
+    assert "Classification run failed" in caplog.text
+
+
+def test_run_returns_one_on_missing_settings(mocker, caplog):
+    error = ValidationError.from_exception_data("Settings", [])
+    mocker.patch("main.get_settings", side_effect=error)
 
     with caplog.at_level("ERROR"):
         exit_code = main.run(["docs", "-c", "cats.md", "-o", "out.csv"])

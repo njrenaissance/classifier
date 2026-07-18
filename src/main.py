@@ -16,6 +16,8 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
+from pydantic import ValidationError
+
 from categories import parse_category_file
 from config import get_settings
 from errors import AppError, ClassificationError, ExtractionError
@@ -91,7 +93,9 @@ def run(argv: list[str]) -> int:
         source = LocalFileSystemSource(args.source)
         results = classify_documents(source, voter, args.source)
         write_results_csv(results, args.output)
-    except AppError:
+    except (AppError, ValidationError):
+        # System boundary: convert any domain failure — or a missing/invalid
+        # setting such as ANTHROPIC_API_KEY — into a clean, logged exit code.
         logger.exception("Classification run failed")
         return 1
     logger.info("Classified %d document(s); wrote %s", len(results), args.output)
