@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-Each decision with meaningful tradeoffs gets its own file (`NNNN-<slug>.md`). ADRs are append-only: a changed decision is superseded by a new ADR, not edited in place. See `coding-workflow.md` → *Architecture Decision Records* for the convention.
+Each decision with meaningful tradeoffs gets its own file (`NNNN-<slug>.md`). ADRs are append-only: a changed decision is superseded by a new ADR — marked `superseded (by ADR-NNNN)` — never edited in place, so the original rationale stays on record.
 
 | ADR | Decision | Status |
 |---|---|---|

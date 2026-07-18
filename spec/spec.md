@@ -35,10 +35,10 @@ Output persisted as a **CSV file on the local filesystem**. No database in initi
 > Decisions: [ADR-0001](adr/0001-llm-based-classification.md) (LLM vs rules vs classical ML); [ADR-0002](adr/0002-model-haiku-4-5.md) (model = Haiku 4.5).
 
 **Confidence via self-consistency.** Logprobs are unavailable on the Anthropic Messages API (Haiku 4.5), so confidence is derived by **classifying each document N times and using the agreement rate as the score** (e.g. 5/5 identical → 1.0, 3/5 → 0.6). The winning category is the modal (most-frequent) label across the N runs; ties or a modal count at/below a threshold resolve to `unknown`.
-> Decision: [ADR-0005](adr/0005-confidence-self-consistency.md) — N-run self-consistency (default N configurable, e.g. 5) + reserved `unknown` category. Logprob-based scoring was rejected because the Anthropic API does not expose logprobs. Open tunables (N, the tie/threshold rule) are pinned during Phase 1.
+> Decision: [ADR-0005](adr/0005-confidence-self-consistency.md) — N-run self-consistency (default N configurable, e.g. 5) + reserved `unknown` category. Logprob-based scoring was rejected because the Anthropic API does not expose logprobs. Open tunables (N, the tie/threshold rule) are pinned during implementation planning.
 
 **Prompt & output format.** Each call returns exactly one category via **structured output** (`output_config.format`, JSON schema whose `category` field is an `enum` of the defined categories + `unknown`, built once at run start), **label-only** (no per-call reasoning). The static category block (definitions + few-shot examples) is placed first as a **prompt-cache prefix**; the document text goes last. Variation across the N self-consistency runs comes from `temperature`.
-> Decision: [ADR-0008](adr/0008-prompt-structured-output.md). Tunables (`temperature`, over-context handling) pinned during Phase 1.
+> Decision: [ADR-0008](adr/0008-prompt-structured-output.md). Tunables (`temperature`, over-context handling) pinned during implementation planning.
 
 ## Constraints / Rules
 
@@ -50,12 +50,12 @@ Output persisted as a **CSV file on the local filesystem**. No database in initi
 ## Text extraction
 
 Per-format Python libraries (PDF, DOCX, legacy `.doc`).
-> Decision: [ADR-0006](adr/0006-text-extraction-per-format-libs.md). **Sub-item still open:** the concrete legacy-`.doc` handler is unresolved (see the ADR) — pin during Phase 1.
+> Decision: [ADR-0006](adr/0006-text-extraction-per-format-libs.md). **Sub-item still open:** the concrete legacy-`.doc` handler is unresolved (see the ADR) — pinned during implementation planning.
 
 ## SharePoint access
 
 Microsoft Graph, app-only (client-credentials) auth.
-> Decision: [ADR-0007](adr/0007-sharepoint-app-only-auth.md). **Specifics still open:** Azure AD app registration + exact Graph scopes — pin during Phase 1; may warrant its own build issue.
+> Decision: [ADR-0007](adr/0007-sharepoint-app-only-auth.md). **Specifics still open:** Azure AD app registration + exact Graph scopes — pinned during implementation planning; may warrant its own build issue.
 
 ## Scale
 
@@ -63,7 +63,7 @@ Target: **< 100 files per run.** Sequential processing is acceptable — no batc
 
 ## Deferred implementation specifics
 
-All architectural decisions are made (see the ADRs). These details are deliberately left to Phase 1 issue planning:
+All architectural decisions are made (see the ADRs). These details are deliberately left to per-issue implementation planning:
 
 - Concrete legacy-`.doc` handler ([ADR-0006](adr/0006-text-extraction-per-format-libs.md)).
 - Graph app registration + exact scopes ([ADR-0007](adr/0007-sharepoint-app-only-auth.md)).
@@ -71,7 +71,7 @@ All architectural decisions are made (see the ADRs). These details are deliberat
 
 ## Acceptance criteria
 
-Product-level, observable behaviors that define done. These are *what to verify*; the executable TDD unit tests that assert them are authored per issue in the build loop and live in `tests/` — not here (see `coding-workflow.md` → Spec Artifact → Acceptance criteria vs. executable tests).
+Product-level, observable behaviors that define done. These are *what to verify*; the executable TDD unit tests that assert them are authored per issue and live in `tests/` — not here. The spec carries acceptance criteria, the tests carry the concrete assertions; the two are kept at separate altitudes so the spec doesn't churn every time an issue-level test is added.
 
 - Given a local PDF (and a DOCX, and a DOC) plus a category file, the tool produces a CSV row assigning the correct single category and a confidence value to each.
 - Every file in a target source (local dir or SharePoint location) appears **exactly once** in the output CSV.

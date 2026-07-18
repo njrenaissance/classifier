@@ -24,4 +24,4 @@ Classify documents with an **LLM**, prompting it with the category definitions a
 
 - Introduces a hard dependency on the Anthropic API and the `anthropic` SDK.
 - Model choice is a follow-on decision — see [[0002-model-haiku-4-5]].
-- The category Markdown becomes prompt input; how it is rendered into the prompt is an implementation detail to pin during Phase 1.
+- The category Markdown becomes prompt input; how it is rendered into the prompt is an implementation detail to pin during implementation planning.

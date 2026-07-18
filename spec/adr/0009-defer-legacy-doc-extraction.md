@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-[[0006-text-extraction-per-format-libs]] chose per-format Python libraries for text extraction and deliberately left one item **OPEN**: the concrete legacy `.doc` (OLE binary) handler, "to be pinned during Phase 1." A2 ([issue #6](https://github.com/njrenaissance/classifier/issues/6)) implements the two formats with a strong pure-Python story — PDF via `pypdf`, DOCX via `python-docx` — but `.doc` remains the weak link ADR-0006 flagged: there is no maintained, reliable pure-Python `.doc` extractor, and the robust options each drag in a heavyweight external runtime that the per-format-libs decision was chosen to avoid for the common cases.
+[[0006-text-extraction-per-format-libs]] chose per-format Python libraries for text extraction and deliberately left one item **OPEN**: the concrete legacy `.doc` (OLE binary) handler, "to be pinned during implementation planning." A2 ([issue #6](https://github.com/njrenaissance/classifier/issues/6)) implements the two formats with a strong pure-Python story — PDF via `pypdf`, DOCX via `python-docx` — but `.doc` remains the weak link ADR-0006 flagged: there is no maintained, reliable pure-Python `.doc` extractor, and the robust options each drag in a heavyweight external runtime that the per-format-libs decision was chosen to avoid for the common cases.
 
 This ADR pins that open sub-decision. It does **not** revisit ADR-0006's core decision (per-format libraries), which stands.
 
@@ -12,7 +12,7 @@ This ADR pins that open sub-decision. It does **not** revisit ADR-0006's core de
 
 **Defer legacy `.doc` support.** It is not implemented now. `.doc` is treated as an unregistered suffix and rejected explicitly with `UnsupportedFormatError` (surfaced, never silently skipped), exactly like any other unsupported type. A2's shipped scope is **PDF + DOCX only**.
 
-The concrete `.doc` handler remains unchosen — deferred, not decided — and is tracked as a separate follow-up issue to be planned (Phase 1) when there is real `.doc` volume to justify committing to a dependency.
+The concrete `.doc` handler remains unchosen — deferred, not decided — and is tracked as a separate follow-up issue to be planned when there is real `.doc` volume to justify committing to a dependency.
 
 ## Alternatives
 

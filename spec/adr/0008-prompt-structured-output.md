@@ -27,6 +27,6 @@ LLM classification ([[0001-llm-based-classification]]) with Haiku 4.5 ([[0002-mo
 ## Consequences
 
 - Enum construction: parse categories at startup → `[...categories, "unknown"]` → schema built once, reused for all N × document calls.
-- `temperature` value and `N` are related tunables to pin during Phase 1 (too low → little variation, inflated agreement; too high → noise).
+- `temperature` value and `N` are related tunables to pin during implementation planning (too low → little variation, inflated agreement; too high → noise).
 - Prompt caching depends on the static prefix staying byte-identical across calls — keep any per-call/volatile content (e.g. the document text) strictly after the cached block.
-- **Open implementation detail:** documents whose extracted text exceeds the context window (Haiku 4.5: 200K tokens) need a handling strategy (chunk / truncate / summarize) — pin during Phase 1.
+- **Open implementation detail:** documents whose extracted text exceeds the context window (Haiku 4.5: 200K tokens) need a handling strategy (chunk / truncate / summarize) — pin during implementation planning.
