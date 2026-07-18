@@ -24,3 +24,7 @@ class ExtractionError(AppError):
 
 class UnsupportedFormatError(ExtractionError):
     """The document's file type has no registered text extractor."""
+
+
+class OutputError(AppError):
+    """Writing the results CSV to the target path failed."""
