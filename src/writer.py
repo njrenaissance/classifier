@@ -19,21 +19,34 @@ survives in the traceback.
 
 import csv
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from pathlib import Path
 
 from errors import OutputError
 
-COLUMNS = ("filename", "category", "confidence")
-
 
 @dataclass(frozen=True)
 class ClassificationResult:
-    """One document's classification outcome — a single CSV row."""
+    """One document's classification outcome — a single CSV row.
+
+    The row *is* the CSV shape: :meth:`headers` derives the column names from
+    the field names (``filename``, ``category``, ``confidence`` — ADR-0004) and
+    :meth:`row` renders one row in its CSV form, keeping the output format owned
+    by the data model rather than the writer.
+    """
 
     filename: str  # source-agnostic name (local FS and SharePoint alike) — ADR-0004
     category: str  # a real category name or the reserved "unknown"
     confidence: float  # self-consistency agreement rate in [0.0, 1.0] — ADR-0005
+
+    @classmethod
+    def headers(cls) -> tuple[str, ...]:
+        """The CSV column names, in order — the dataclass field names."""
+        return tuple(field.name for field in fields(cls))
+
+    def row(self) -> tuple[str, str, str]:
+        """This result as a CSV row; ``confidence`` formatted to two decimals."""
+        return (self.filename, self.category, f"{self.confidence:.2f}")
 
 
 def write_results_csv(results: Iterable[ClassificationResult], path: Path) -> None:
@@ -50,7 +63,7 @@ def write_results_csv(results: Iterable[ClassificationResult], path: Path) -> No
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", newline="", encoding="utf-8") as handle:
             writer = csv.writer(handle)
-            writer.writerow(COLUMNS)
-            writer.writerows((result.filename, result.category, f"{result.confidence:.2f}") for result in rows)
+            writer.writerow(ClassificationResult.headers())
+            writer.writerows(result.row() for result in rows)
     except OSError as err:
         raise OutputError(f"Cannot write results CSV: {path}") from err

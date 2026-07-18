@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from errors import AppError, OutputError
-from writer import COLUMNS, ClassificationResult, write_results_csv
+from writer import ClassificationResult, write_results_csv
 
 pytestmark = pytest.mark.unit
 
@@ -13,6 +13,15 @@ def _read_rows(path: Path) -> list[list[str]]:
     """Parse a written CSV back into a list of rows (header included)."""
     with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.reader(handle))
+
+
+def test_headers_are_the_three_columns_in_order():
+    assert ClassificationResult.headers() == ("filename", "category", "confidence")
+
+
+def test_row_renders_confidence_to_two_decimals():
+    result = ClassificationResult("doc.pdf", "invoice", 0.6)
+    assert result.row() == ("doc.pdf", "invoice", "0.60")
 
 
 def test_writes_header_then_rows_with_three_columns(tmp_path: Path):
@@ -27,7 +36,7 @@ def test_writes_header_then_rows_with_three_columns(tmp_path: Path):
     )
 
     rows = _read_rows(out)
-    assert rows[0] == list(COLUMNS)
+    assert rows[0] == list(ClassificationResult.headers())
     assert rows[0] == ["filename", "category", "confidence"]
     assert rows[1:] == [
         ["invoice.pdf", "invoice", "0.60"],
@@ -86,7 +95,7 @@ def test_empty_results_writes_header_only(tmp_path: Path):
 
     write_results_csv([], out)
 
-    assert _read_rows(out) == [list(COLUMNS)]
+    assert _read_rows(out) == [list(ClassificationResult.headers())]
 
 
 def test_accepts_a_lazy_iterator(tmp_path: Path):
