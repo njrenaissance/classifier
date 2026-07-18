@@ -27,5 +27,5 @@ Two coupled decisions:
 ## Consequences
 
 - `confidence` is a column in the output CSV ([[0004-csv-file-output]]).
-- N and the `unknown` tie/threshold rule are tunables to pin during Phase 1 planning.
+- N and the `unknown` tie/threshold rule are tunables to pin during implementation planning.
 - Cost and latency scale with N — revisit if N or volume grows materially.

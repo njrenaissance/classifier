@@ -22,5 +22,5 @@ Use **per-format Python libraries**: a PDF extractor (e.g. `pypdf`/`pdfplumber`)
 
 ## Consequences
 
-- **OPEN → Resolved:** the concrete `.doc` handling approach is unresolved and must be pinned during Phase 1 — if it forces a LibreOffice/Word dependency, reconsider Apache Tika via a superseding ADR. **Pinned by [[0009-defer-legacy-doc-extraction]]: `.doc` is deferred (rejected as unsupported for now); the concrete handler is chosen in a later, superseding ADR.**
-- Extraction failures per format must be handled explicitly (skip-with-warning vs error — a Phase 1 detail), consistent with the spec's done criteria.
+- **OPEN → Resolved:** the concrete `.doc` handling approach is unresolved and must be pinned during implementation planning — if it forces a LibreOffice/Word dependency, reconsider Apache Tika via a superseding ADR. **Pinned by [[0009-defer-legacy-doc-extraction]]: `.doc` is deferred (rejected as unsupported for now); the concrete handler is chosen in a later, superseding ADR.**
+- Extraction failures per format must be handled explicitly (skip-with-warning vs error — an implementation-planning detail), consistent with the spec's done criteria.

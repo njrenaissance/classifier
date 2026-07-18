@@ -21,6 +21,6 @@ Authenticate to Microsoft Graph using **app-only / client-credentials** flow —
 
 ## Consequences
 
-- Requires provisioning: app registration, a client secret or certificate, and consented Graph scopes — real setup work to scope during Phase 1.
+- Requires provisioning: app registration, a client secret or certificate, and consented Graph scopes — real setup work to scope during implementation planning.
 - Credentials (client secret / cert) must be handled per the project's secrets conventions, not hardcoded.
 - Graph app-registration + scopes are a meaningful chunk of v1 work and may warrant their own build issue.
