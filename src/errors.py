@@ -28,3 +28,7 @@ class UnsupportedFormatError(ExtractionError):
 
 class OutputError(AppError):
     """Writing the results CSV to the target path failed."""
+
+
+class ClassificationError(AppError):
+    """A classification API call failed or returned an unusable result."""
