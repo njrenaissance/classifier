@@ -56,6 +56,13 @@ jobs:
       - name: Open or update docs PR
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
+          # Commit only the generated wiki. `openwiki code --update` can also
+          # touch files outside openwiki/ (e.g. .github/workflows/, CLAUDE.md);
+          # staging a workflow file would make the push fail — the default
+          # GITHUB_TOKEN cannot create/update `.github/workflows/**` (there is
+          # no `workflows` permission scope to grant it), and per ADR-0011 the
+          # generated output is the openwiki/ folder, nothing else.
+          add-paths: openwiki
           branch: openwiki/update
           commit-message: "docs: update OpenWiki"
           title: "docs: update OpenWiki"
