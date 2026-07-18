@@ -23,6 +23,8 @@ dist/
 build/
 *.egg-info/
 
-# OpenWiki generates an AGENTS.md this project doesn't use; keep it untracked
-# so `openwiki code --update` (locally or in CI) never accidentally commits it.
+# OpenWiki maintains an AGENTS.md (the non-Claude counterpart to CLAUDE.md);
+# this project keeps it untracked so `openwiki code --update` (locally or in
+# CI) never commits it. CLAUDE.md, by contrast, is tracked and its OPENWIKI
+# block rides along in the docs PR.
 AGENTS.md
