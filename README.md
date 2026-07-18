@@ -7,9 +7,9 @@ A minimal Python project, managed with [uv](https://docs.astral.sh/uv/).
 
 ```bash
 ├── src/
-│   └── main.py       # greet()
+│   └── main.py       # CLI entry point (local end-to-end)
 ├── tests/
-│   └── test_main.py  # test for greet()
+│   └── test_main.py  # tests for the CLI
 └── pyproject.toml
 ```
 
@@ -50,9 +50,18 @@ rules agents follow.
 
 ## Run
 
+Point the CLI at a local source (a file or a directory) plus a category
+Markdown file; it writes a CSV of `filename,category,confidence`:
+
 ```bash
-uv run python src/main.py
+export ANTHROPIC_API_KEY=sk-...   # required
+uv run python src/main.py ./docs -c categories.md -o results.csv
 ```
+
+`source` is positional; `-c/--categories` and `-o/--output` are required.
+Unsupported files in a directory are skipped with a warning, and a file that
+fails extraction or classification is skipped so the rest of the batch still
+completes.
 
 ## Test
 
