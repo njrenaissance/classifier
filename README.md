@@ -25,23 +25,28 @@ uv sync
 
 This project keeps an `openwiki/` folder of generated codebase documentation
 (produced by [OpenWiki](https://www.npmjs.com/package/openwiki)). It is
-generated output — **never hand-edit it**; regenerate it and commit the result
-alongside the code change that prompted it, so the wiki stays in step with
-`main`.
+generated output — **never hand-edit it**. A scheduled CI workflow
+(`.github/workflows/openwiki-update.yml`) keeps `openwiki/` current
+automatically: it regenerates the wiki daily on the Anthropic provider and opens
+a single rolling review PR — no auto-merge (see
+[ADR-0011](spec/adr/0011-openwiki-ci-regeneration.md)). The top-level
+`openwiki/GENERATED.md` records when the wiki was last regenerated and from which
+commit, so you can tell how current it is.
 
 OpenWiki is a per-machine global CLI, **not** a project dependency (it is never
-added to `pyproject.toml`). Install and authenticate it once, then regenerate
-before committing:
+added to `pyproject.toml`). Regenerating in the same PR as a code change is
+optional now that CI is the primary path, but if you want the docs updated
+immediately, install and authenticate the CLI once, then regenerate:
 
 ```bash
 npm install -g openwiki    # one-time, per machine
 openwiki auth <provider>   # one-time: sets up the LLM provider + API key
 openwiki code --init       # first run in a fresh repo
-openwiki code --update     # regenerate before committing a change
+openwiki code --update     # regenerate on demand
 ```
 
 Regenerating calls a paid LLM provider. See `.claude/standards/wiki.md` for the
-regenerate-before-commit rule agents follow.
+rules agents follow.
 
 ## Run
 

@@ -75,12 +75,12 @@ Inner:                          Plan (HITL) → Build → Validate → Review (H
 **Goal:** Integrate the completed issues and ship.
 
 1. Agent integrates the merged issues (if not already integrated incrementally) and runs an end-to-end / acceptance pass against the product `spec/spec.md`'s acceptance criteria.
-2. Agent regenerates the codebase wiki (`openwiki code --update`, see "## Codebase Wiki" below) and commits the refreshed `openwiki/`.
+2. Agent may regenerate the codebase wiki (`openwiki code --update`, see "## Codebase Wiki" below) and commit the refreshed `openwiki/` — optional, since the scheduled OpenWiki CI ([ADR-0011](spec/adr/0011-openwiki-ci-regeneration.md)) is the primary mechanism that keeps `openwiki/` current.
 3. Agent ships: creates a release or merges the integrated work to `main`.
 4. If the acceptance pass fails, the agent raises a structured error and halts — a failure here means one or more issues did not actually satisfy the product spec despite passing their own inner Review, and is treated as a planning or integration gap for the human to triage.
 
-**Model:** Light / fast model for the acceptance pass; minimal for the wiki regenerate and release/merge mechanics.
-**Exit condition:** End-to-end acceptance pass green against the product spec, wiki refreshed and committed, release/merge to `main` complete.
+**Model:** Light / fast model for the acceptance pass; minimal for the optional wiki regenerate and the release/merge mechanics.
+**Exit condition:** End-to-end acceptance pass green against the product spec, release/merge to `main` complete. (Wiki refresh is handled by the scheduled OpenWiki CI, not a blocker for shipping.)
 
 ---
 
@@ -339,13 +339,15 @@ Every agent reads the relevant wiki documents at the start of its invocation:
 - **Inner Build** — `source-map.md` + relevant workflow doc to write consistent code
 - **Inner Review** — `architecture/overview.md` to assess adherence to established patterns and security invariants
 
+Because regeneration is now CI-primary, the wiki can lag `main` by up to a day. Agents should check the top-level `openwiki/GENERATED.md` (last-regenerated timestamp + source commit) to gauge currency, and treat the **code as the source of truth** whenever a wiki page disagrees with it.
+
 ### Who Writes It
 
-OpenWiki is the only writer. Regeneration happens at two points: incrementally, before committing any change that alters what the wiki describes (the developer or agent runs `openwiki code --update` and commits the refreshed `openwiki/` in the same pull request); and definitively, as part of outer **Deliver**, which refreshes and commits `openwiki/` as part of shipping the integrated feature. Nobody hand-edits `openwiki/` — corrections to the wiki are corrections to the code, followed by a regenerate. Automating this in CI (a workflow that regenerates the wiki and opens a PR on merge to main) is a **deferred future goal**, not yet wired up.
+OpenWiki is the only writer. Regeneration is **CI-primary**: `.github/workflows/openwiki-update.yml` runs `openwiki code --update` on a daily schedule (and on demand via `workflow_dispatch`) on the Anthropic provider, opening a single rolling review PR — non-blocking, no auto-merge, gated by human review ([ADR-0011](spec/adr/0011-openwiki-ci-regeneration.md)). Regenerating and committing `openwiki/` in the same PR as a code change (incrementally, or as part of outer **Deliver**) is still permitted for immediacy, but is now **optional** rather than a definition-of-done. Nobody hand-edits `openwiki/` — corrections to the wiki are corrections to the code, followed by a regenerate; the sole exception is the CI-written `openwiki/GENERATED.md` provenance stamp.
 
 ### Setup
 
-The `openwiki` CLI is a global npm tool (`npm install -g openwiki`) that developers install once per machine, then authenticate once (`openwiki auth <provider>`); it is not a project dependency and does not appear in `pyproject.toml`. First run in a fresh repo uses `openwiki code --init`; subsequent refreshes use `openwiki code --update`. The template documents this in the generated project's `README` (`## Wiki` section) and enforces the regenerate-before-commit rule via `.claude/standards/wiki.md`. (A pre-configured CI workflow was considered and deferred — see "Who Writes It" above.)
+The `openwiki` CLI is a global npm tool (`npm install -g openwiki`) that developers install once per machine, then authenticate once (`openwiki auth <provider>`); it is not a project dependency and does not appear in `pyproject.toml`. First run in a fresh repo uses `openwiki code --init`; subsequent refreshes use `openwiki code --update` (CI uses `--update`, which also bootstraps `openwiki/` on the first run, so `--init` is not needed there). The template documents this in the generated project's `README` (`## Wiki` section) and the agent-facing rules in `.claude/standards/wiki.md`. Automated regeneration runs in CI — see "Who Writes It" above and [ADR-0011](spec/adr/0011-openwiki-ci-regeneration.md).
 
 ---
 
