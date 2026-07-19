@@ -339,11 +339,11 @@ Every agent reads the relevant wiki documents at the start of its invocation:
 - **Inner Build** — `source-map.md` + relevant workflow doc to write consistent code
 - **Inner Review** — `architecture/overview.md` to assess adherence to established patterns and security invariants
 
-Because regeneration is now CI-primary, the wiki can lag `main` by up to a day. Agents should check the top-level `openwiki/GENERATED.md` (last-regenerated timestamp + source commit) to gauge currency, and treat the **code as the source of truth** whenever a wiki page disagrees with it.
+Because regeneration is now CI-primary, the wiki can lag `main` by up to a day. Agents should check `openwiki/.last-update.json` (`updatedAt` + `gitHead`, written by OpenWiki itself) to gauge currency, and treat the **code as the source of truth** whenever a wiki page disagrees with it.
 
 ### Who Writes It
 
-OpenWiki is the only writer. Regeneration is **CI-primary**: `.github/workflows/openwiki-update.yml` runs `openwiki code --update` on a daily schedule (and on demand via `workflow_dispatch`) on the Anthropic provider, opening a single rolling review PR — non-blocking, no auto-merge, gated by human review ([ADR-0011](spec/adr/0011-openwiki-ci-regeneration.md)). Regenerating and committing `openwiki/` in the same PR as a code change (incrementally, or as part of outer **Deliver**) is still permitted for immediacy, but is now **optional** rather than a definition-of-done. Nobody hand-edits `openwiki/` — corrections to the wiki are corrections to the code, followed by a regenerate; the sole exception is the CI-written `openwiki/GENERATED.md` provenance stamp.
+OpenWiki is the only writer. Regeneration is **CI-primary**: `.github/workflows/openwiki-update.yml` runs `openwiki code --update` on a daily schedule (and on demand via `workflow_dispatch`) on the Anthropic provider, opening a single rolling review PR — non-blocking, no auto-merge, gated by human review ([ADR-0011](spec/adr/0011-openwiki-ci-regeneration.md)). Regenerating and committing `openwiki/` in the same PR as a code change (incrementally, or as part of outer **Deliver**) is still permitted for immediacy, but is now **optional** rather than a definition-of-done. Nobody hand-edits `openwiki/` — corrections to the wiki are corrections to the code, followed by a regenerate. There is no exception: every file under `openwiki/`, including the `.last-update.json` provenance record, is written by OpenWiki itself.
 
 ### Setup
 
