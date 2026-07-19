@@ -29,9 +29,9 @@ generated output — **never hand-edit it**. A scheduled CI workflow
 (`.github/workflows/openwiki-update.yml`) keeps `openwiki/` current
 automatically: it regenerates the wiki daily on the Anthropic provider and opens
 a single rolling review PR — no auto-merge (see
-[ADR-0011](spec/adr/0011-openwiki-ci-regeneration.md)). The top-level
-`openwiki/GENERATED.md` records when the wiki was last regenerated and from which
-commit, so you can tell how current it is.
+[ADR-0011](spec/adr/0011-openwiki-ci-regeneration.md)). OpenWiki records its own
+provenance in `openwiki/.last-update.json` (`updatedAt`, `gitHead`, `model`), so
+you can tell how current the wiki is and which commit it was built from.
 
 OpenWiki is a per-machine global CLI, **not** a project dependency (it is never
 added to `pyproject.toml`). Regenerating in the same PR as a code change is

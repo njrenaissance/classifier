@@ -42,13 +42,15 @@ as the **primary** mechanism for regenerating `openwiki/`:
 - **Delivery:** `peter-evans/create-pull-request` opens/updates a single rolling
   review PR from branch `openwiki/update` (commit/title `docs: update OpenWiki`).
   **No auto-merge** — the PR awaits normal human review.
-- **Staleness marker:** the workflow writes a top-level `openwiki/GENERATED.md`
-  after each run recording the UTC timestamp, source commit SHA, and model, so
-  any reader can judge how current the wiki is.
+- **Staleness marker:** OpenWiki writes `openwiki/.last-update.json` on each run,
+  recording `updatedAt`, `gitHead`, and `model`, so any reader can judge how
+  current the wiki is. It is tracked in git and lands in the rolling PR via the
+  `add-paths` allowlist. (See the Amendment below — this was originally a
+  workflow-written `openwiki/GENERATED.md`.)
 
 CI is now the **primary** path; the agent's regenerate-before-commit step is
 **relaxed to optional**. `openwiki/` may therefore lag `main` by up to a day and
-land in its own PR — accepted, and surfaced via `openwiki/GENERATED.md`.
+land in its own PR — accepted, and surfaced via `openwiki/.last-update.json`.
 
 ## Alternatives
 
@@ -85,8 +87,8 @@ land in its own PR — accepted, and surfaced via `openwiki/GENERATED.md`.
   enabled for `create-pull-request` to open the PR with the default token.
 - `openwiki` stays a per-machine global CLI — it is never added to
   `pyproject.toml` / `uv.lock`. `openwiki/` remains generated output, never
-  hand-edited; the CI-written `openwiki/GENERATED.md` is the sole exception and
-  is owned by the workflow.
+  hand-edited, with no exception — every file under it, provenance included, is
+  written by OpenWiki itself.
 - Because the docs PR touches only markdown, `ci.yml` (which sets
   `paths-ignore: ["**.md", ...]`) does not run its code checks on it, and PRs
   opened by the default token do not re-trigger `pull_request` workflows; the
@@ -98,3 +100,27 @@ land in its own PR — accepted, and surfaced via `openwiki/GENERATED.md`.
 - Raising `OPENWIKI_MODEL_ID` to a stronger Claude model needs no superseding
   ADR (it is a repo variable); a change to the model *policy* would be recorded
   as one, per [ADR-0002].
+
+## Amendment — 2026-07-19 (issue #30)
+
+As originally adopted, this ADR specified a `Stamp generation provenance` step
+that wrote a top-level `openwiki/GENERATED.md` after each run. That marker has
+been **removed**; provenance is now read from `openwiki/.last-update.json`, which
+OpenWiki writes itself. The decision this ADR records — CI-primary regeneration
+via a scheduled, non-blocking, human-reviewed rolling PR — is unchanged, so the
+ADR remains **accepted** rather than superseded.
+
+Two reasons for the removal:
+
+- **It broke the job it belonged to.** `openwiki code --update` validates every
+  page under `openwiki/` and rejected the marker (`lacks YAML front matter`,
+  exit 1). Because the stamp step ran *after* regeneration, each run poisoned the
+  *next* one — the marker appeared to work once, then every scheduled run failed
+  and the wiki stopped regenerating entirely.
+- **It was redundant.** `.last-update.json` already carried `updatedAt` /
+  `gitHead` / `model`, mapping one-to-one onto the marker's timestamp / source
+  commit / provider-model.
+
+The general lesson: `openwiki/` is OpenWiki's namespace, and CI writing into it
+is as much a hand-edit as a human doing so. Provenance for a generated tree
+belongs to the generator.

@@ -18,8 +18,8 @@
   it is no longer part of a change's definition of done.
 - **The wiki can lag the code.** Under CI-primary regeneration the wiki may
   trail `main` by up to a day. Read the relevant wiki pages for context at the
-  start of a task, but check the top-level `openwiki/GENERATED.md` (last
-  regenerated timestamp + source commit) to judge how current they are, and
+  start of a task, but check `openwiki/.last-update.json` (`updatedAt` +
+  `gitHead`, written by OpenWiki itself) to judge how current they are, and
   whenever a wiki page disagrees with the code, **the code is the source of
   truth** — sanity-check anything that looks stale against the current source
   before acting on it.
