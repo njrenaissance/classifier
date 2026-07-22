@@ -6,7 +6,7 @@ Status: approved · v2 (cloud pipeline)
 
 Classify document files into exactly one category from a user-defined category set, recording each file's assigned category and a confidence score.
 
-**v1 → v2.** v1 is a local CLI batch job that reads local files and writes a CSV ([ADR-0003](adr/0003-cli-batch-interface.md), [ADR-0004](adr/0004-csv-file-output.md)); it remains the local-development interface. v2 adds the production deployment: an incremental, resumable **SharePoint → PostgreSQL** pipeline running as two Azure Container Apps jobs, decoupled by an Azure queue ([ADR-0012](adr/0012-cloud-two-job-pipeline.md)–[ADR-0016](adr/0016-category-file-parser-contract.md)). The classification method (extract → self-consistency → verdict) is identical in both.
+**v1 → v2.** v1 is a local CLI batch job that reads local files and writes a CSV ([ADR-0003](adr/0003-cli-batch-interface.md), [ADR-0004](adr/0004-csv-file-output.md)); it remains the local-development interface. v2 adds the production deployment: an incremental, resumable **SharePoint → PostgreSQL** pipeline running as two Azure Container Apps jobs, decoupled by an Azure queue ([ADR-0012](adr/0012-cloud-two-job-pipeline.md)–[ADR-0015](adr/0015-graph-authenticated-download.md)). The classification method (extract → self-consistency → verdict) is identical in both.
 
 ## Inputs / Outputs
 
@@ -53,8 +53,7 @@ Classify document files into exactly one category from a user-defined category s
 
 - **Single-label:** each file is assigned exactly one category (categories are mutually exclusive). `confidence` is metadata, not a second label.
 - **Reserved `unknown` category:** there is always an `unknown` bucket for documents that fit no defined category; the model is never forced to guess a real category. Uncertainty is expressed via both `unknown` and `confidence`.
-- **Config-driven label set:** the *real* categories come from the Markdown file, not code (`unknown` is the one built-in). A real category not defined in the Markdown file is never emitted. The category file supplies **label definitions + few-shot examples only**, in the A1 parser's format (`## <name>` + bullet examples); the **code owns the output contract** (label-only structured output + self-consistency confidence), and the single reserved catch-all is `unknown`.
-  > Decision: [ADR-0016](adr/0016-category-file-parser-contract.md) (category file conforms to the parser; code owns output format).
+- **Config-driven label set:** the *real* categories come from the Markdown file, not code (`unknown` is the one built-in). A real category not defined in the Markdown file is never emitted. The category file keeps the **existing A1 format** (`## <name>` + description + `-` bullet few-shot examples) and supplies **label definitions + examples only** — it carries no output/confidence/reasoning instructions. The **code owns the output contract** (label-only structured output + self-consistency confidence), and the single reserved catch-all is `unknown` (any `other`-style bucket in a source taxonomy maps to `unknown`).
 - Supported input types are exactly PDF, DOCX, DOC; anything else is handled explicitly (see done criteria).
 
 ## Text extraction
@@ -89,7 +88,7 @@ All architectural decisions are made (see the ADRs). These details are deliberat
 - PostgreSQL schema/migrations, SQLAlchemy models, and the `DatabaseWriter` ([ADR-0013](adr/0013-postgresql-state-store.md)).
 - Walker delta-loop, queue-message contract, and `graph_client` ([ADR-0014](adr/0014-sharepoint-delta-walker.md), [ADR-0015](adr/0015-graph-authenticated-download.md)).
 - Azure infrastructure (ACA env + two jobs, Queue Storage, registry, Key Vault, managed identity, Log Analytics) as IaC, plus the Dockerfile ([ADR-0012](adr/0012-cloud-two-job-pipeline.md)).
-- Rewriting `taxonomy.md` to the A1 parser contract ([ADR-0016](adr/0016-category-file-parser-contract.md)).
+- Authoring the production category Markdown file in the existing A1 format (label definitions + few-shot examples; any `other`-style bucket → `unknown`).
 
 ## Acceptance criteria
 

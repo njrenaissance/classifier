@@ -19,4 +19,3 @@ Each decision with meaningful tradeoffs gets its own file (`NNNN-<slug>.md`). AD
 | [0013](0013-postgresql-state-store.md) | State + results in PostgreSQL via SQLAlchemy | accepted |
 | [0014](0014-sharepoint-delta-walker.md) | Incremental, resumable SharePoint delta walker | accepted |
 | [0015](0015-graph-authenticated-download.md) | Graph-authenticated on-demand file download | accepted |
-| [0016](0016-category-file-parser-contract.md) | Category file conforms to parser; code owns output format | accepted |
