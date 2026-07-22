@@ -38,12 +38,14 @@ unchanged:
   is untouched (it gains only an optional `model` kwarg defaulting to the pinned
   `claude-haiku-4-5`, and continues to accept the injected client — `AnthropicFoundry`
   is a subclass of `anthropic.Anthropic`, so the type is unchanged).
-- **Foundry auth is managed-identity-first.** With `ANTHROPIC_FOUNDRY_API_KEY` set, the
-  key is used; without it, an Entra ID bearer-token provider
-  (`azure.identity.get_bearer_token_provider(DefaultAzureCredential(), scope)`) is passed
-  as `azure_ad_token_provider` — the same managed-identity model as the rest of the v2
-  design. `azure.identity` is imported lazily so the API-key and Anthropic paths never
-  need it.
+- **Foundry auth mode is explicit.** `CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY=true`
+  selects Entra ID / managed identity — an azure-identity bearer-token provider
+  (`get_bearer_token_provider(DefaultAzureCredential(), scope)`) passed as
+  `azure_ad_token_provider`, the same managed-identity model as the rest of the v2
+  design (production sets this). Otherwise an `ANTHROPIC_FOUNDRY_API_KEY` is required.
+  The `Settings` validator enforces exactly one at startup, so a forgotten key fails
+  loudly rather than silently attempting a doomed managed-identity call. `azure.identity`
+  is imported lazily so the API-key and Anthropic paths never need it.
 - **Model id is a per-provider setting** (`CLASSIFIER_ANTHROPIC_MODEL` /
   `CLASSIFIER_FOUNDRY_MODEL`, both defaulting to `claude-haiku-4-5`). Foundry's model-id
   convention is unconfirmed until probed; making it config means the probe outcome is a

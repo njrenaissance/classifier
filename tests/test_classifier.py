@@ -106,20 +106,9 @@ def test_api_error_is_translated_and_chained(mocker):
     assert excinfo.value.__cause__ is api_error
 
 
-_PROVIDER_VARS = (
-    "CLASSIFIER_PROVIDER",
-    "ANTHROPIC_API_KEY",
-    "CLASSIFIER_ANTHROPIC_MODEL",
-    "ANTHROPIC_FOUNDRY_RESOURCE",
-    "ANTHROPIC_FOUNDRY_API_KEY",
-    "CLASSIFIER_FOUNDRY_MODEL",
-    "CLASSIFIER_FOUNDRY_TOKEN_SCOPE",
-)
-
-
+# The ``_isolate_settings_env`` autouse fixture (conftest.py) clears every
+# settings env var before each test, so these builders only set what they need.
 def _settings(monkeypatch, env):
-    for var in _PROVIDER_VARS:
-        monkeypatch.delenv(var, raising=False)
     for key, value in env.items():
         monkeypatch.setenv(key, value)
     return Settings(_env_file=None)
@@ -132,12 +121,12 @@ def _anthropic_settings(monkeypatch, *, api_key="sk-x", model="claude-haiku-4-5"
     )
 
 
-def _foundry_settings(monkeypatch, *, resource="res", api_key="fk", model="claude-haiku-4-5", token_scope=None):
+def _foundry_settings(monkeypatch, *, resource="res", api_key="fk", model="claude-haiku-4-5", managed_identity=False):
     env = {"CLASSIFIER_PROVIDER": "foundry", "ANTHROPIC_FOUNDRY_RESOURCE": resource, "CLASSIFIER_FOUNDRY_MODEL": model}
+    if managed_identity:
+        env["CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY"] = "true"
     if api_key is not None:
         env["ANTHROPIC_FOUNDRY_API_KEY"] = api_key
-    if token_scope is not None:
-        env["CLASSIFIER_FOUNDRY_TOKEN_SCOPE"] = token_scope
     return _settings(monkeypatch, env)
 
 
@@ -159,10 +148,10 @@ def test_create_classifier_foundry_uses_managed_identity_without_key(mocker, mon
     credential = mocker.patch("azure.identity.DefaultAzureCredential")
     token_provider = mocker.patch("azure.identity.get_bearer_token_provider", return_value="token-provider")
 
-    settings = _foundry_settings(monkeypatch, resource="my-res", api_key=None, token_scope="scope/.default")
+    settings = _foundry_settings(monkeypatch, resource="my-res", api_key=None, managed_identity=True)
     create_classifier(_categories(), settings)
 
-    token_provider.assert_called_once_with(credential.return_value, "scope/.default")
+    token_provider.assert_called_once_with(credential.return_value, "https://cognitiveservices.azure.com/.default")
     fake_client.assert_called_once_with(resource="my-res", azure_ad_token_provider="token-provider")
 
 

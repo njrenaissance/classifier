@@ -3,36 +3,21 @@ from pydantic import ValidationError
 
 from config import Settings
 
-_ALL_VARS = (
-    "CLASSIFIER_PROVIDER",
-    "ANTHROPIC_API_KEY",
-    "CLASSIFIER_ANTHROPIC_MODEL",
-    "ANTHROPIC_FOUNDRY_RESOURCE",
-    "ANTHROPIC_FOUNDRY_API_KEY",
-    "CLASSIFIER_FOUNDRY_MODEL",
-    "CLASSIFIER_FOUNDRY_TOKEN_SCOPE",
-    "CLASSIFIER_N",
-    "CLASSIFIER_TEMPERATURE",
-    "CLASSIFIER_CONFIDENCE_THRESHOLD",
-)
-
 pytestmark = pytest.mark.unit
 
-
-def _clear_env(monkeypatch):
-    for var in _ALL_VARS:
-        monkeypatch.delenv(var, raising=False)
+# The ``_isolate_settings_env`` autouse fixture (conftest.py) clears every
+# settings env var before each test, so these helpers only set what a case needs.
 
 
 def _anthropic_env(monkeypatch):
-    _clear_env(monkeypatch)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test-123")
 
 
 def _foundry_env(monkeypatch):
-    _clear_env(monkeypatch)
+    """Foundry with managed identity — the keyless production shape."""
     monkeypatch.setenv("CLASSIFIER_PROVIDER", "foundry")
     monkeypatch.setenv("ANTHROPIC_FOUNDRY_RESOURCE", "my-resource")
+    monkeypatch.setenv("CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY", "true")
 
 
 def test_loads_from_env(monkeypatch):
@@ -59,38 +44,42 @@ def test_defaults_applied(monkeypatch):
     assert s.foundry.model == "claude-haiku-4-5"
 
 
-def test_missing_anthropic_key_errors(monkeypatch):
-    _clear_env(monkeypatch)
+def test_missing_anthropic_key_errors():
     with pytest.raises(ValidationError):
         Settings(_env_file=None)
 
 
-def test_foundry_provider_loads_without_anthropic_key(monkeypatch):
+def test_foundry_managed_identity_loads_without_anthropic_key(monkeypatch):
     _foundry_env(monkeypatch)
     s = Settings(_env_file=None)
     assert s.provider == "foundry"
     assert s.foundry.resource == "my-resource"
+    assert s.foundry.use_managed_identity is True
+    assert s.foundry.api_key is None
     assert s.anthropic.api_key is None
 
 
 def test_foundry_provider_requires_resource(monkeypatch):
-    _clear_env(monkeypatch)
     monkeypatch.setenv("CLASSIFIER_PROVIDER", "foundry")
+    monkeypatch.setenv("CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY", "true")
     with pytest.raises(ValidationError):
         Settings(_env_file=None)
 
 
-def test_foundry_api_key_is_optional_for_managed_identity(monkeypatch):
-    _foundry_env(monkeypatch)
-    s = Settings(_env_file=None)
-    assert s.foundry.api_key is None
+def test_foundry_requires_credential_without_managed_identity(monkeypatch):
+    monkeypatch.setenv("CLASSIFIER_PROVIDER", "foundry")
+    monkeypatch.setenv("ANTHROPIC_FOUNDRY_RESOURCE", "my-resource")
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)
 
 
 def test_foundry_api_key_loads_when_present(monkeypatch):
-    _foundry_env(monkeypatch)
+    monkeypatch.setenv("CLASSIFIER_PROVIDER", "foundry")
+    monkeypatch.setenv("ANTHROPIC_FOUNDRY_RESOURCE", "my-resource")
     monkeypatch.setenv("ANTHROPIC_FOUNDRY_API_KEY", "fk-123")
     s = Settings(_env_file=None)
     assert s.foundry.api_key.get_secret_value() == "fk-123"
+    assert s.foundry.use_managed_identity is False
 
 
 def test_per_provider_model_overrides(monkeypatch):
@@ -126,9 +115,8 @@ def test_out_of_bounds_rejected(monkeypatch, field, value):
         Settings(_env_file=None)
 
 
-def test_loads_from_dotenv(tmp_path, monkeypatch):
-    _clear_env(monkeypatch)
-    monkeypatch.chdir(tmp_path)
+def test_loads_from_dotenv(tmp_path):
+    # The autouse fixture already switched the cwd to this tmp_path.
     (tmp_path / ".env").write_text("ANTHROPIC_API_KEY=sk-dotenv\nCLASSIFIER_N=9\n")
     s = Settings()
     assert s.anthropic.api_key.get_secret_value() == "sk-dotenv"

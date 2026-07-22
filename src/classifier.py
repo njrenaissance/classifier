@@ -114,18 +114,22 @@ class Classifier:
 
 
 def _build_foundry_client(foundry: FoundrySettings) -> anthropic.AnthropicFoundry:
-    """Construct a Foundry client — API key if given, else managed identity.
+    """Construct a Foundry client — managed identity if enabled, else API key.
 
-    A missing ``api_key`` selects Entra ID / managed identity via an Azure AD
-    bearer-token provider (ADR-0015/0016). ``azure.identity`` is imported here,
-    lazily, so the API-key and Anthropic paths never require it.
+    Authentication mode is explicit (``use_managed_identity``): managed identity
+    goes through an Azure AD bearer-token provider (ADR-0015/0016), with
+    ``azure.identity`` imported here, lazily, so the API-key and Anthropic paths
+    never require it. :class:`~config.Settings` validation guarantees a usable
+    credential for the selected mode, so the guard below is unreachable.
     """
-    if foundry.api_key is not None:
-        return anthropic.AnthropicFoundry(resource=foundry.resource, api_key=foundry.api_key.get_secret_value())
-    from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+    if foundry.use_managed_identity:
+        from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
-    token_provider = get_bearer_token_provider(DefaultAzureCredential(), foundry.token_scope)
-    return anthropic.AnthropicFoundry(resource=foundry.resource, azure_ad_token_provider=token_provider)
+        token_provider = get_bearer_token_provider(DefaultAzureCredential(), foundry.token_scope)
+        return anthropic.AnthropicFoundry(resource=foundry.resource, azure_ad_token_provider=token_provider)
+    if foundry.api_key is None:  # pragma: no cover - Settings validation already guarantees this
+        raise ValueError("ANTHROPIC_FOUNDRY_API_KEY is required unless managed identity is enabled.")
+    return anthropic.AnthropicFoundry(resource=foundry.resource, api_key=foundry.api_key.get_secret_value())
 
 
 def _build_client(settings: Settings) -> tuple[anthropic.Anthropic, str]:
@@ -134,7 +138,7 @@ def _build_client(settings: Settings) -> tuple[anthropic.Anthropic, str]:
         return _build_foundry_client(settings.foundry), settings.foundry.model
     api_key = settings.anthropic.api_key
     if api_key is None:  # pragma: no cover - Settings validation already guarantees this
-        raise ClassificationError("ANTHROPIC_API_KEY is not configured for provider 'anthropic'.")
+        raise ValueError("ANTHROPIC_API_KEY is not configured for provider 'anthropic'.")
     return anthropic.Anthropic(api_key=api_key.get_secret_value()), settings.anthropic.model
 
 
