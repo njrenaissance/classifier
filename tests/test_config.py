@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from config import Settings
+from config import DatabaseSettings, Settings
 
 pytestmark = pytest.mark.unit
 
@@ -121,3 +121,28 @@ def test_loads_from_dotenv(tmp_path):
     s = Settings()
     assert s.anthropic.api_key.get_secret_value() == "sk-dotenv"
     assert s.self_consistency_n == 9
+
+
+# --- database settings (ADR-0013) ------------------------------------------
+
+
+def test_database_url_is_required_with_no_default():
+    # A missing DB URL is a loud startup crash, never a silent fallback.
+    with pytest.raises(ValidationError):
+        DatabaseSettings()
+
+
+def test_database_url_read_from_env(monkeypatch):
+    monkeypatch.setenv("CLASSIFIER__DATABASE_URL", "postgresql+psycopg://u:pw@db:5432/prod")
+    assert DatabaseSettings().url.get_secret_value() == "postgresql+psycopg://u:pw@db:5432/prod"
+
+
+def test_database_url_loaded_from_dotenv(tmp_path):
+    # Regression: the DB URL must be honored from a .env file, not only real env vars.
+    (tmp_path / ".env").write_text("CLASSIFIER__DATABASE_URL=postgresql+psycopg://u:pw@dotenv:5432/db\n")
+    assert DatabaseSettings().url.get_secret_value() == "postgresql+psycopg://u:pw@dotenv:5432/db"
+
+
+def test_database_url_is_kept_secret(monkeypatch):
+    monkeypatch.setenv("CLASSIFIER__DATABASE_URL", "postgresql+psycopg://u:pw@db:5432/prod")
+    assert "pw" not in repr(DatabaseSettings())

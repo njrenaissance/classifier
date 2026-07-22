@@ -32,3 +32,7 @@ class OutputError(AppError):
 
 class ClassificationError(AppError):
     """A classification API call failed or returned an unusable result."""
+
+
+class PersistenceError(AppError):
+    """A database read or write failed and must not be swallowed."""

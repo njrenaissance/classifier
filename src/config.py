@@ -69,6 +69,27 @@ class FoundrySettings(BaseSettings):
     token_scope: str = Field(default=DEFAULTS["foundry_token_scope"], validation_alias="CLASSIFIER_FOUNDRY_TOKEN_SCOPE")
 
 
+class DatabaseSettings(BaseSettings):
+    """PostgreSQL connection settings for the cloud pipeline state store (ADR-0013).
+
+    Parses its own slice of the environment (and ``.env``) under the
+    ``CLASSIFIER__DATABASE_`` prefix, so the connection URL is read from
+    ``CLASSIFIER__DATABASE_URL``. ``url`` is a **required** secret with no
+    default: a missing connection string is a loud startup crash rather than a
+    silent fallback to the wrong database (configuration standard). It is a
+    :class:`~pydantic.SecretStr` because it may embed a password; call
+    ``url.get_secret_value()`` to build the SQLAlchemy engine.
+
+    This section is deliberately **not** a field on :class:`Settings` — it is
+    resolved on demand via :func:`get_database_settings` — so the local CSV CLI,
+    which needs no database, never has to supply a URL just to start.
+    """
+
+    model_config = SettingsConfigDict(env_prefix="CLASSIFIER__DATABASE_", env_file=".env", extra="ignore")
+
+    url: SecretStr
+
+
 class Settings(BaseSettings):
     """Application settings resolved from the environment and ``.env``.
 
@@ -116,3 +137,13 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Return the process-wide :class:`Settings` singleton (loaded once)."""
     return Settings()  # type: ignore[call-arg]  # values are resolved from env/.env
+
+
+@lru_cache(maxsize=1)
+def get_database_settings() -> DatabaseSettings:
+    """Return the process-wide :class:`DatabaseSettings` (loaded once, on demand).
+
+    Kept separate from :func:`get_settings` so the database URL is only resolved
+    when the DB is actually used — the CSV CLI never triggers its validation.
+    """
+    return DatabaseSettings()  # type: ignore[call-arg]  # url resolved from env/.env

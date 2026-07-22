@@ -1,28 +1,40 @@
-"""CSV results output (A4).
+"""Results output — the writer seam.
 
-Persist classification results to a CSV file on the local filesystem with the
-columns ``filename``, ``category``, ``confidence`` (ADR-0004). CSV is the only
-output format in scope, so this is a single plain function rather than a
-Strategy: :func:`write_results_csv` takes an iterable of
-:class:`ClassificationResult` rows and a target path.
+Two destinations sit behind this seam, selected by entry point (ADR-0013):
 
-The row type is deliberately source-agnostic — ``filename`` is a plain string,
+- :func:`write_results_csv` — the local CLI path (ADR-0004): classification
+  results to a CSV file with columns ``filename``, ``category``, ``confidence``.
+- :class:`DatabaseWriter` — the cloud path: UPSERT a result into the ``documents``
+  table keyed on ``(sync_state_id, drive_item_id)``. :class:`Writer` is the
+  Protocol the production writer satisfies.
+
+The CSV row type is deliberately source-agnostic — ``filename`` is a plain string,
 not a :class:`~pathlib.Path` — so a local-filesystem run and a SharePoint run
-produce the **same** CSV shape for equivalent files (ADR-0004). The caller
-decides what string the ``filename`` column holds.
+produce the **same** CSV shape for equivalent files (ADR-0004). The caller decides
+what string the ``filename`` column holds.
 
-Writing to the filesystem is an expected runtime failure: a target that cannot
-be created or written is caught and re-raised as :class:`~errors.OutputError`,
-chained (``raise ... from``) from the underlying ``OSError`` so the root cause
-survives in the traceback.
+Each destination treats its write as an expected runtime failure and translates
+the driver error into a domain exception, chained (``raise ... from``) so the root
+cause survives in the traceback: the CSV path raises :class:`~errors.OutputError`
+from an ``OSError``; :class:`DatabaseWriter` raises
+:class:`~errors.PersistenceError` from a SQLAlchemy error.
 """
 
 import csv
 from collections.abc import Iterable
 from dataclasses import dataclass, fields
 from pathlib import Path
+from typing import Protocol
 
-from errors import OutputError
+from sqlalchemy import func
+from sqlalchemy.dialects.postgresql import Insert, insert
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+
+from classifier import MODEL
+from db import Document
+from errors import OutputError, PersistenceError
+from models import DocumentClassification
 
 
 @dataclass(frozen=True)
@@ -67,3 +79,73 @@ def write_results_csv(results: Iterable[ClassificationResult], path: Path) -> No
             writer.writerows(rows)
     except OSError as err:
         raise OutputError(f"Cannot write results CSV: {path}") from err
+
+
+class Writer(Protocol):
+    """The production writer seam: persist one classification result."""
+
+    def write(self, record: DocumentClassification) -> None: ...
+
+
+def build_document_upsert(record: DocumentClassification) -> Insert:
+    """Build the ``documents`` UPSERT for ``record`` (PostgreSQL ``ON CONFLICT``).
+
+    Inserts a new row, or on a ``(sync_state_id, drive_item_id)`` conflict updates
+    the classification result and its timestamps. ``classified_by`` is stamped with
+    ``classifier.MODEL`` (ADR-0002). The ``WHERE classification_override IS NULL``
+    guard makes the update a no-op when a manual override exists, so the classifier
+    **never** overwrites a human decision (ADR-0014).
+    """
+    statement = insert(Document).values(
+        sync_state_id=record.sync_state_id,
+        drive_item_id=record.drive_item_id,
+        category=record.category,
+        confidence=record.confidence,
+        status=record.status,
+        classified_by=MODEL,
+        classified_at=func.now(),
+        processed_at=func.now(),
+    )
+    return statement.on_conflict_do_update(
+        index_elements=[Document.sync_state_id, Document.drive_item_id],
+        set_={
+            "category": statement.excluded.category,
+            "confidence": statement.excluded.confidence,
+            "status": statement.excluded.status,
+            "classified_by": statement.excluded.classified_by,
+            "classified_at": statement.excluded.classified_at,
+            "processed_at": statement.excluded.processed_at,
+            # ORM ``onupdate`` does not fire for a Core ON CONFLICT DO UPDATE, so
+            # refresh the row's modification stamp explicitly on re-classification.
+            "updated_at": func.now(),
+        },
+        where=Document.classification_override.is_(None),
+    )
+
+
+class DatabaseWriter:
+    """Writer strategy that UPSERTs a result into ``documents`` (ADR-0013).
+
+    The session is injected so the writer is trivial to unit-test and so the
+    caller owns the connection lifecycle. A driver failure is an expected runtime
+    failure: it is rolled back and re-raised as :class:`~errors.PersistenceError`,
+    chained from the underlying SQLAlchemy error.
+
+    **Transaction contract:** :meth:`write` is a self-contained single-write unit
+    — it executes one UPSERT and commits it. A caller that needs several writes in
+    one transaction (e.g. a processor recording a ``processing_log`` row atomically
+    with the result) should issue those statements against the session directly
+    and commit once, rather than composing multiple ``write`` calls.
+    """
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def write(self, record: DocumentClassification) -> None:
+        """UPSERT ``record`` into ``documents`` and commit."""
+        try:
+            self._session.execute(build_document_upsert(record))
+            self._session.commit()
+        except SQLAlchemyError as err:
+            self._session.rollback()
+            raise PersistenceError(f"Failed to persist classification for drive item {record.drive_item_id}") from err
