@@ -1,6 +1,6 @@
 # ADR-0003 — CLI / batch interface
 
-Status: accepted
+Status: accepted — production interface extended by [ADR-0012](0012-cloud-two-job-pipeline.md); CLI retained for local dev
 
 ## Context
 

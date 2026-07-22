@@ -1,6 +1,6 @@
 # ADR-0004 — CSV file output
 
-Status: accepted
+Status: accepted — superseded for production by [ADR-0013](0013-postgresql-state-store.md); CSV retained for local dev
 
 ## Context
 
