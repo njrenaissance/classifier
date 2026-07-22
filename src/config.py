@@ -7,9 +7,16 @@ reading ``os.environ`` directly.
 """
 
 from functools import lru_cache
+from typing import Any
 
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+DEFAULTS: dict[str, Any] = {
+    "self_consistency_n": 5,
+    "temperature": 0.4,
+    "confidence_threshold": 0.6,
+}
 
 
 class Settings(BaseSettings):
@@ -23,9 +30,13 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     anthropic_api_key: SecretStr = Field(validation_alias="ANTHROPIC_API_KEY")
-    self_consistency_n: int = Field(default=5, ge=1, validation_alias="CLASSIFIER_N")
-    temperature: float = Field(default=0.4, ge=0.0, le=1.0, validation_alias="CLASSIFIER_TEMPERATURE")
-    confidence_threshold: float = Field(default=0.6, ge=0.0, le=1.0, validation_alias="CLASSIFIER_CONFIDENCE_THRESHOLD")
+    self_consistency_n: int = Field(default=DEFAULTS["self_consistency_n"], ge=1, validation_alias="CLASSIFIER_N")
+    temperature: float = Field(
+        default=DEFAULTS["temperature"], ge=0.0, le=1.0, validation_alias="CLASSIFIER_TEMPERATURE"
+    )
+    confidence_threshold: float = Field(
+        default=DEFAULTS["confidence_threshold"], ge=0.0, le=1.0, validation_alias="CLASSIFIER_CONFIDENCE_THRESHOLD"
+    )
 
 
 @lru_cache(maxsize=1)

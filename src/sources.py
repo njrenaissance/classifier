@@ -52,7 +52,13 @@ class LocalFileSystemSource:
         its ``recurse_symlinks=False`` default), which keeps the walk loop-safe;
         a symlink *to a supported file* is still enumerated like any other file.
         """
-        return [path for path in self._candidate_files() if self._is_supported(path)]
+        supported: list[Path] = []
+        for path in self._candidate_files():
+            if self._has_extractor(path):
+                supported.append(path)
+            else:
+                logger.warning("Skipping unsupported file (no extractor for %r): %s", path.suffix, path)
+        return supported
 
     def _candidate_files(self) -> list[Path]:
         """Every file under the root, sorted; validates that the root exists."""
@@ -62,9 +68,6 @@ class LocalFileSystemSource:
             return sorted(path for path in self._root.rglob("*") if path.is_file())
         raise SourceError(f"Source path is not a file or directory: {self._root}")
 
-    def _is_supported(self, path: Path) -> bool:
-        """Whether ``path`` has a registered extractor; warn-and-skip if not."""
-        if path.suffix.lower() in supported_suffixes():
-            return True
-        logger.warning("Skipping unsupported file (no extractor for %r): %s", path.suffix, path)
-        return False
+    def _has_extractor(self, path: Path) -> bool:
+        """Whether ``path``'s suffix has a registered text extractor (pure predicate)."""
+        return path.suffix.lower() in supported_suffixes()
