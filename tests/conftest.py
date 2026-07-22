@@ -2,7 +2,7 @@
 
 import pytest
 
-from config import get_settings
+from config import get_database_settings, get_settings
 
 # Every environment variable any settings section reads. Kept here as the single
 # source of truth so each test starts from a known-empty config.
@@ -18,6 +18,7 @@ _SETTINGS_ENV_VARS = (
     "CLASSIFIER_N",
     "CLASSIFIER_TEMPERATURE",
     "CLASSIFIER_CONFIDENCE_THRESHOLD",
+    "CLASSIFIER__DATABASE_URL",
 )
 
 
@@ -41,3 +42,4 @@ def _isolate_settings_env(monkeypatch, tmp_path):
         monkeypatch.delenv(var, raising=False)
     monkeypatch.chdir(tmp_path)
     get_settings.cache_clear()
+    get_database_settings.cache_clear()

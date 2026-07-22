@@ -2,9 +2,15 @@ import csv
 from pathlib import Path
 
 import pytest
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import Insert
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
-from errors import AppError, OutputError
-from writer import ClassificationResult, write_results_csv
+from classifier import MODEL
+from db import DocumentStatus
+from errors import AppError, OutputError, PersistenceError
+from models import DocumentClassification
+from writer import ClassificationResult, DatabaseWriter, build_document_upsert, write_results_csv
 
 pytestmark = pytest.mark.unit
 
@@ -13,6 +19,23 @@ def _read_rows(path: Path) -> list[list[str]]:
     """Parse a written CSV back into a list of rows (header included)."""
     with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.reader(handle))
+
+
+def _record(**overrides: object) -> DocumentClassification:
+    """A minimal classification record with sensible defaults for writer tests."""
+    fields: dict[str, object] = {
+        "sync_state_id": 1,
+        "drive_item_id": "item-abc",
+        "category": "invoice",
+        "confidence": 0.8,
+    }
+    fields.update(overrides)
+    return DocumentClassification(**fields)  # type: ignore[arg-type]
+
+
+def _compiled_upsert(record: DocumentClassification) -> str:
+    """The ``documents`` UPSERT compiled to a PostgreSQL SQL string."""
+    return str(build_document_upsert(record).compile(dialect=postgresql.dialect()))
 
 
 def test_headers_are_the_three_columns_in_order():
@@ -150,3 +173,87 @@ def test_output_error_is_an_app_error(tmp_path: Path):
 
     with pytest.raises(AppError):
         write_results_csv([ClassificationResult("doc.pdf", "invoice", 0.5)], target_is_a_dir)
+
+
+# --- DatabaseWriter (ADR-0013) ---------------------------------------------
+
+
+def test_upsert_targets_the_composite_unique_key():
+    sql = _compiled_upsert(_record())
+    assert "INSERT INTO documents" in sql
+    assert "ON CONFLICT (sync_state_id, drive_item_id) DO UPDATE" in sql
+
+
+@pytest.mark.parametrize(
+    "column",
+    [
+        pytest.param("status", id="status"),
+        pytest.param("category", id="category"),
+        pytest.param("confidence", id="confidence"),
+        pytest.param("classified_at", id="classified_at"),
+        pytest.param("processed_at", id="processed_at"),
+        pytest.param("classified_by", id="classified_by"),
+    ],
+)
+def test_repeat_upsert_updates_each_result_column(column: str):
+    # On conflict the writer refreshes the classification result and its stamps.
+    sql = _compiled_upsert(_record())
+    assert f"{column} = excluded.{column}" in sql
+
+
+def test_upsert_never_overwrites_a_manual_override():
+    # The DO UPDATE only fires while classification_override is unset, so a manual
+    # label is never clobbered by the classifier (ADR-0014).
+    sql = _compiled_upsert(_record())
+    assert "WHERE documents.classification_override IS NULL" in sql
+
+
+def test_upsert_refreshes_updated_at_on_conflict():
+    # ORM onupdate does not fire for a Core ON CONFLICT DO UPDATE, so the writer
+    # must stamp updated_at explicitly on re-classification.
+    sql = _compiled_upsert(_record())
+    assert "updated_at = now()" in sql
+
+
+def test_upsert_records_classified_by_from_model_constant():
+    params = build_document_upsert(_record()).compile(dialect=postgresql.dialect()).params
+    assert params["classified_by"] == MODEL
+
+
+def test_write_executes_the_upsert_and_commits(mocker):
+    session = mocker.Mock()
+    record = _record()
+
+    DatabaseWriter(session).write(record)
+
+    session.execute.assert_called_once()
+    assert isinstance(session.execute.call_args.args[0], Insert)
+    session.commit.assert_called_once()
+    session.rollback.assert_not_called()
+
+
+def test_write_defaults_status_to_completed():
+    # A freshly classified document lands in the terminal 'completed' state.
+    assert _record().status is DocumentStatus.completed
+    assert "status = excluded.status" in _compiled_upsert(_record())
+
+
+def test_write_wraps_driver_failure_in_persistence_error(mocker):
+    session = mocker.Mock()
+    driver_error = SQLAlchemyError("connection reset")
+    session.execute.side_effect = driver_error
+
+    with pytest.raises(PersistenceError) as excinfo:
+        DatabaseWriter(session).write(_record())
+
+    assert excinfo.value.__cause__ is driver_error
+    session.rollback.assert_called_once()
+    session.commit.assert_not_called()
+
+
+def test_persistence_error_is_an_app_error(mocker):
+    session = mocker.Mock()
+    session.execute.side_effect = OperationalError("stmt", {}, Exception("down"))
+
+    with pytest.raises(AppError):
+        DatabaseWriter(session).write(_record())
