@@ -27,6 +27,7 @@ DEFAULTS: dict[str, Any] = {
     "confidence_threshold": 0.6,
     "anthropic_model": "claude-haiku-4-5",
     "foundry_model": "claude-haiku-4-5",
+    "foundry_use_managed_identity": False,
     "foundry_token_scope": "https://cognitiveservices.azure.com/.default",
 }
 
@@ -50,15 +51,20 @@ class FoundrySettings(BaseSettings):
     """Credentials/model for Microsoft Foundry (formerly Azure AI Foundry).
 
     ``resource`` and ``api_key`` reuse the Foundry SDK's own env var names so
-    the SDK can also self-infer them. A missing ``api_key`` selects managed
-    identity (Entra ID) at client construction; :class:`Settings` still requires
-    ``resource`` when ``provider == "foundry"``.
+    the SDK can also self-infer them. Authentication is **explicit**: set
+    ``use_managed_identity`` for Entra ID / managed identity, otherwise an
+    ``api_key`` is required. :class:`Settings` enforces both, plus ``resource``,
+    when ``provider == "foundry"``, so a forgotten key fails at startup rather
+    than silently falling back to a doomed managed-identity attempt.
     """
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     resource: str | None = Field(default=None, validation_alias="ANTHROPIC_FOUNDRY_RESOURCE")
     api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_FOUNDRY_API_KEY")
+    use_managed_identity: bool = Field(
+        default=DEFAULTS["foundry_use_managed_identity"], validation_alias="CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY"
+    )
     model: str = Field(default=DEFAULTS["foundry_model"], validation_alias="CLASSIFIER_FOUNDRY_MODEL")
     token_scope: str = Field(default=DEFAULTS["foundry_token_scope"], validation_alias="CLASSIFIER_FOUNDRY_TOKEN_SCOPE")
 
@@ -95,8 +101,14 @@ class Settings(BaseSettings):
         """
         if self.provider == "anthropic" and self.anthropic.api_key is None:
             raise ValueError("ANTHROPIC_API_KEY is required when CLASSIFIER_PROVIDER=anthropic")
-        if self.provider == "foundry" and self.foundry.resource is None:
-            raise ValueError("ANTHROPIC_FOUNDRY_RESOURCE is required when CLASSIFIER_PROVIDER=foundry")
+        if self.provider == "foundry":
+            if self.foundry.resource is None:
+                raise ValueError("ANTHROPIC_FOUNDRY_RESOURCE is required when CLASSIFIER_PROVIDER=foundry")
+            if self.foundry.api_key is None and not self.foundry.use_managed_identity:
+                raise ValueError(
+                    "Foundry requires ANTHROPIC_FOUNDRY_API_KEY, or "
+                    "CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY=true for managed identity"
+                )
         return self
 
 
