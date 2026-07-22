@@ -24,7 +24,11 @@ from db import Base  # noqa: E402
 config = context.config
 
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # ``disable_existing_loggers=False`` so running migrations in-process (the
+    # app, or the migration-drift test) never disables loggers configured
+    # elsewhere — the Alembic default would silently mute them for the rest of
+    # the process (breaking, e.g., pytest's caplog in later tests).
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # Resolve the connection URL from the database settings at runtime, so migrations,
 # the app, and the DatabaseWriter all read the same source. Only the DB section is
