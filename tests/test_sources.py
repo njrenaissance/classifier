@@ -103,9 +103,28 @@ def test_unsupported_files_in_directory_are_skipped_with_warning(tmp_path: Path,
         result = _documents(tmp_path)
 
     assert result == [pdf]
+    warnings = [record for record in caplog.records if record.levelno == logging.WARNING]
+    assert len(warnings) == 2  # exactly one warning per unsupported file, no duplicates
     warned = " ".join(caplog.messages)
     assert "notes.txt" in warned
     assert "legacy.doc" in warned
+
+
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [
+        pytest.param("invoice.pdf", True, id="supported"),
+        pytest.param("legacy.doc", False, id="unsupported"),
+    ],
+)
+def test_has_extractor_is_a_pure_predicate(tmp_path: Path, caplog, name: str, expected: bool):
+    source = LocalFileSystemSource(tmp_path)
+
+    with caplog.at_level(logging.WARNING):
+        result = source._has_extractor(tmp_path / name)
+
+    assert result is expected
+    assert caplog.records == []  # querying support must not log — command-query separation
 
 
 def test_empty_directory_yields_nothing_without_error(tmp_path: Path):

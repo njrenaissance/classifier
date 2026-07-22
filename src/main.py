@@ -83,6 +83,11 @@ def classify_documents(
     return results
 
 
+def configure_logging() -> None:
+    """Configure stdlib logging once, at the application entry point."""
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+
+
 def run(argv: list[str]) -> int:
     """Parse ``argv``, run the classification pipeline, and return an exit code."""
     args = build_parser().parse_args(argv)
@@ -100,11 +105,6 @@ def run(argv: list[str]) -> int:
         return 1
     logger.info("Classified %d document(s); wrote %s", len(results), args.output)
     return 0
-
-
-def configure_logging() -> None:
-    """Configure stdlib logging once, at the application entry point."""
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 
 def main() -> None:
