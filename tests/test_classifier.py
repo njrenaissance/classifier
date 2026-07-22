@@ -7,7 +7,8 @@ from anthropic import APIError
 from anthropic.types import TextBlock
 
 from categories import parse_categories
-from classifier import MODEL, Classifier
+from classifier import MODEL, Classifier, create_classifier
+from config import Settings
 from errors import ClassificationError
 
 pytestmark = pytest.mark.unit
@@ -103,3 +104,80 @@ def test_api_error_is_translated_and_chained(mocker):
     with pytest.raises(ClassificationError) as excinfo:
         classifier.classify("some text")
     assert excinfo.value.__cause__ is api_error
+
+
+_PROVIDER_VARS = (
+    "CLASSIFIER_PROVIDER",
+    "ANTHROPIC_API_KEY",
+    "CLASSIFIER_ANTHROPIC_MODEL",
+    "ANTHROPIC_FOUNDRY_RESOURCE",
+    "ANTHROPIC_FOUNDRY_API_KEY",
+    "CLASSIFIER_FOUNDRY_MODEL",
+    "CLASSIFIER_FOUNDRY_TOKEN_SCOPE",
+)
+
+
+def _settings(monkeypatch, env):
+    for var in _PROVIDER_VARS:
+        monkeypatch.delenv(var, raising=False)
+    for key, value in env.items():
+        monkeypatch.setenv(key, value)
+    return Settings(_env_file=None)
+
+
+def _anthropic_settings(monkeypatch, *, api_key="sk-x", model="claude-haiku-4-5"):
+    return _settings(
+        monkeypatch,
+        {"CLASSIFIER_PROVIDER": "anthropic", "ANTHROPIC_API_KEY": api_key, "CLASSIFIER_ANTHROPIC_MODEL": model},
+    )
+
+
+def _foundry_settings(monkeypatch, *, resource="res", api_key="fk", model="claude-haiku-4-5", token_scope=None):
+    env = {"CLASSIFIER_PROVIDER": "foundry", "ANTHROPIC_FOUNDRY_RESOURCE": resource, "CLASSIFIER_FOUNDRY_MODEL": model}
+    if api_key is not None:
+        env["ANTHROPIC_FOUNDRY_API_KEY"] = api_key
+    if token_scope is not None:
+        env["CLASSIFIER_FOUNDRY_TOKEN_SCOPE"] = token_scope
+    return _settings(monkeypatch, env)
+
+
+def test_create_classifier_anthropic_builds_first_party_client(mocker, monkeypatch):
+    fake = mocker.patch("anthropic.Anthropic")
+    classifier = create_classifier(_categories(), _anthropic_settings(monkeypatch, api_key="sk-live"))
+    fake.assert_called_once_with(api_key="sk-live")
+    assert isinstance(classifier, Classifier)
+
+
+def test_create_classifier_foundry_uses_api_key_when_present(mocker, monkeypatch):
+    fake = mocker.patch("anthropic.AnthropicFoundry")
+    create_classifier(_categories(), _foundry_settings(monkeypatch, resource="my-res", api_key="fk-1"))
+    fake.assert_called_once_with(resource="my-res", api_key="fk-1")
+
+
+def test_create_classifier_foundry_uses_managed_identity_without_key(mocker, monkeypatch):
+    fake_client = mocker.patch("anthropic.AnthropicFoundry")
+    credential = mocker.patch("azure.identity.DefaultAzureCredential")
+    token_provider = mocker.patch("azure.identity.get_bearer_token_provider", return_value="token-provider")
+
+    settings = _foundry_settings(monkeypatch, resource="my-res", api_key=None, token_scope="scope/.default")
+    create_classifier(_categories(), settings)
+
+    token_provider.assert_called_once_with(credential.return_value, "scope/.default")
+    fake_client.assert_called_once_with(resource="my-res", azure_ad_token_provider="token-provider")
+
+
+@pytest.mark.parametrize(
+    ("settings_factory", "client_path", "expected_model"),
+    [
+        pytest.param(_anthropic_settings, "anthropic.Anthropic", "anth-model", id="anthropic"),
+        pytest.param(_foundry_settings, "anthropic.AnthropicFoundry", "foundry-model", id="foundry"),
+    ],
+)
+def test_create_classifier_forwards_provider_model(mocker, monkeypatch, settings_factory, client_path, expected_model):
+    fake = mocker.patch(client_path)
+    fake.return_value.messages.create.return_value = _response("Invoice")
+    classifier = create_classifier(_categories(), settings_factory(monkeypatch, model=expected_model))
+
+    classifier.classify("some text")
+
+    assert fake.return_value.messages.create.call_args.kwargs["model"] == expected_model

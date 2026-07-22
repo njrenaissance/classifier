@@ -22,7 +22,7 @@ import anthropic
 from anthropic.types import Message, TextBlock
 
 from categories import CategorySet
-from config import Settings, get_settings
+from config import FoundrySettings, Settings, get_settings
 from errors import ClassificationError
 
 MODEL = "claude-haiku-4-5"  # ADR-0002 — pinned; never append a date suffix.
@@ -63,8 +63,11 @@ class Classifier:
     The Anthropic client is injected so the network boundary can be faked in tests.
     """
 
-    def __init__(self, categories: CategorySet, client: anthropic.Anthropic, *, temperature: float) -> None:
+    def __init__(
+        self, categories: CategorySet, client: anthropic.Anthropic, *, model: str = MODEL, temperature: float
+    ) -> None:
         self._client = client
+        self._model = model
         self._temperature = temperature
         self._enum_values = categories.enum_values
         self._system_block = _render_category_block(categories)
@@ -83,7 +86,7 @@ class Classifier:
         """
         try:
             response = self._client.messages.create(
-                model=MODEL,
+                model=self._model,
                 max_tokens=_MAX_TOKENS,
                 temperature=self._temperature,
                 system=[{"type": "text", "text": self._system_block, "cache_control": {"type": "ephemeral"}}],
@@ -110,8 +113,33 @@ class Classifier:
         return label
 
 
+def _build_foundry_client(foundry: FoundrySettings) -> anthropic.AnthropicFoundry:
+    """Construct a Foundry client — API key if given, else managed identity.
+
+    A missing ``api_key`` selects Entra ID / managed identity via an Azure AD
+    bearer-token provider (ADR-0015/0016). ``azure.identity`` is imported here,
+    lazily, so the API-key and Anthropic paths never require it.
+    """
+    if foundry.api_key is not None:
+        return anthropic.AnthropicFoundry(resource=foundry.resource, api_key=foundry.api_key.get_secret_value())
+    from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+
+    token_provider = get_bearer_token_provider(DefaultAzureCredential(), foundry.token_scope)
+    return anthropic.AnthropicFoundry(resource=foundry.resource, azure_ad_token_provider=token_provider)
+
+
+def _build_client(settings: Settings) -> tuple[anthropic.Anthropic, str]:
+    """Pick the inference client and model id for the selected provider."""
+    if settings.provider == "foundry":
+        return _build_foundry_client(settings.foundry), settings.foundry.model
+    api_key = settings.anthropic.api_key
+    if api_key is None:  # pragma: no cover - Settings validation already guarantees this
+        raise ClassificationError("ANTHROPIC_API_KEY is not configured for provider 'anthropic'.")
+    return anthropic.Anthropic(api_key=api_key.get_secret_value()), settings.anthropic.model
+
+
 def create_classifier(categories: CategorySet, settings: Settings | None = None) -> Classifier:
-    """Build a :class:`Classifier` with a real Anthropic client from settings."""
+    """Build a :class:`Classifier` with a client for the selected provider."""
     settings = settings or get_settings()
-    client = anthropic.Anthropic(api_key=settings.anthropic_api_key.get_secret_value())
-    return Classifier(categories, client, temperature=settings.temperature)
+    client, model = _build_client(settings)
+    return Classifier(categories, client, model=model, temperature=settings.temperature)
