@@ -57,6 +57,14 @@ Python- and test-specific conventions live in `.claude/rules/` (`python-lang.md`
 
 Run `uv run pytest`, `uv run ruff check .`, and `uv run mypy src` before considering a change done.
 
+## Database migrations
+
+Migrations are **fix-forward only** — we never roll a migration backwards. Every
+Alembic revision's `downgrade()` must `raise NotImplementedError` rather than
+attempt a reversal; a mistake in a released migration is corrected by writing a
+new forward migration, not by downgrading. The `alembic/script.py.mako` template
+already scaffolds new revisions this way.
+
 <!-- OPENWIKI:START -->
 
 ## OpenWiki
