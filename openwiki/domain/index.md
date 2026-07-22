@@ -1,9 +1,3 @@
----
-type: Documentation Index
-title: "Domain"
-description: "Files and subdirectories in Domain."
----
-
 # Files
 
 - [Category Parsing](category-parsing.md) - Markdown format for category definitions and the CategorySet parser
