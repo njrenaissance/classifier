@@ -36,3 +36,12 @@ class ClassificationError(AppError):
 
 class PersistenceError(AppError):
     """A database read or write failed and must not be swallowed."""
+
+
+class GraphError(AppError):
+    """A Microsoft Graph auth, HTTP, or response-shape failure.
+
+    Raised at the Graph client boundary so token-acquisition, transport, and
+    malformed-response failures surface as one domain type — always chained
+    (``raise GraphError(...) from err``) to preserve the original cause.
+    """
