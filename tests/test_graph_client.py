@@ -10,10 +10,9 @@ import httpx
 import pytest
 from azure.core.exceptions import ClientAuthenticationError
 
-import graph_client
-from config import GraphSettings, get_graph_settings
+from config import GraphSettings, get_settings
 from errors import GraphError
-from graph_client import GraphClient, content_hash, create_graph_client, matter_folder
+from graph_client import GraphClient, content_hash, create_graph_client, folder_path
 
 pytestmark = pytest.mark.unit
 
@@ -149,34 +148,28 @@ def test_iter_delta_tolerates_a_page_with_null_value(mocker):
     assert delta_link == "DELTA"
 
 
-# --- matter_folder ---------------------------------------------------------
+# --- folder_path -----------------------------------------------------------
 
 
 @pytest.mark.parametrize(
-    ("path", "expected"),
+    ("item", "expected"),
     [
-        pytest.param("/drives/b!x/root:/Matters/Smith-2026-001/Discovery", "Smith-2026-001", id="nested_under_matter"),
-        pytest.param("/drives/b!x/root:/Matters/Smith-2026-001", "Smith-2026-001", id="matter_root_folder"),
-        pytest.param("/drives/b!x/root:/Matters", graph_client.MATTER_ROOT_SENTINEL, id="matters_root_itself"),
-        pytest.param("/drives/b!x/root:/Admin/Templates", graph_client.MATTER_ROOT_SENTINEL, id="outside_matters"),
-        pytest.param("/drives/b!x/root:/", graph_client.MATTER_ROOT_SENTINEL, id="library_root"),
-        pytest.param("/drives/b!x/root:/Matters/Smith%20%26%20Jones/Discovery", "Smith & Jones", id="percent_encoded"),
+        pytest.param(
+            {"parentReference": {"path": "/drives/b!x/root:/Matters/Smith-2026-001/Discovery"}},
+            "/drives/b!x/root:/Matters/Smith-2026-001/Discovery",
+            id="path_returned_verbatim",
+        ),
+        pytest.param(
+            {"parentReference": {"path": "/drives/b!x/root:/Matters/Smith%20%26%20Jones"}},
+            "/drives/b!x/root:/Matters/Smith%20%26%20Jones",
+            id="encoded_path_kept_as_is",
+        ),
+        pytest.param({"parentReference": {}}, None, id="parent_reference_without_path"),
+        pytest.param({}, None, id="no_parent_reference"),
     ],
 )
-def test_matter_folder_extracts_first_segment_under_matters(path, expected):
-    item = {"parentReference": {"path": path}}
-    assert matter_folder(item) == expected
-
-
-@pytest.mark.parametrize(
-    "item",
-    [
-        pytest.param({}, id="no_parent_reference"),
-        pytest.param({"parentReference": {}}, id="parent_reference_without_path"),
-    ],
-)
-def test_matter_folder_falls_back_to_sentinel_when_path_is_absent(item):
-    assert matter_folder(item) == graph_client.MATTER_ROOT_SENTINEL
+def test_folder_path_returns_the_raw_parent_path(item, expected):
+    assert folder_path(item) == expected
 
 
 # --- content_hash ----------------------------------------------------------
@@ -308,13 +301,20 @@ def test_factory_uses_managed_identity_when_enabled(mocker):
     secret_credential.assert_not_called()
 
 
-def test_factory_defaults_to_the_cached_graph_settings(mocker, monkeypatch):
+def test_factory_defaults_to_the_configured_graph_settings(mocker, monkeypatch):
     monkeypatch.setenv("CLASSIFIER__GRAPH_USE_MANAGED_IDENTITY", "true")
-    get_graph_settings.cache_clear()
+    get_settings.cache_clear()
     managed_credential = mocker.patch("azure.identity.DefaultAzureCredential")
 
     client = create_graph_client()
 
     assert isinstance(client, GraphClient)
     managed_credential.assert_called_once_with()
-    get_graph_settings.cache_clear()
+    get_settings.cache_clear()
+
+
+def test_factory_raises_when_graph_is_unconfigured():
+    get_settings.cache_clear()
+    with pytest.raises(ValueError, match="Graph is not configured"):
+        create_graph_client()
+    get_settings.cache_clear()

@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 
 import db
 from alembic import command
-from config import get_database_settings
+from config import get_settings
 from db import Document, DocumentStatus, ProcessingLog, SyncState, WalkStatus
 from models import DocumentClassification
 from writer import DatabaseWriter
@@ -30,7 +30,7 @@ from writer import DatabaseWriter
 @pytest.mark.unit
 def test_get_engine_builds_from_settings_url(mocker, monkeypatch):
     monkeypatch.setenv("CLASSIFIER__DATABASE_URL", "postgresql+psycopg://u:p@h:5432/db")
-    get_database_settings.cache_clear()
+    get_settings.cache_clear()
     db.get_engine.cache_clear()
     fake_engine = mocker.Mock()
     create = mocker.patch("db.create_engine", return_value=fake_engine)
@@ -40,7 +40,7 @@ def test_get_engine_builds_from_settings_url(mocker, monkeypatch):
     create.assert_called_once_with("postgresql+psycopg://u:p@h:5432/db", pool_pre_ping=True)
     assert engine is fake_engine
     db.get_engine.cache_clear()
-    get_database_settings.cache_clear()
+    get_settings.cache_clear()
 
 
 @pytest.mark.unit

@@ -133,13 +133,22 @@ def _build_foundry_client(foundry: FoundrySettings) -> anthropic.AnthropicFoundr
 
 
 def _build_client(settings: Settings) -> tuple[anthropic.Anthropic, str]:
-    """Pick the inference client and model id for the selected provider."""
+    """Pick the inference client and model id for the selected provider.
+
+    The selected provider's credentials are enforced here — not at settings load
+    (config.py) — so a job that needs no inference (the walker, migrations) can
+    build :class:`~config.Settings` without a provider credential present.
+    """
     if settings.provider == "foundry":
+        if settings.foundry is None:
+            raise ValueError(
+                "Provider 'foundry' is selected but Foundry is not configured; "
+                "set ANTHROPIC_FOUNDRY_RESOURCE and a credential."
+            )
         return _build_foundry_client(settings.foundry), settings.foundry.model
-    api_key = settings.anthropic.api_key
-    if api_key is None:  # pragma: no cover - Settings validation already guarantees this
-        raise ValueError("ANTHROPIC_API_KEY is not configured for provider 'anthropic'.")
-    return anthropic.Anthropic(api_key=api_key.get_secret_value()), settings.anthropic.model
+    if settings.anthropic is None or settings.anthropic.api_key is None:
+        raise ValueError("ANTHROPIC_API_KEY is required for provider 'anthropic'.")
+    return anthropic.Anthropic(api_key=settings.anthropic.api_key.get_secret_value()), settings.anthropic.model
 
 
 def create_classifier(categories: CategorySet, settings: Settings | None = None) -> Classifier:

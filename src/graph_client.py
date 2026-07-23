@@ -11,7 +11,7 @@ processor). Three responsibilities live here:
   ``/drives/{id}/root/delta``, yields every driveItem across pages by following
   ``@odata.nextLink``, and *returns* the terminal ``@odata.deltaLink`` (the
   generator's return value, read from ``StopIteration.value``).
-- **Parse helpers + download** (ADR-0014/0015): :func:`matter_folder` and
+- **Parse helpers + download** (ADR-0014/0015): :func:`folder_path` and
   :func:`content_hash` are pure functions over a driveItem;
   :meth:`GraphClient.download` fetches a file's bytes into memory.
 
@@ -28,44 +28,30 @@ OneDrive, so :func:`content_hash` prefers ``quickXorHash`` and falls back to
 from collections.abc import Generator, Mapping
 from types import TracebackType
 from typing import Any
-from urllib.parse import unquote
 
 import httpx
 from azure.core.credentials import TokenCredential
 from azure.core.exceptions import ClientAuthenticationError
 
-from config import GraphSettings, get_graph_settings
+from config import GraphSettings, get_settings
 from errors import GraphError
 
-MATTER_ROOT_SENTINEL = "_root"  # driveItems outside a matter folder; walker treats as 'skipped'.
-_MATTERS_SEGMENT = "Matters"
-_ROOT_PATH_MARKER = "root:"
 # quickXorHash first: it is what SharePoint / OneDrive-for-Business populate (ADR-0017).
 _HASH_FIELDS = ("quickXorHash", "sha256Hash", "crc32Hash")
 _REQUEST_TIMEOUT_SECONDS = 60.0  # generous read window for large document downloads.
 
 
-def matter_folder(item: Mapping[str, Any]) -> str:
-    """Return the matter folder a driveItem lives under, or the root sentinel.
+def folder_path(item: Mapping[str, Any]) -> str | None:
+    """Return the driveItem's parent folder path, or ``None`` if absent.
 
-    The matter is the first path segment beneath ``/Matters/`` in the item's
-    ``parentReference.path`` (e.g. ``.../root:/Matters/Smith-2026-001/Discovery``
-    → ``Smith-2026-001``). Items not under a matter folder — including the
-    ``/Matters`` folder itself and the library root — return
-    :data:`MATTER_ROOT_SENTINEL`.
+    The raw Graph ``parentReference.path`` (e.g.
+    ``/drives/{id}/root:/Matters/Smith-2026-001/Discovery``) is stored verbatim so
+    a matter — or any other grouping — can be reconstructed from it later if
+    needed. Classification itself is by document type and does not depend on the
+    path, so no brittle per-segment parsing is done here (ADR-0018).
     """
     path = item.get("parentReference", {}).get("path")
-    if not isinstance(path, str):
-        return MATTER_ROOT_SENTINEL
-    beneath_root = path.split(_ROOT_PATH_MARKER, 1)[-1]
-    # Graph percent-encodes parentReference.path; decode each segment so a folder
-    # like "Smith & Jones" is not mistaken for the literal "Smith%20%26%20Jones".
-    segments = [unquote(segment) for segment in beneath_root.split("/") if segment]
-    if _MATTERS_SEGMENT in segments:
-        matter_index = segments.index(_MATTERS_SEGMENT) + 1
-        if matter_index < len(segments):
-            return segments[matter_index]
-    return MATTER_ROOT_SENTINEL
+    return path if isinstance(path, str) else None
 
 
 def content_hash(item: Mapping[str, Any]) -> str | None:
@@ -206,9 +192,12 @@ def create_graph_client(settings: GraphSettings | None = None) -> GraphClient:
     """Build a :class:`GraphClient` wired from :class:`GraphSettings`.
 
     The only place a real Azure credential and ``httpx`` client are constructed;
-    everywhere else injects them so tests need no tenant or network.
+    everywhere else injects them so tests need no tenant or network. Defaults to
+    ``Settings.graph``, raising if Graph is unconfigured.
     """
-    settings = settings or get_graph_settings()
-    credential = _build_credential(settings)
+    graph = settings or get_settings().graph
+    if graph is None:
+        raise ValueError("Graph is not configured; set the CLASSIFIER__GRAPH_* settings.")
+    credential = _build_credential(graph)
     http = httpx.Client(timeout=_REQUEST_TIMEOUT_SECONDS)
-    return GraphClient(credential, http, scope=settings.token_scope, base_url=settings.base_url)
+    return GraphClient(credential, http, scope=graph.token_scope, base_url=graph.base_url)

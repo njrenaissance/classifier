@@ -170,3 +170,17 @@ def test_create_classifier_forwards_provider_model(mocker, monkeypatch, settings
     classifier.classify("some text")
 
     assert fake.return_value.messages.create.call_args.kwargs["model"] == expected_model
+
+
+def test_create_classifier_anthropic_without_key_raises(monkeypatch):
+    # Provider credentials are enforced here, not at Settings load (all sections
+    # are optional in config.py), so a provider with no credential fails loudly.
+    settings = _settings(monkeypatch, {"CLASSIFIER_PROVIDER": "anthropic"})
+    with pytest.raises(ValueError, match="ANTHROPIC_API_KEY is required"):
+        create_classifier(_categories(), settings)
+
+
+def test_create_classifier_foundry_without_config_raises(monkeypatch):
+    settings = _settings(monkeypatch, {"CLASSIFIER_PROVIDER": "foundry"})
+    with pytest.raises(ValueError, match="Foundry is not configured"):
+        create_classifier(_categories(), settings)
