@@ -38,7 +38,7 @@ from sqlalchemy import (
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 
-from config import get_database_settings
+from config import get_settings
 
 
 class WalkStatus(StrEnum):
@@ -110,7 +110,7 @@ class Document(Base):
 
     file_name: Mapped[str | None] = mapped_column(default=None)
     mime_type: Mapped[str | None] = mapped_column(default=None)
-    matter_folder: Mapped[str | None] = mapped_column(default=None)
+    folder_path: Mapped[str | None] = mapped_column(default=None)
 
     content_hash: Mapped[str | None] = mapped_column(default=None)
     previous_hash: Mapped[str | None] = mapped_column(default=None)
@@ -164,12 +164,16 @@ class ProcessingLog(Base):
 def get_engine() -> Engine:
     """Return the process-wide SQLAlchemy :class:`~sqlalchemy.engine.Engine`.
 
-    Built lazily on first use from ``DatabaseSettings.url`` with
+    Built lazily on first use from ``Settings.database.url`` with
     ``pool_pre_ping`` so stale pooled connections (a stopped Burstable instance —
-    ADR-0013) are detected and recycled rather than surfacing mid-query.
+    ADR-0013) are detected and recycled rather than surfacing mid-query. A loud
+    error is raised when the database section is unconfigured, rather than a
+    silent connection to the wrong place.
     """
-    url = get_database_settings().url.get_secret_value()
-    return create_engine(url, pool_pre_ping=True)
+    database = get_settings().database
+    if database is None or database.url is None:
+        raise ValueError("Database is not configured; set CLASSIFIER__DATABASE_URL.")
+    return create_engine(database.url.get_secret_value(), pool_pre_ping=True)
 
 
 @lru_cache(maxsize=1)

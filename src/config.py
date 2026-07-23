@@ -5,11 +5,16 @@ environment (and an optional ``.env`` file) via ``pydantic-settings``.
 Import :func:`get_settings` wherever configuration is needed rather than
 reading ``os.environ`` directly.
 
-Inference is provider-selectable (:data:`Settings.provider`): the direct
-first-party Anthropic API or Microsoft Foundry (ADR-0016). Each provider's
-credentials live in their own nested ``BaseSettings`` so only the *selected*
-provider's credentials are required — a Foundry-only Azure job does not need
-an Anthropic key, and vice versa.
+:class:`Settings` aggregates every configuration section as an **optional**
+nested model: the inference provider (``anthropic`` / ``foundry``), the
+PostgreSQL state store (``database``), and Microsoft Graph (``graph``). A
+section is ``None`` when its environment is absent and a validated model when
+present, so each job supplies only what it uses — the walker needs
+``database``/``graph`` but no inference credentials, Alembic migrations need
+only ``database``, and the local CLI needs only a provider. The *selected*
+provider's credentials are enforced where a client is built
+(``classifier.create_classifier``), not at load time, so loading ``Settings``
+never demands credentials a job does not use.
 """
 
 from functools import lru_cache
@@ -39,9 +44,9 @@ class AnthropicSettings(BaseSettings):
     """Credentials/model for the first-party Anthropic API.
 
     ``api_key`` is read from the **unprefixed** ``ANTHROPIC_API_KEY`` (matching
-    the Anthropic SDK's own resolution). It is optional here so this section can
-    load even when Foundry is the selected provider; :class:`Settings` enforces
-    its presence when ``provider == "anthropic"``.
+    the Anthropic SDK's own resolution). The section is considered *configured*
+    only when a key is present; :meth:`is_configured` drives whether
+    :class:`Settings` keeps it or resolves it to ``None``.
     """
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
@@ -49,16 +54,20 @@ class AnthropicSettings(BaseSettings):
     api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")
     model: str = Field(default=DEFAULTS["anthropic_model"], validation_alias="CLASSIFIER_ANTHROPIC_MODEL")
 
+    @property
+    def is_configured(self) -> bool:
+        """True once an API key is present — the only credential this provider needs."""
+        return self.api_key is not None
+
 
 class FoundrySettings(BaseSettings):
     """Credentials/model for Microsoft Foundry (formerly Azure AI Foundry).
 
-    ``resource`` and ``api_key`` reuse the Foundry SDK's own env var names so
-    the SDK can also self-infer them. Authentication is **explicit**: set
-    ``use_managed_identity`` for Entra ID / managed identity, otherwise an
-    ``api_key`` is required. :class:`Settings` enforces both, plus ``resource``,
-    when ``provider == "foundry"``, so a forgotten key fails at startup rather
-    than silently falling back to a doomed managed-identity attempt.
+    ``resource`` and ``api_key`` reuse the Foundry SDK's own env var names.
+    Authentication is **explicit**: set ``use_managed_identity`` for Entra ID /
+    managed identity, otherwise an ``api_key`` is required. A section that is
+    *partially* configured (e.g. a resource with no credential) fails loudly at
+    load; a wholly absent section resolves to ``None``.
     """
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
@@ -71,26 +80,43 @@ class FoundrySettings(BaseSettings):
     model: str = Field(default=DEFAULTS["foundry_model"], validation_alias="CLASSIFIER_FOUNDRY_MODEL")
     token_scope: str = Field(default=DEFAULTS["foundry_token_scope"], validation_alias="CLASSIFIER_FOUNDRY_TOKEN_SCOPE")
 
+    @property
+    def is_configured(self) -> bool:
+        """True when a resource and a usable credential (key or managed identity) are set."""
+        return self.resource is not None and (self.api_key is not None or self.use_managed_identity)
+
+    @model_validator(mode="after")
+    def _reject_partial(self) -> "FoundrySettings":
+        """Fail loudly on a half-configured section, so a typo isn't silently ignored."""
+        intended = bool(self.resource or self.api_key or self.use_managed_identity)
+        if intended and not self.is_configured:
+            raise ValueError(
+                "Foundry requires ANTHROPIC_FOUNDRY_RESOURCE and either ANTHROPIC_FOUNDRY_API_KEY, "
+                "or CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY=true for managed identity"
+            )
+        return self
+
 
 class DatabaseSettings(BaseSettings):
     """PostgreSQL connection settings for the cloud pipeline state store (ADR-0013).
 
     Parses its own slice of the environment (and ``.env``) under the
-    ``CLASSIFIER__DATABASE_`` prefix, so the connection URL is read from
-    ``CLASSIFIER__DATABASE_URL``. ``url`` is a **required** secret with no
-    default: a missing connection string is a loud startup crash rather than a
-    silent fallback to the wrong database (configuration standard). It is a
-    :class:`~pydantic.SecretStr` because it may embed a password; call
-    ``url.get_secret_value()`` to build the SQLAlchemy engine.
-
-    This section is deliberately **not** a field on :class:`Settings` — it is
-    resolved on demand via :func:`get_database_settings` — so the local CSV CLI,
-    which needs no database, never has to supply a URL just to start.
+    ``CLASSIFIER__DATABASE_`` prefix, so the URL is read from
+    ``CLASSIFIER__DATABASE_URL``. ``url`` is a :class:`~pydantic.SecretStr`
+    because it may embed a password; call ``url.get_secret_value()`` to build the
+    engine. The section is *configured* only when a URL is present — a job that
+    never touches the database (the local CLI) simply gets ``Settings.database is
+    None`` instead of a spurious requirement.
     """
 
     model_config = SettingsConfigDict(env_prefix="CLASSIFIER__DATABASE_", env_file=".env", extra="ignore")
 
-    url: SecretStr
+    url: SecretStr | None = None
+
+    @property
+    def is_configured(self) -> bool:
+        """True once a connection URL is present."""
+        return self.url is not None
 
 
 class GraphSettings(BaseSettings):
@@ -98,14 +124,10 @@ class GraphSettings(BaseSettings):
 
     Parses its own slice of the environment (and ``.env``) under the
     ``CLASSIFIER__GRAPH_`` prefix. Authentication is **explicit** via
-    ``use_managed_identity``: set it for Entra ID / managed identity (production),
-    otherwise the client-credentials trio (``tenant_id``/``client_id``/
-    ``client_secret``) is required. Validation below fails at startup on a missing
-    credential rather than deferring to a doomed token request at first Graph call.
-
-    Like :class:`DatabaseSettings`, this section is **not** a field on
-    :class:`Settings` — it is resolved on demand via :func:`get_graph_settings` —
-    so the local CSV CLI, which never touches Graph, need not supply any of it.
+    ``use_managed_identity``: set it for Entra ID / managed identity, otherwise
+    the client-credentials trio (``tenant_id``/``client_id``/``client_secret``)
+    is required. A *partially* configured section fails loudly at load; a wholly
+    absent one resolves to ``None``.
     """
 
     model_config = SettingsConfigDict(env_prefix="CLASSIFIER__GRAPH_", env_file=".env", extra="ignore")
@@ -117,46 +139,55 @@ class GraphSettings(BaseSettings):
     token_scope: str = DEFAULTS["graph_token_scope"]
     base_url: str = DEFAULTS["graph_base_url"]
 
-    @model_validator(mode="after")
-    def _require_credentials(self) -> "GraphSettings":
-        """Fail at startup unless a usable app-only credential is configured.
+    @property
+    def is_configured(self) -> bool:
+        """True with managed identity, or the full client-credentials trio."""
+        has_trio = bool(self.tenant_id and self.client_id and self.client_secret)
+        return self.use_managed_identity or has_trio
 
-        Managed identity needs nothing more; otherwise the full client-credentials
-        trio must be present, so a half-configured secret is a loud startup crash.
-        """
-        if self.use_managed_identity:
+    @model_validator(mode="after")
+    def _reject_partial(self) -> "GraphSettings":
+        """Fail loudly on a half-configured section (e.g. a tenant but no secret)."""
+        if self.is_configured:
             return self
-        missing = [
-            name
-            for name, value in (
-                ("CLASSIFIER__GRAPH_TENANT_ID", self.tenant_id),
-                ("CLASSIFIER__GRAPH_CLIENT_ID", self.client_id),
-                ("CLASSIFIER__GRAPH_CLIENT_SECRET", self.client_secret),
-            )
-            if value is None
-        ]
-        if missing:
+        intended = bool(self.tenant_id or self.client_id or self.client_secret or self.use_managed_identity)
+        if intended:
             raise ValueError(
-                f"Graph app-only auth requires {', '.join(missing)}, or "
-                "CLASSIFIER__GRAPH_USE_MANAGED_IDENTITY=true for managed identity"
+                "Graph app-only auth requires CLASSIFIER__GRAPH_TENANT_ID, CLASSIFIER__GRAPH_CLIENT_ID and "
+                "CLASSIFIER__GRAPH_CLIENT_SECRET, or CLASSIFIER__GRAPH_USE_MANAGED_IDENTITY=true for managed identity"
             )
         return self
+
+
+def _load_section[T: BaseSettings](section_type: type[T]) -> T | None:
+    """Construct a nested settings section, or ``None`` when it is unconfigured.
+
+    Each section parses its own env slice on construction and reports presence
+    via ``is_configured``; a *partially* configured section raises from its own
+    validator, so only a wholly absent section becomes ``None``.
+    """
+    section = section_type()  # type: ignore[call-arg]  # fields resolve from env/.env
+    return section if section.is_configured else None  # type: ignore[attr-defined]  # every section defines is_configured
 
 
 class Settings(BaseSettings):
     """Application settings resolved from the environment and ``.env``.
 
-    Inference provider is chosen by ``CLASSIFIER_PROVIDER`` (default
-    ``anthropic``); each provider's credentials live in a nested section so only
-    the selected provider's credentials are required. The classifier-specific
-    knobs use the ``CLASSIFIER_`` prefix.
+    Every section is optional and resolved to ``None`` when its environment is
+    absent (see :func:`_load_section`). ``provider`` selects which inference
+    section a classifier uses; that section's credentials are enforced in
+    :func:`~classifier.create_classifier`, not here, so building ``Settings``
+    never demands credentials a job does not use.
     """
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     provider: Provider = Field(default=DEFAULTS["provider"], validation_alias="CLASSIFIER_PROVIDER")
-    anthropic: AnthropicSettings = Field(default_factory=AnthropicSettings)
-    foundry: FoundrySettings = Field(default_factory=FoundrySettings)
+
+    anthropic: AnthropicSettings | None = Field(default_factory=lambda: _load_section(AnthropicSettings))
+    foundry: FoundrySettings | None = Field(default_factory=lambda: _load_section(FoundrySettings))
+    database: DatabaseSettings | None = Field(default_factory=lambda: _load_section(DatabaseSettings))
+    graph: GraphSettings | None = Field(default_factory=lambda: _load_section(GraphSettings))
 
     self_consistency_n: int = Field(default=DEFAULTS["self_consistency_n"], ge=1, validation_alias="CLASSIFIER_N")
     temperature: float = Field(
@@ -166,48 +197,8 @@ class Settings(BaseSettings):
         default=DEFAULTS["confidence_threshold"], ge=0.0, le=1.0, validation_alias="CLASSIFIER_CONFIDENCE_THRESHOLD"
     )
 
-    @model_validator(mode="after")
-    def _require_selected_provider_credentials(self) -> "Settings":
-        """Fail at startup if the *selected* provider is missing credentials.
-
-        Only the chosen provider is checked, so the other provider's absent
-        credentials never block startup.
-        """
-        if self.provider == "anthropic" and self.anthropic.api_key is None:
-            raise ValueError("ANTHROPIC_API_KEY is required when CLASSIFIER_PROVIDER=anthropic")
-        if self.provider == "foundry":
-            if self.foundry.resource is None:
-                raise ValueError("ANTHROPIC_FOUNDRY_RESOURCE is required when CLASSIFIER_PROVIDER=foundry")
-            if self.foundry.api_key is None and not self.foundry.use_managed_identity:
-                raise ValueError(
-                    "Foundry requires ANTHROPIC_FOUNDRY_API_KEY, or "
-                    "CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY=true for managed identity"
-                )
-        return self
-
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     """Return the process-wide :class:`Settings` singleton (loaded once)."""
     return Settings()  # type: ignore[call-arg]  # values are resolved from env/.env
-
-
-@lru_cache(maxsize=1)
-def get_database_settings() -> DatabaseSettings:
-    """Return the process-wide :class:`DatabaseSettings` (loaded once, on demand).
-
-    Kept separate from :func:`get_settings` so the database URL is only resolved
-    when the DB is actually used — the CSV CLI never triggers its validation.
-    """
-    return DatabaseSettings()  # type: ignore[call-arg]  # url resolved from env/.env
-
-
-@lru_cache(maxsize=1)
-def get_graph_settings() -> GraphSettings:
-    """Return the process-wide :class:`GraphSettings` (loaded once, on demand).
-
-    Resolved separately from :func:`get_settings` so Graph credentials are only
-    validated when the SharePoint pipeline actually runs — the CSV CLI never
-    triggers it.
-    """
-    return GraphSettings()  # type: ignore[call-arg]  # credentials resolved from env/.env

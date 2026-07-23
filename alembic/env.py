@@ -33,7 +33,10 @@ if config.config_file_name is not None:
 # Resolve the connection URL from the database settings at runtime, so migrations,
 # the app, and the DatabaseWriter all read the same source. Only the DB section is
 # loaded (not the full Settings), so migrations need no ANTHROPIC_API_KEY.
-config.set_main_option("sqlalchemy.url", DatabaseSettings().url.get_secret_value())
+_database = DatabaseSettings()
+if _database.url is None:
+    raise RuntimeError("CLASSIFIER__DATABASE_URL must be set to run migrations.")
+config.set_main_option("sqlalchemy.url", _database.url.get_secret_value())
 
 target_metadata = Base.metadata
 
