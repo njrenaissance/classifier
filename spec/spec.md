@@ -66,7 +66,7 @@ Per-format Python libraries (PDF, DOCX, legacy `.doc`).
 Microsoft Graph, app-only (client-credentials) auth.
 > Decision: [ADR-0007](adr/0007-sharepoint-app-only-auth.md). **Specifics still open:** Azure AD app registration + exact Graph scopes — pinned during implementation planning; may warrant its own build issue.
 
-**Ingestion (walker).** Incremental **Graph delta** queries under a time budget, resumable via a two-token (`delta_token` / `resume_token`) `sync_state`; SHA-256 `file.hashes` drive change detection; enqueue is idempotent (in-flight / unchanged files are skipped). Files outside `/Matters/` are tracked `skipped`, not classified.
+**Ingestion (walker).** Incremental **Graph delta** queries under a time budget, resumable via a two-token (`delta_token` / `resume_token`) `sync_state`; `file.hashes` content-hash change detection (ADR-0017); enqueue is idempotent (in-flight / unchanged files are skipped). Files outside `/Matters/` are tracked `skipped`, not classified; each document's raw folder path is stored (ADR-0018) rather than a derived matter.
 > Decision: [ADR-0014](adr/0014-sharepoint-delta-walker.md).
 
 **Download (classifier).** Files stay in SharePoint; the classifier fetches bytes on demand via an authenticated `GET .../items/{id}/content` into memory (no local copy), and extraction reads the byte stream directly.

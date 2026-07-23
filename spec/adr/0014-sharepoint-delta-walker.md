@@ -3,6 +3,8 @@
 Status: accepted
 
 > The change-detection hash field below (`file.hashes` "SHA-256") is refined by [ADR-0017](0017-graph-content-hash-field.md): the client reads `quickXorHash` first (what SharePoint / OneDrive-for-Business return), falling back to `sha256Hash`/`crc32Hash`. The rest of this ADR stands.
+>
+> The per-driveItem `matter_folder` derivation and storage below are superseded by [ADR-0018](0018-store-folder-path-not-matter.md): the raw `parentReference.path` is stored as `folder_path` and no matter is derived (classification is by document type). The enqueue/skip and delta-resume logic below still stands.
 
 ## Context
 
