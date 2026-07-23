@@ -2,6 +2,8 @@
 
 Status: accepted
 
+> The change-detection hash field below (`file.hashes` "SHA-256") is refined by [ADR-0017](0017-graph-content-hash-field.md): the client reads `quickXorHash` first (what SharePoint / OneDrive-for-Business return), falling back to `sha256Hash`/`crc32Hash`. The rest of this ADR stands.
+
 ## Context
 
 The walker ([ADR-0012](0012-cloud-two-job-pipeline.md)) enumerates a SharePoint document library via Microsoft Graph ([ADR-0007](0007-sharepoint-app-only-auth.md)) and enqueues work for changed files. At scale the first enumeration of thousands of files won't finish in one scheduled slot, and re-walking everything every run is wasteful and would re-enqueue unchanged files. Graph exposes **delta queries** (`/delta`) that paginate via `@odata.nextLink` and terminate with an `@odata.deltaLink` token usable to fetch only subsequent changes. The walker must be **resumable** (survive being cut off mid-walk) and **idempotent** (never enqueue a file already in flight or unchanged). This refines the uniform-source seam ([ADR-0010](0010-uniform-document-source.md)) for the SharePoint implementation.

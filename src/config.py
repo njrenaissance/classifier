@@ -29,6 +29,9 @@ DEFAULTS: dict[str, Any] = {
     "foundry_model": "claude-haiku-4-5",
     "foundry_use_managed_identity": False,
     "foundry_token_scope": "https://cognitiveservices.azure.com/.default",
+    "graph_use_managed_identity": False,
+    "graph_token_scope": "https://graph.microsoft.com/.default",
+    "graph_base_url": "https://graph.microsoft.com/v1.0",
 }
 
 
@@ -90,6 +93,56 @@ class DatabaseSettings(BaseSettings):
     url: SecretStr
 
 
+class GraphSettings(BaseSettings):
+    """Microsoft Graph app-only credentials for the SharePoint pipeline (ADR-0007/0015).
+
+    Parses its own slice of the environment (and ``.env``) under the
+    ``CLASSIFIER__GRAPH_`` prefix. Authentication is **explicit** via
+    ``use_managed_identity``: set it for Entra ID / managed identity (production),
+    otherwise the client-credentials trio (``tenant_id``/``client_id``/
+    ``client_secret``) is required. Validation below fails at startup on a missing
+    credential rather than deferring to a doomed token request at first Graph call.
+
+    Like :class:`DatabaseSettings`, this section is **not** a field on
+    :class:`Settings` — it is resolved on demand via :func:`get_graph_settings` —
+    so the local CSV CLI, which never touches Graph, need not supply any of it.
+    """
+
+    model_config = SettingsConfigDict(env_prefix="CLASSIFIER__GRAPH_", env_file=".env", extra="ignore")
+
+    tenant_id: str | None = None
+    client_id: str | None = None
+    client_secret: SecretStr | None = None
+    use_managed_identity: bool = DEFAULTS["graph_use_managed_identity"]
+    token_scope: str = DEFAULTS["graph_token_scope"]
+    base_url: str = DEFAULTS["graph_base_url"]
+
+    @model_validator(mode="after")
+    def _require_credentials(self) -> "GraphSettings":
+        """Fail at startup unless a usable app-only credential is configured.
+
+        Managed identity needs nothing more; otherwise the full client-credentials
+        trio must be present, so a half-configured secret is a loud startup crash.
+        """
+        if self.use_managed_identity:
+            return self
+        missing = [
+            name
+            for name, value in (
+                ("CLASSIFIER__GRAPH_TENANT_ID", self.tenant_id),
+                ("CLASSIFIER__GRAPH_CLIENT_ID", self.client_id),
+                ("CLASSIFIER__GRAPH_CLIENT_SECRET", self.client_secret),
+            )
+            if value is None
+        ]
+        if missing:
+            raise ValueError(
+                f"Graph app-only auth requires {', '.join(missing)}, or "
+                "CLASSIFIER__GRAPH_USE_MANAGED_IDENTITY=true for managed identity"
+            )
+        return self
+
+
 class Settings(BaseSettings):
     """Application settings resolved from the environment and ``.env``.
 
@@ -147,3 +200,14 @@ def get_database_settings() -> DatabaseSettings:
     when the DB is actually used — the CSV CLI never triggers its validation.
     """
     return DatabaseSettings()  # type: ignore[call-arg]  # url resolved from env/.env
+
+
+@lru_cache(maxsize=1)
+def get_graph_settings() -> GraphSettings:
+    """Return the process-wide :class:`GraphSettings` (loaded once, on demand).
+
+    Resolved separately from :func:`get_settings` so Graph credentials are only
+    validated when the SharePoint pipeline actually runs — the CSV CLI never
+    triggers it.
+    """
+    return GraphSettings()  # type: ignore[call-arg]  # credentials resolved from env/.env
