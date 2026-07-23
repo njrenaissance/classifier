@@ -52,6 +52,5 @@ class Message(BaseModel):
     drive_item_id: str
     file_name: str
     mime_type: str
-    matter_folder: str
     content_hash: str
     enqueued_at: AwareDatetime

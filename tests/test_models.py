@@ -19,7 +19,6 @@ def _fields(**overrides: object) -> dict[str, object]:
         "drive_item_id": "item-xyz",
         "file_name": "contract.pdf",
         "mime_type": "application/pdf",
-        "matter_folder": "Acme",
         "content_hash": "sha256-deadbeef",
         "enqueued_at": _ENQUEUED_AT,
     }
@@ -47,7 +46,6 @@ def test_json_round_trip_reproduces_the_original():
         pytest.param("drive_item_id", id="absent_drive_item_id"),
         pytest.param("file_name", id="absent_file_name"),
         pytest.param("mime_type", id="absent_mime_type"),
-        pytest.param("matter_folder", id="absent_matter_folder"),
         pytest.param("content_hash", id="absent_content_hash"),
         pytest.param("enqueued_at", id="absent_enqueued_at"),
     ],
