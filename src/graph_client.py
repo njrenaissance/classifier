@@ -26,7 +26,9 @@ OneDrive, so :func:`content_hash` prefers ``quickXorHash`` and falls back to
 """
 
 from collections.abc import Generator, Mapping
+from types import TracebackType
 from typing import Any
+from urllib.parse import unquote
 
 import httpx
 from azure.core.credentials import TokenCredential
@@ -56,7 +58,9 @@ def matter_folder(item: Mapping[str, Any]) -> str:
     if not isinstance(path, str):
         return MATTER_ROOT_SENTINEL
     beneath_root = path.split(_ROOT_PATH_MARKER, 1)[-1]
-    segments = [segment for segment in beneath_root.split("/") if segment]
+    # Graph percent-encodes parentReference.path; decode each segment so a folder
+    # like "Smith & Jones" is not mistaken for the literal "Smith%20%26%20Jones".
+    segments = [unquote(segment) for segment in beneath_root.split("/") if segment]
     if _MATTERS_SEGMENT in segments:
         matter_index = segments.index(_MATTERS_SEGMENT) + 1
         if matter_index < len(segments):
@@ -98,6 +102,25 @@ class GraphClient:
         self._scope = scope
         self._base_url = base_url.rstrip("/")
 
+    def close(self) -> None:
+        """Close the underlying HTTP client, releasing its connection pool.
+
+        Long-running or repeatedly-invoked jobs should call this (or use the
+        client as a context manager) so sockets are not held until GC.
+        """
+        self._http.close()
+
+    def __enter__(self) -> "GraphClient":
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        self.close()
+
     def iter_delta(self, drive_id: str, start_url: str | None = None) -> Generator[dict[str, Any], None, str]:
         """Yield every driveItem in the drive's delta, returning the deltaLink.
 
@@ -109,7 +132,7 @@ class GraphClient:
         url = start_url or f"{self._base_url}/drives/{drive_id}/root/delta"
         while True:
             payload = self._get_json(url)
-            yield from payload.get("value", [])
+            yield from payload.get("value") or []  # a page may carry an explicit "value": null
             next_link = payload.get("@odata.nextLink")
             if next_link is None:
                 break
@@ -148,9 +171,12 @@ class GraphClient:
         try:
             response = self._http.get(url, headers=self._auth_header())
             response.raise_for_status()
-            body: dict[str, Any] = response.json()
         except httpx.HTTPError as err:
             raise GraphError(f"Graph request failed: GET {url}: {err}") from err
+        try:
+            body: dict[str, Any] = response.json()
+        except ValueError as err:
+            raise GraphError(f"Graph response was not valid JSON: GET {url}: {err}") from err
         return body
 
 

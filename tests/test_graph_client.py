@@ -125,6 +125,30 @@ def test_iter_delta_wraps_transport_errors_as_chained_graph_error(mocker):
     assert isinstance(excinfo.value.__cause__, httpx.ConnectError)
 
 
+def test_iter_delta_wraps_a_malformed_json_body_as_chained_graph_error(mocker):
+    decode_error = ValueError("Expecting value: line 1 column 1 (char 0)")
+    response = _response(mocker)
+    response.json.side_effect = decode_error
+    http = mocker.Mock()
+    http.get.return_value = response
+    client, _ = _client(mocker, http)
+
+    with pytest.raises(GraphError) as excinfo:
+        _drain(client.iter_delta(_DRIVE_ID))
+    assert excinfo.value.__cause__ is decode_error
+
+
+def test_iter_delta_tolerates_a_page_with_null_value(mocker):
+    http = mocker.Mock()
+    http.get.side_effect = [_response(mocker, json={"value": None, "@odata.deltaLink": "DELTA"})]
+    client, _ = _client(mocker, http)
+
+    items, delta_link = _drain(client.iter_delta(_DRIVE_ID))
+
+    assert items == []
+    assert delta_link == "DELTA"
+
+
 # --- matter_folder ---------------------------------------------------------
 
 
@@ -136,6 +160,7 @@ def test_iter_delta_wraps_transport_errors_as_chained_graph_error(mocker):
         pytest.param("/drives/b!x/root:/Matters", graph_client.MATTER_ROOT_SENTINEL, id="matters_root_itself"),
         pytest.param("/drives/b!x/root:/Admin/Templates", graph_client.MATTER_ROOT_SENTINEL, id="outside_matters"),
         pytest.param("/drives/b!x/root:/", graph_client.MATTER_ROOT_SENTINEL, id="library_root"),
+        pytest.param("/drives/b!x/root:/Matters/Smith%20%26%20Jones/Discovery", "Smith & Jones", id="percent_encoded"),
     ],
 )
 def test_matter_folder_extracts_first_segment_under_matters(path, expected):
@@ -233,6 +258,27 @@ def test_token_acquisition_failure_becomes_a_chained_graph_error(mocker):
         client.download(_DRIVE_ID, "item-42")
     assert excinfo.value.__cause__ is auth_error
     http.get.assert_not_called()
+
+
+# --- lifecycle -------------------------------------------------------------
+
+
+def test_close_closes_the_underlying_http_client(mocker):
+    http = mocker.Mock()
+    client, _ = _client(mocker, http)
+
+    client.close()
+
+    http.close.assert_called_once_with()
+
+
+def test_context_manager_closes_on_exit(mocker):
+    http = mocker.Mock()
+    client, _ = _client(mocker, http)
+
+    with client as entered:
+        assert entered is client
+    http.close.assert_called_once_with()
 
 
 # --- create_graph_client factory -------------------------------------------
