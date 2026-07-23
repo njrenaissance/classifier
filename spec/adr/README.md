@@ -21,3 +21,4 @@ Each decision with meaningful tradeoffs gets its own file (`NNNN-<slug>.md`). AD
 | [0015](0015-graph-authenticated-download.md) | Graph-authenticated on-demand file download | accepted |
 | [0016](0016-foundry-inference-provider.md) | Selectable inference provider: Anthropic API or Microsoft Foundry | accepted |
 | [0017](0017-graph-content-hash-field.md) | Graph content-hash field for change detection (`quickXorHash` first) | accepted |
+| [0018](0018-store-folder-path-not-matter.md) | Store the driveItem folder path, not a derived matter | accepted |
