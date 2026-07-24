@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from config import DatabaseSettings, GraphSettings, Settings
+from config import DatabaseSettings, GraphSettings, QueueSettings, Settings
 
 pytestmark = pytest.mark.unit
 
@@ -190,5 +190,48 @@ def test_graph_section_client_credentials(monkeypatch):
 def test_graph_partial_config_errors(monkeypatch):
     # A tenant id with no client id/secret is half-configured — fail loudly.
     monkeypatch.setenv("CLASSIFIER__GRAPH_TENANT_ID", "tenant")
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)
+
+
+def test_queue_section_is_none_without_config():
+    assert QueueSettings().is_configured is False
+    assert Settings(_env_file=None).queue is None
+
+
+def test_queue_section_connection_string(monkeypatch):
+    monkeypatch.setenv("CLASSIFIER__QUEUE_NAME", "work-items")
+    monkeypatch.setenv("CLASSIFIER__QUEUE_CONNECTION_STRING", "DefaultEndpointsProtocol=https;AccountName=x")
+    s = Settings(_env_file=None)
+    assert s.queue is not None
+    assert s.queue.name == "work-items"
+    assert s.queue.connection_string.get_secret_value() == "DefaultEndpointsProtocol=https;AccountName=x"
+    assert "AccountName=x" not in repr(s.queue)  # SecretStr keeps the value out of repr
+
+
+def test_queue_section_managed_identity(monkeypatch):
+    monkeypatch.setenv("CLASSIFIER__QUEUE_NAME", "work-items")
+    monkeypatch.setenv("CLASSIFIER__QUEUE_ACCOUNT_URL", "https://acct.queue.core.windows.net")
+    monkeypatch.setenv("CLASSIFIER__QUEUE_USE_MANAGED_IDENTITY", "true")
+    s = Settings(_env_file=None)
+    assert s.queue is not None
+    assert s.queue.use_managed_identity is True
+    assert s.queue.account_url == "https://acct.queue.core.windows.net"
+
+
+@pytest.mark.parametrize(
+    "env",
+    [
+        pytest.param({"CLASSIFIER__QUEUE_NAME": "work-items"}, id="name_without_any_credential"),
+        pytest.param({"CLASSIFIER__QUEUE_CONNECTION_STRING": "conn"}, id="connection_string_without_a_queue_name"),
+        pytest.param(
+            {"CLASSIFIER__QUEUE_NAME": "work-items", "CLASSIFIER__QUEUE_USE_MANAGED_IDENTITY": "true"},
+            id="managed_identity_without_an_account_url",
+        ),
+    ],
+)
+def test_queue_partial_config_errors(monkeypatch, env):
+    for key, value in env.items():
+        monkeypatch.setenv(key, value)
     with pytest.raises(ValidationError):
         Settings(_env_file=None)

@@ -45,3 +45,12 @@ class GraphError(AppError):
     malformed-response failures surface as one domain type — always chained
     (``raise GraphError(...) from err``) to preserve the original cause.
     """
+
+
+class QueueError(AppError):
+    """An Azure Queue transport, auth, or message-shape failure.
+
+    Raised at the queue client boundary (:mod:`message_queue`) so send/receive
+    transport failures and a malformed message body surface as one domain type —
+    always chained (``raise QueueError(...) from err``) to preserve the cause.
+    """
