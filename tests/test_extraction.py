@@ -4,9 +4,17 @@ import pytest
 from docx import Document
 
 from errors import AppError, ExtractionError, UnsupportedFormatError
-from extraction import extract_text, supported_suffixes
+from extraction import (
+    extract_text,
+    extract_text_from_bytes,
+    supported_mime_types,
+    supported_suffixes,
+)
 
 pytestmark = pytest.mark.unit
+
+_PDF_MIME = "application/pdf"
+_DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
 
 def _build_pdf(text: str) -> bytes:
@@ -125,3 +133,75 @@ def test_unsupported_format_error_is_an_app_error(tmp_path: Path):
 
 def test_supported_suffixes_are_pdf_and_docx():
     assert supported_suffixes() == frozenset({".pdf", ".docx"})
+
+
+def test_supported_mime_types_are_pdf_and_docx():
+    assert supported_mime_types() == frozenset({_PDF_MIME, _DOCX_MIME})
+
+
+def _write_pdf(path: Path) -> None:
+    path.write_bytes(_build_pdf("INVOICE 4521 total due"))
+
+
+def _write_docx_sample(path: Path) -> None:
+    _write_docx(path, ("Master Services Agreement", "Between Acme and Globex"), table_row=("Term", "12 months"))
+
+
+@pytest.mark.parametrize(
+    ("write_file", "name", "mime_type"),
+    [
+        pytest.param(_write_pdf, "invoice.pdf", _PDF_MIME, id="pdf"),
+        pytest.param(_write_docx_sample, "contract.docx", _DOCX_MIME, id="docx"),
+    ],
+)
+def test_bytes_extraction_matches_path_extraction(tmp_path: Path, write_file, name: str, mime_type: str):
+    path = tmp_path / name
+    write_file(path)
+    data = path.read_bytes()
+
+    from_bytes = extract_text_from_bytes(data, mime_type)
+
+    assert from_bytes != ""
+    assert from_bytes == extract_text(path)
+
+
+@pytest.mark.parametrize(
+    "mime_type",
+    [
+        pytest.param("APPLICATION/PDF", id="uppercase"),
+        pytest.param("application/pdf; charset=binary", id="with_parameter"),
+    ],
+)
+def test_bytes_dispatch_normalizes_mime_type(mime_type: str):
+    assert "hello" in extract_text_from_bytes(_build_pdf("hello"), mime_type)
+
+
+@pytest.mark.parametrize(
+    "mime_type",
+    [
+        pytest.param("application/msword", id="legacy_doc"),
+        pytest.param("text/plain", id="plain_text"),
+        pytest.param("application/zip", id="unrelated_binary"),
+        pytest.param("", id="empty"),
+    ],
+)
+def test_unsupported_mime_type_is_rejected_explicitly(mime_type: str):
+    with pytest.raises(UnsupportedFormatError):
+        extract_text_from_bytes(b"whatever", mime_type)
+
+
+def test_unsupported_mime_type_error_is_an_app_error():
+    with pytest.raises(AppError):
+        extract_text_from_bytes(b"whatever", "application/msword")
+
+
+@pytest.mark.parametrize("mime_type", [_PDF_MIME, _DOCX_MIME])
+def test_corrupt_byte_stream_is_surfaced_as_extraction_error(mime_type: str):
+    with pytest.raises(ExtractionError):
+        extract_text_from_bytes(b"this is not a valid document", mime_type)
+
+
+def test_corrupt_byte_stream_error_chains_original_cause():
+    with pytest.raises(ExtractionError) as excinfo:
+        extract_text_from_bytes(b"this is not a valid document", _PDF_MIME)
+    assert excinfo.value.__cause__ is not None
