@@ -8,9 +8,10 @@ reading ``os.environ`` directly.
 :class:`Settings` aggregates every configuration section as an **optional**
 nested model: the inference provider (``anthropic`` / ``foundry``), the
 PostgreSQL state store (``database``), Microsoft Graph (``graph``), and the
-work queue (``queue``). A section is ``None`` when its environment is absent and
-a validated model when present, so each job supplies only what it uses — the
-walker needs ``database``/``graph``/``queue`` but no inference credentials,
+work queue (``queue``), and the walker job (``walker``). A section is ``None``
+when its environment is absent and a validated model when present, so each job
+supplies only what it uses — the walker needs
+``database``/``graph``/``queue``/``walker`` but no inference credentials,
 Alembic migrations need only ``database``, and the local CLI needs only a
 provider. The *selected*
 provider's credentials are enforced where a client is built
@@ -39,6 +40,7 @@ DEFAULTS: dict[str, Any] = {
     "graph_token_scope": "https://graph.microsoft.com/.default",
     "graph_base_url": "https://graph.microsoft.com/v1.0",
     "queue_use_managed_identity": False,
+    "walker_time_budget_seconds": 600,
 }
 
 
@@ -200,6 +202,29 @@ class QueueSettings(BaseSettings):
         return self
 
 
+class WalkerSettings(BaseSettings):
+    """Walker job settings: which drive to enumerate and its time budget (ADR-0014).
+
+    Parses its own slice of the environment (and ``.env``) under the
+    ``CLASSIFIER__WALKER_`` prefix. ``drive_id`` identifies the SharePoint
+    document library to walk and is the section's one required input, so a job
+    that never walks (the local CLI) simply gets ``Settings.walker is None``.
+    ``time_budget_seconds`` bounds one scheduled run so a large first enumeration
+    is resumed across slots rather than forced to finish in a single slot (default
+    10 min).
+    """
+
+    model_config = SettingsConfigDict(env_prefix="CLASSIFIER__WALKER_", env_file=".env", extra="ignore")
+
+    drive_id: str | None = None
+    time_budget_seconds: int = Field(default=DEFAULTS["walker_time_budget_seconds"], gt=0)
+
+    @property
+    def is_configured(self) -> bool:
+        """True once a target drive id is present — the walk's one required input."""
+        return self.drive_id is not None
+
+
 def _load_section[T: BaseSettings](section_type: type[T]) -> T | None:
     """Construct a nested settings section, or ``None`` when it is unconfigured.
 
@@ -230,6 +255,7 @@ class Settings(BaseSettings):
     database: DatabaseSettings | None = Field(default_factory=lambda: _load_section(DatabaseSettings))
     graph: GraphSettings | None = Field(default_factory=lambda: _load_section(GraphSettings))
     queue: QueueSettings | None = Field(default_factory=lambda: _load_section(QueueSettings))
+    walker: WalkerSettings | None = Field(default_factory=lambda: _load_section(WalkerSettings))
 
     self_consistency_n: int = Field(default=DEFAULTS["self_consistency_n"], ge=1, validation_alias="CLASSIFIER_N")
     temperature: float = Field(

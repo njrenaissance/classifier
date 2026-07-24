@@ -7,10 +7,12 @@ processor). Three responsibilities live here:
   identity in production, a client secret locally — attached to every request.
   The credential is *injected*, so unit tests fake it and no real tenant is
   needed.
-- **Delta walk** (ADR-0014): :meth:`GraphClient.iter_delta` iterates
-  ``/drives/{id}/root/delta``, yields every driveItem across pages by following
-  ``@odata.nextLink``, and *returns* the terminal ``@odata.deltaLink`` (the
-  generator's return value, read from ``StopIteration.value``).
+- **Delta walk** (ADR-0014): :meth:`GraphClient.iter_delta_pages` iterates
+  ``/drives/{id}/root/delta`` one page at a time, surfacing each page's
+  ``@odata.nextLink`` so a budgeted caller can persist a resume point at a page
+  boundary; :meth:`GraphClient.iter_delta` is the flat item-level view over it.
+  Both *return* the terminal ``@odata.deltaLink`` (the generator's return value,
+  read from ``StopIteration.value``).
 - **Parse helpers + download** (ADR-0014/0015): :func:`folder_path` and
   :func:`content_hash` are pure functions over a driveItem;
   :meth:`GraphClient.download` fetches a file's bytes into memory.
@@ -27,7 +29,7 @@ OneDrive, so :func:`content_hash` prefers ``quickXorHash`` and falls back to
 
 from collections.abc import Generator, Mapping
 from types import TracebackType
-from typing import Any
+from typing import Any, NamedTuple
 
 import httpx
 from azure.core.credentials import TokenCredential
@@ -39,6 +41,19 @@ from errors import GraphError
 # quickXorHash first: it is what SharePoint / OneDrive-for-Business populate (ADR-0017).
 _HASH_FIELDS = ("quickXorHash", "sha256Hash", "crc32Hash")
 _REQUEST_TIMEOUT_SECONDS = 60.0  # generous read window for large document downloads.
+
+
+class DeltaPage(NamedTuple):
+    """One page of a delta walk: its driveItems and the link to the next page.
+
+    ``next_link`` is the page's ``@odata.nextLink`` — the URL to fetch *after*
+    this page — or ``None`` on the terminal page (whose ``@odata.deltaLink`` the
+    walk returns instead). A budgeted walker persists ``next_link`` as its resume
+    token when it stops between pages (ADR-0014).
+    """
+
+    items: list[dict[str, Any]]
+    next_link: str | None
 
 
 def folder_path(item: Mapping[str, Any]) -> str | None:
@@ -107,19 +122,22 @@ class GraphClient:
     ) -> None:
         self.close()
 
-    def iter_delta(self, drive_id: str, start_url: str | None = None) -> Generator[dict[str, Any], None, str]:
-        """Yield every driveItem in the drive's delta, returning the deltaLink.
+    def iter_delta_pages(self, drive_id: str, start_url: str | None = None) -> Generator[DeltaPage, None, str]:
+        """Yield each delta page in turn, returning the terminal deltaLink.
 
         Walks from ``start_url`` (a saved ``@odata.nextLink``/``deltaLink`` to
-        resume from) or the initial ``/root/delta`` URL, following
-        ``@odata.nextLink`` until the terminal page, then returns its
-        ``@odata.deltaLink`` — accessible to the caller via ``StopIteration.value``.
+        resume from) or the initial ``/root/delta`` URL. Each yielded
+        :class:`DeltaPage` carries that page's items and its ``@odata.nextLink``
+        (``None`` on the terminal page), so a caller can stop between pages and
+        persist ``next_link`` as a resume token. The terminal page's
+        ``@odata.deltaLink`` is returned via ``StopIteration.value``.
         """
         url = start_url or f"{self._base_url}/drives/{drive_id}/root/delta"
         while True:
             payload = self._get_json(url)
-            yield from payload.get("value") or []  # a page may carry an explicit "value": null
+            items = payload.get("value") or []  # a page may carry an explicit "value": null
             next_link = payload.get("@odata.nextLink")
+            yield DeltaPage(items, next_link)
             if next_link is None:
                 break
             url = next_link
@@ -127,6 +145,21 @@ class GraphClient:
         if delta_link is None:
             raise GraphError(f"Delta walk of drive {drive_id!r} ended without an @odata.deltaLink token.")
         return str(delta_link)
+
+    def iter_delta(self, drive_id: str, start_url: str | None = None) -> Generator[dict[str, Any], None, str]:
+        """Yield every driveItem in the drive's delta, returning the deltaLink.
+
+        The flat item-level view over :meth:`iter_delta_pages`: it flattens each
+        page's items and forwards the terminal ``@odata.deltaLink`` — accessible
+        to the caller via ``StopIteration.value``.
+        """
+        pages = self.iter_delta_pages(drive_id, start_url)
+        while True:
+            try:
+                page = next(pages)
+            except StopIteration as stop:
+                return str(stop.value)
+            yield from page.items
 
     def download(self, drive_id: str, drive_item_id: str) -> bytes:
         """Download a driveItem's bytes into memory (ADR-0015).

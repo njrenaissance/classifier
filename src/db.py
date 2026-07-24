@@ -70,7 +70,9 @@ class SyncState(Base):
     ``delta_token`` (``@odata.deltaLink``) is set only when a walk completes;
     ``resume_token`` (``@odata.nextLink``) is set when a walk is interrupted. The
     next walk's start point is ``resume_token`` > ``delta_token`` > full
-    enumeration (ADR-0014).
+    enumeration (ADR-0014). ``last_synced_at`` stamps the most recent *completed*
+    walk — distinct from ``updated_at``, which every write (including an
+    interruption) bumps.
     """
 
     __tablename__ = "sync_state"
@@ -84,6 +86,7 @@ class SyncState(Base):
         default=WalkStatus.idle,
         server_default=WalkStatus.idle.value,
     )
+    last_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
