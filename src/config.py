@@ -7,11 +7,12 @@ reading ``os.environ`` directly.
 
 :class:`Settings` aggregates every configuration section as an **optional**
 nested model: the inference provider (``anthropic`` / ``foundry``), the
-PostgreSQL state store (``database``), and Microsoft Graph (``graph``). A
-section is ``None`` when its environment is absent and a validated model when
-present, so each job supplies only what it uses — the walker needs
-``database``/``graph`` but no inference credentials, Alembic migrations need
-only ``database``, and the local CLI needs only a provider. The *selected*
+PostgreSQL state store (``database``), Microsoft Graph (``graph``), and the
+work queue (``queue``). A section is ``None`` when its environment is absent and
+a validated model when present, so each job supplies only what it uses — the
+walker needs ``database``/``graph``/``queue`` but no inference credentials,
+Alembic migrations need only ``database``, and the local CLI needs only a
+provider. The *selected*
 provider's credentials are enforced where a client is built
 (``classifier.create_classifier``), not at load time, so loading ``Settings``
 never demands credentials a job does not use.
@@ -37,6 +38,7 @@ DEFAULTS: dict[str, Any] = {
     "graph_use_managed_identity": False,
     "graph_token_scope": "https://graph.microsoft.com/.default",
     "graph_base_url": "https://graph.microsoft.com/v1.0",
+    "queue_use_managed_identity": False,
 }
 
 
@@ -159,6 +161,45 @@ class GraphSettings(BaseSettings):
         return self
 
 
+class QueueSettings(BaseSettings):
+    """Azure Queue Storage settings for the walker→processor work queue (ADR-0012/0014).
+
+    Parses its own slice of the environment (and ``.env``) under the
+    ``CLASSIFIER__QUEUE_`` prefix. A queue ``name`` is always required; authentication
+    is **explicit** — either a ``connection_string`` (local dev / Azurite) or, for
+    production, an ``account_url`` with ``use_managed_identity`` set (Entra ID /
+    managed identity). A *partially* configured section fails loudly at load; a
+    wholly absent one resolves to ``None``.
+    """
+
+    model_config = SettingsConfigDict(env_prefix="CLASSIFIER__QUEUE_", env_file=".env", extra="ignore")
+
+    name: str | None = None
+    connection_string: SecretStr | None = None
+    account_url: str | None = None
+    use_managed_identity: bool = DEFAULTS["queue_use_managed_identity"]
+
+    @property
+    def is_configured(self) -> bool:
+        """True when a queue name and a usable credential (connection string or managed identity) are set."""
+        has_managed = self.use_managed_identity and self.account_url is not None
+        has_auth = self.connection_string is not None or has_managed
+        return self.name is not None and has_auth
+
+    @model_validator(mode="after")
+    def _reject_partial(self) -> "QueueSettings":
+        """Fail loudly on a half-configured section (e.g. a name but no credential)."""
+        if self.is_configured:
+            return self
+        intended = bool(self.name or self.connection_string or self.account_url or self.use_managed_identity)
+        if intended:
+            raise ValueError(
+                "Queue requires CLASSIFIER__QUEUE_NAME and either CLASSIFIER__QUEUE_CONNECTION_STRING, or "
+                "CLASSIFIER__QUEUE_ACCOUNT_URL with CLASSIFIER__QUEUE_USE_MANAGED_IDENTITY=true for managed identity"
+            )
+        return self
+
+
 def _load_section[T: BaseSettings](section_type: type[T]) -> T | None:
     """Construct a nested settings section, or ``None`` when it is unconfigured.
 
@@ -188,6 +229,7 @@ class Settings(BaseSettings):
     foundry: FoundrySettings | None = Field(default_factory=lambda: _load_section(FoundrySettings))
     database: DatabaseSettings | None = Field(default_factory=lambda: _load_section(DatabaseSettings))
     graph: GraphSettings | None = Field(default_factory=lambda: _load_section(GraphSettings))
+    queue: QueueSettings | None = Field(default_factory=lambda: _load_section(QueueSettings))
 
     self_consistency_n: int = Field(default=DEFAULTS["self_consistency_n"], ge=1, validation_alias="CLASSIFIER_N")
     temperature: float = Field(
