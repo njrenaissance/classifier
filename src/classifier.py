@@ -22,10 +22,10 @@ import anthropic
 from anthropic.types import Message, TextBlock
 
 from categories import CategorySet
-from config import FoundrySettings, Settings, get_settings
+from config import DEFAULT_MODEL, FoundrySettings, Settings, get_settings
 from errors import ClassificationError
 
-MODEL = "claude-haiku-4-5"  # ADR-0002 — pinned; never append a date suffix.
+MODEL = DEFAULT_MODEL  # ADR-0002 — pinned; stamped into ``classified_by`` (writer.py).
 _MAX_TOKENS = 64  # label-only reply (e.g. '{"category":"invoice"}') is tiny.
 
 

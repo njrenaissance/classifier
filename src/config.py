@@ -26,13 +26,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 Provider = Literal["anthropic", "foundry"]
 
+DEFAULT_MODEL = "claude-haiku-4-5"  # ADR-0002 — pinned; never append a date suffix.
+
 DEFAULTS: dict[str, Any] = {
     "provider": "anthropic",
     "self_consistency_n": 5,
     "temperature": 0.4,
     "confidence_threshold": 0.6,
-    "anthropic_model": "claude-haiku-4-5",
-    "foundry_model": "claude-haiku-4-5",
+    "anthropic_model": DEFAULT_MODEL,
+    "foundry_model": DEFAULT_MODEL,
     "foundry_use_managed_identity": False,
     "foundry_token_scope": "https://cognitiveservices.azure.com/.default",
     "graph_use_managed_identity": False,

@@ -24,7 +24,7 @@ import csv
 from collections.abc import Iterable
 from dataclasses import dataclass, fields
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import Insert, insert
@@ -35,6 +35,10 @@ from classifier import MODEL
 from db import Document
 from errors import OutputError, PersistenceError
 from models import DocumentClassification
+
+# The ``(sync_state_id, drive_item_id)`` conflict keys identify the row on an
+# UPSERT and so must never appear in the DO UPDATE set.
+_CONFLICT_KEYS = frozenset({"sync_state_id", "drive_item_id"})
 
 
 @dataclass(frozen=True)
@@ -96,29 +100,26 @@ def build_document_upsert(record: DocumentClassification) -> Insert:
     guard makes the update a no-op when a manual override exists, so the classifier
     **never** overwrites a human decision (ADR-0014).
     """
-    statement = insert(Document).values(
-        sync_state_id=record.sync_state_id,
-        drive_item_id=record.drive_item_id,
-        category=record.category,
-        confidence=record.confidence,
-        status=record.status,
-        classified_by=MODEL,
-        classified_at=func.now(),
-        processed_at=func.now(),
-    )
+    values = {
+        "sync_state_id": record.sync_state_id,
+        "drive_item_id": record.drive_item_id,
+        "category": record.category,
+        "confidence": record.confidence,
+        "status": record.status,
+        "classified_by": MODEL,
+        "classified_at": func.now(),
+        "processed_at": func.now(),
+    }
+    statement = insert(Document).values(**values)
+    # Derive the DO UPDATE set from the inserted columns (minus the conflict keys)
+    # so the update half can never silently drift from the insert half.
+    updates: dict[str, Any] = {name: statement.excluded[name] for name in values if name not in _CONFLICT_KEYS}
+    # ORM ``onupdate`` does not fire for a Core ON CONFLICT DO UPDATE, so refresh
+    # the row's modification stamp explicitly on re-classification.
+    updates["updated_at"] = func.now()
     return statement.on_conflict_do_update(
         index_elements=[Document.sync_state_id, Document.drive_item_id],
-        set_={
-            "category": statement.excluded.category,
-            "confidence": statement.excluded.confidence,
-            "status": statement.excluded.status,
-            "classified_by": statement.excluded.classified_by,
-            "classified_at": statement.excluded.classified_at,
-            "processed_at": statement.excluded.processed_at,
-            # ORM ``onupdate`` does not fire for a Core ON CONFLICT DO UPDATE, so
-            # refresh the row's modification stamp explicitly on re-classification.
-            "updated_at": func.now(),
-        },
+        set_=updates,
         where=Document.classification_override.is_(None),
     )
 
