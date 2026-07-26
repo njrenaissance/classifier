@@ -7,19 +7,21 @@ reading ``os.environ`` directly.
 
 :class:`Settings` aggregates every configuration section as an **optional**
 nested model: the inference provider (``anthropic`` / ``foundry``), the
-PostgreSQL state store (``database``), Microsoft Graph (``graph``), and the
-work queue (``queue``), and the walker job (``walker``). A section is ``None``
-when its environment is absent and a validated model when present, so each job
-supplies only what it uses — the walker needs
-``database``/``graph``/``queue``/``walker`` but no inference credentials,
-Alembic migrations need only ``database``, and the local CLI needs only a
-provider. The *selected*
+PostgreSQL state store (``database``), Microsoft Graph (``graph``), the
+work queue (``queue``), the walker job (``walker``), and the processor job
+(``processor``). A section is ``None`` when its environment is absent and a
+validated model when present, so each job supplies only what it uses — the walker
+needs ``database``/``graph``/``queue``/``walker`` but no inference credentials,
+the processor needs ``database``/``graph``/``queue``/``processor`` plus the
+selected provider, Alembic migrations need only ``database``, and the local CLI
+needs only a provider. The *selected*
 provider's credentials are enforced where a client is built
 (``classifier.create_classifier``), not at load time, so loading ``Settings``
 never demands credentials a job does not use.
 """
 
 from functools import lru_cache
+from pathlib import Path
 from typing import Any, Literal
 
 from pydantic import Field, SecretStr, model_validator
@@ -227,6 +229,28 @@ class WalkerSettings(BaseSettings):
         return self.drive_id is not None
 
 
+class ProcessorSettings(BaseSettings):
+    """Processor job settings: where the classifier reads its taxonomy (ADR-0012).
+
+    Parses its own slice of the environment (and ``.env``) under the
+    ``CLASSIFIER__PROCESSOR_`` prefix. ``category_file`` points at the
+    category-definition Markdown the processor loads to build its voter; it is the
+    section's one required input, so a job that never classifies (the walker, the
+    local CLI which takes ``-c`` instead) simply gets ``Settings.processor is
+    None``. The queue-triggered processor has no CLI args, so this is how the ACA
+    job discovers the file.
+    """
+
+    model_config = SettingsConfigDict(env_prefix="CLASSIFIER__PROCESSOR_", env_file=".env", extra="ignore")
+
+    category_file: Path | None = None
+
+    @property
+    def is_configured(self) -> bool:
+        """True once the category-definition file path is present — the job's one required input."""
+        return self.category_file is not None
+
+
 def _load_section[T: BaseSettings](section_type: type[T]) -> T | None:
     """Construct a nested settings section, or ``None`` when it is unconfigured.
 
@@ -258,6 +282,7 @@ class Settings(BaseSettings):
     graph: GraphSettings | None = Field(default_factory=lambda: _load_section(GraphSettings))
     queue: QueueSettings | None = Field(default_factory=lambda: _load_section(QueueSettings))
     walker: WalkerSettings | None = Field(default_factory=lambda: _load_section(WalkerSettings))
+    processor: ProcessorSettings | None = Field(default_factory=lambda: _load_section(ProcessorSettings))
 
     self_consistency_n: int = Field(default=DEFAULTS["self_consistency_n"], ge=1, validation_alias="CLASSIFIER_N")
     temperature: float = Field(

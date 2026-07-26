@@ -58,6 +58,7 @@ class DocumentStatus(StrEnum):
     completed = "completed"
     skipped = "skipped"
     pending = "pending"
+    failed = "failed"
 
 
 class Base(DeclarativeBase):
@@ -101,7 +102,9 @@ class Document(Base):
     precise change signal; on a change the walker rotates the old value into
     ``previous_hash``. ``classification_override`` is a manual label that the
     classifier must **never** overwrite (ADR-0014); ``classified_by`` records the
-    model id (``classifier.MODEL``, ADR-0002).
+    model id (``classifier.MODEL``, ADR-0002). On a failed processing attempt the
+    processor stamps ``error_message`` and bumps ``retry_count`` (an observed
+    counter — the queue's ``dequeueCount`` still governs redelivery/poison).
     """
 
     __tablename__ = "documents"
@@ -128,6 +131,9 @@ class Document(Base):
     confidence: Mapped[float | None] = mapped_column(default=None)
     classification_override: Mapped[str | None] = mapped_column(default=None)
     classified_by: Mapped[str | None] = mapped_column(default=None)
+
+    error_message: Mapped[str | None] = mapped_column(default=None)
+    retry_count: Mapped[int] = mapped_column(default=0, server_default="0")
 
     graph_modified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     classified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)

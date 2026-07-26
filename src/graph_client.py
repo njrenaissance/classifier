@@ -177,6 +177,19 @@ class GraphClient:
             raise GraphError(f"Graph download failed: GET {url}: {err}") from err
         return response.content
 
+    def fetch_content_hash(self, drive_id: str, drive_item_id: str) -> str | None:
+        """Return the driveItem's current content hash, or ``None`` if it has none.
+
+        ``GET /drives/{drive_id}/items/{drive_item_id}?$select=file`` and reads the
+        hash from the ``file`` facet via :func:`content_hash` (same preference
+        order as the walker). The processor compares this against the work item's
+        ``content_hash`` and skips a download when they diverge (ADR-0015), letting
+        the walker re-enqueue. HTTP/JSON failures raise a chained
+        :class:`~errors.GraphError`.
+        """
+        url = f"{self._base_url}/drives/{drive_id}/items/{drive_item_id}?$select=file"
+        return content_hash(self._get_json(url))
+
     def _auth_header(self) -> dict[str, str]:
         """Return the ``Authorization`` header, acquiring an app-only token."""
         try:
