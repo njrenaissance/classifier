@@ -30,6 +30,7 @@ OneDrive, so :func:`content_hash` prefers ``quickXorHash`` and falls back to
 from collections.abc import Generator, Mapping
 from types import TracebackType
 from typing import Any, NamedTuple
+from urllib.parse import quote
 
 import httpx
 from azure.core.credentials import TokenCredential
@@ -122,17 +123,22 @@ class GraphClient:
     ) -> None:
         self.close()
 
-    def iter_delta_pages(self, drive_id: str, start_url: str | None = None) -> Generator[DeltaPage, None, str]:
+    def iter_delta_pages(
+        self, drive_id: str, start_url: str | None = None, *, root_path: str | None = None
+    ) -> Generator[DeltaPage, None, str]:
         """Yield each delta page in turn, returning the terminal deltaLink.
 
         Walks from ``start_url`` (a saved ``@odata.nextLink``/``deltaLink`` to
-        resume from) or the initial ``/root/delta`` URL. Each yielded
-        :class:`DeltaPage` carries that page's items and its ``@odata.nextLink``
-        (``None`` on the terminal page), so a caller can stop between pages and
-        persist ``next_link`` as a resume token. The terminal page's
-        ``@odata.deltaLink`` is returned via ``StopIteration.value``.
+        resume from) or the initial delta URL for ``root_path`` (ADR-0019): the
+        whole drive when it is ``None``/empty, else the ``/root:/{path}:/delta``
+        subtree. ``start_url`` takes precedence, so a scoped resume replays the
+        exact page a saved token points at. Each yielded :class:`DeltaPage`
+        carries that page's items and its ``@odata.nextLink`` (``None`` on the
+        terminal page), so a caller can stop between pages and persist
+        ``next_link`` as a resume token. The terminal page's ``@odata.deltaLink``
+        is returned via ``StopIteration.value``.
         """
-        url = start_url or f"{self._base_url}/drives/{drive_id}/root/delta"
+        url = start_url or self._initial_delta_url(drive_id, root_path)
         while True:
             payload = self._get_json(url)
             items = payload.get("value") or []  # a page may carry an explicit "value": null
@@ -146,20 +152,38 @@ class GraphClient:
             raise GraphError(f"Delta walk of drive {drive_id!r} ended without an @odata.deltaLink token.")
         return str(delta_link)
 
-    def iter_delta(self, drive_id: str, start_url: str | None = None) -> Generator[dict[str, Any], None, str]:
+    def iter_delta(
+        self, drive_id: str, start_url: str | None = None, *, root_path: str | None = None
+    ) -> Generator[dict[str, Any], None, str]:
         """Yield every driveItem in the drive's delta, returning the deltaLink.
 
         The flat item-level view over :meth:`iter_delta_pages`: it flattens each
         page's items and forwards the terminal ``@odata.deltaLink`` — accessible
-        to the caller via ``StopIteration.value``.
+        to the caller via ``StopIteration.value``. ``root_path`` scopes the walk
+        the same way (ADR-0019).
         """
-        pages = self.iter_delta_pages(drive_id, start_url)
+        pages = self.iter_delta_pages(drive_id, start_url, root_path=root_path)
         while True:
             try:
                 page = next(pages)
             except StopIteration as stop:
                 return str(stop.value)
             yield from page.items
+
+    def _initial_delta_url(self, drive_id: str, root_path: str | None) -> str:
+        """Build the delta start URL for a fresh walk, scoped to ``root_path`` (ADR-0019).
+
+        A ``None``/empty ``root_path`` (or a bare ``/``) walks the whole drive via
+        ``/root/delta``; otherwise the walk is scoped to that subtree via Graph's
+        path addressing, ``/root:/{path}:/delta``. Each path segment is
+        percent-encoded while the segment separators are preserved, so a folder
+        name with spaces addresses correctly.
+        """
+        base = f"{self._base_url}/drives/{drive_id}"
+        relative = (root_path or "").strip("/")
+        if not relative:
+            return f"{base}/root/delta"
+        return f"{base}/root:/{quote(relative, safe='/')}:/delta"
 
     def download(self, drive_id: str, drive_item_id: str) -> bytes:
         """Download a driveItem's bytes into memory (ADR-0015).

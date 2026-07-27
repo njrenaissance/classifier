@@ -105,6 +105,46 @@ def test_iter_delta_resumes_from_a_supplied_start_url(mocker):
     assert http.get.call_args_list[0].args[0] == "https://graph/resume-here"
 
 
+@pytest.mark.parametrize(
+    ("root_path", "expected_url"),
+    [
+        pytest.param(None, f"{_BASE_URL}/drives/{_DRIVE_ID}/root/delta", id="none_walks_whole_drive"),
+        pytest.param("", f"{_BASE_URL}/drives/{_DRIVE_ID}/root/delta", id="empty_walks_whole_drive"),
+        pytest.param("/", f"{_BASE_URL}/drives/{_DRIVE_ID}/root/delta", id="bare_slash_walks_whole_drive"),
+        pytest.param("/Matters", f"{_BASE_URL}/drives/{_DRIVE_ID}/root:/Matters:/delta", id="top_level_subtree"),
+        pytest.param(
+            "Matters/Smith-2026-001",
+            f"{_BASE_URL}/drives/{_DRIVE_ID}/root:/Matters/Smith-2026-001:/delta",
+            id="nested_subtree_slashes_preserved",
+        ),
+        pytest.param(
+            "/Matters/Test Folder",
+            f"{_BASE_URL}/drives/{_DRIVE_ID}/root:/Matters/Test%20Folder:/delta",
+            id="spaces_are_percent_encoded",
+        ),
+    ],
+)
+def test_iter_delta_scopes_the_initial_url_to_the_root_path(mocker, root_path, expected_url):
+    http = mocker.Mock()
+    http.get.side_effect = [_response(mocker, json={"value": [], "@odata.deltaLink": "DELTA"})]
+    client, _ = _client(mocker, http)
+
+    _drain(client.iter_delta(_DRIVE_ID, root_path=root_path))
+
+    assert http.get.call_args_list[0].args[0] == expected_url
+
+
+def test_iter_delta_start_url_takes_precedence_over_root_path(mocker):
+    # A saved resume/delta token already encodes the walk's scope, so it wins.
+    http = mocker.Mock()
+    http.get.side_effect = [_response(mocker, json={"value": [], "@odata.deltaLink": "DELTA"})]
+    client, _ = _client(mocker, http)
+
+    _drain(client.iter_delta(_DRIVE_ID, start_url="https://graph/resume", root_path="/Matters"))
+
+    assert http.get.call_args_list[0].args[0] == "https://graph/resume"
+
+
 def test_iter_delta_without_a_terminal_delta_link_raises_graph_error(mocker):
     http = mocker.Mock()
     http.get.side_effect = [_response(mocker, json={"value": [{"id": "a"}]})]

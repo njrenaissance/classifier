@@ -17,13 +17,12 @@ import walker
 from db import Document, DocumentStatus, SyncState, WalkStatus
 from errors import GraphError
 from graph_client import DeltaPage
-from walker import Walker, WalkRequest, _is_in_matters
+from walker import Walker, WalkRequest
 
 pytestmark = pytest.mark.unit
 
 _NOW = datetime(2026, 7, 24, 12, 0, 0, tzinfo=UTC)
 _MATTERS_PATH = "/drives/b!x/root:/Matters/Smith-2026-001/Discovery"
-_OUTSIDE_PATH = "/drives/b!x/root:/Admin/Templates"
 
 
 # --- fixtures / stand-ins --------------------------------------------------
@@ -70,9 +69,11 @@ class _FakeGraph:
         self._pages = pages
         self._delta_link = delta_link
         self.start_url = "unset"
+        self.root_path = "unset"
 
-    def iter_delta_pages(self, _drive_id, start_url):
+    def iter_delta_pages(self, _drive_id, start_url, *, root_path=None):
         self.start_url = start_url
+        self.root_path = root_path
         yield from self._pages
         return self._delta_link
 
@@ -130,7 +131,7 @@ def _walk(mocker, pages, *, sync_state=None, documents=(), now=None):
     graph = _FakeGraph(pages)
     session = _FakeSession(sync_state, documents)
     queue = mocker.Mock()
-    request = WalkRequest(drive_id="drive-1", budget_seconds=600)
+    request = WalkRequest(drive_id="drive-1", root_path="/Matters", budget_seconds=600)
     status = Walker(session, graph, queue, request, now=now or (lambda: _NOW)).walk()
     return status, session, queue, graph
 
@@ -212,18 +213,6 @@ def test_pending_reset_is_reenqueued_preserving_the_override(mocker):
     assert reset.previous_hash is None  # unchanged hash, so nothing rotated
 
 
-def test_non_matters_file_is_recorded_skipped_without_enqueue(mocker):
-    item = _file("E", quick_xor="H", path=_OUTSIDE_PATH)
-
-    _status, session, queue, _graph = _walk(mocker, [DeltaPage([item], None)], documents=(None,))
-
-    queue.enqueue.assert_not_called()
-    skipped = [row for row in session.added if isinstance(row, Document)]
-    assert len(skipped) == 1
-    assert skipped[0].status is DocumentStatus.skipped
-    assert skipped[0].folder_path == _OUTSIDE_PATH
-
-
 def test_folders_and_deletions_are_ignored(mocker):
     items = [_folder("F"), _deleted("G")]
 
@@ -290,22 +279,13 @@ def test_first_walk_starts_from_a_full_enumeration(mocker):
     assert graph.start_url is None  # no tokens yet -> initial /root/delta URL
 
 
-# --- pure helpers ----------------------------------------------------------
+def test_walk_scopes_the_delta_to_the_configured_root_path(mocker):
+    graph = _FakeGraph([DeltaPage([], None)])
+    request = WalkRequest(drive_id="drive-1", root_path="/Matters/TestSubset", budget_seconds=600)
 
+    Walker(_FakeSession(), graph, mocker.Mock(), request, now=lambda: _NOW).walk()
 
-@pytest.mark.parametrize(
-    ("path", "expected"),
-    [
-        pytest.param("/drives/b!x/root:/Matters/Smith/Discovery", True, id="nested_under_matters"),
-        pytest.param("/drives/b!x/root:/Matters", True, id="matters_root_itself"),
-        pytest.param("/drives/b!x/root:/MattersArchive/Old", False, id="matters_prefix_but_different_folder"),
-        pytest.param("/drives/b!x/root:/Admin/Templates", False, id="outside_matters"),
-        pytest.param("/drives/b!x/other", False, id="no_root_marker"),
-        pytest.param(None, False, id="no_path"),
-    ],
-)
-def test_is_in_matters(path, expected):
-    assert _is_in_matters(path) is expected
+    assert graph.root_path == "/Matters/TestSubset"  # subtree scoping is threaded to the Graph client
 
 
 # --- run() boundary --------------------------------------------------------
@@ -314,6 +294,7 @@ def test_is_in_matters(path, expected):
 def test_run_wires_the_walk_and_returns_zero(mocker):
     settings = mocker.patch("walker.get_settings").return_value
     settings.walker.drive_id = "drive-1"
+    settings.walker.root_path = "/Matters/TestSubset"
     settings.walker.time_budget_seconds = 900
     mocker.patch("walker.create_graph_client")
     mocker.patch("walker.create_message_queue")
@@ -324,7 +305,9 @@ def test_run_wires_the_walk_and_returns_zero(mocker):
     exit_code = walker.run([])
 
     assert exit_code == 0
-    assert walker_cls.call_args.args[3] == WalkRequest(drive_id="drive-1", budget_seconds=900)
+    assert walker_cls.call_args.args[3] == WalkRequest(
+        drive_id="drive-1", root_path="/Matters/TestSubset", budget_seconds=900
+    )
     walker_cls.return_value.walk.assert_called_once_with()
 
 

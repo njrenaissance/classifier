@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from config import DatabaseSettings, GraphSettings, QueueSettings, Settings
+from config import DatabaseSettings, GraphSettings, QueueSettings, Settings, WalkerSettings
 
 pytestmark = pytest.mark.unit
 
@@ -235,3 +235,33 @@ def test_queue_partial_config_errors(monkeypatch, env):
         monkeypatch.setenv(key, value)
     with pytest.raises(ValidationError):
         Settings(_env_file=None)
+
+
+# --- walker section (ADR-0014/0019) ----------------------------------------
+
+
+def test_walker_section_is_none_without_a_drive_id():
+    assert WalkerSettings().is_configured is False
+    assert Settings(_env_file=None).walker is None
+
+
+def test_walker_section_configured_by_drive_id(monkeypatch):
+    monkeypatch.setenv("CLASSIFIER__WALKER_DRIVE_ID", "b!drive-1")
+    s = Settings(_env_file=None)
+    assert s.walker is not None
+    assert s.walker.drive_id == "b!drive-1"
+
+
+def test_walker_root_path_defaults_to_matters(monkeypatch):
+    monkeypatch.setenv("CLASSIFIER__WALKER_DRIVE_ID", "b!drive-1")
+    s = Settings(_env_file=None)
+    assert s.walker is not None
+    assert s.walker.root_path == "/Matters"
+
+
+def test_walker_root_path_overrides_from_env(monkeypatch):
+    monkeypatch.setenv("CLASSIFIER__WALKER_DRIVE_ID", "b!drive-1")
+    monkeypatch.setenv("CLASSIFIER__WALKER_ROOT_PATH", "/Matters/Smith-2026-001")
+    s = Settings(_env_file=None)
+    assert s.walker is not None
+    assert s.walker.root_path == "/Matters/Smith-2026-001"
