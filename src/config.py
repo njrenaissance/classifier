@@ -44,6 +44,7 @@ DEFAULTS: dict[str, Any] = {
     "graph_token_scope": "https://graph.microsoft.com/.default",
     "graph_base_url": "https://graph.microsoft.com/v1.0",
     "queue_use_managed_identity": False,
+    "walker_root_path": "/Matters",
     "walker_time_budget_seconds": 600,
 }
 
@@ -207,20 +208,25 @@ class QueueSettings(BaseSettings):
 
 
 class WalkerSettings(BaseSettings):
-    """Walker job settings: which drive to enumerate and its time budget (ADR-0014).
+    """Walker job settings: which drive to enumerate, from where, and its budget (ADR-0014/0019).
 
     Parses its own slice of the environment (and ``.env``) under the
     ``CLASSIFIER__WALKER_`` prefix. ``drive_id`` identifies the SharePoint
     document library to walk and is the section's one required input, so a job
     that never walks (the local CLI) simply gets ``Settings.walker is None``.
-    ``time_budget_seconds`` bounds one scheduled run so a large first enumeration
-    is resumed across slots rather than forced to finish in a single slot (default
-    10 min).
+    ``root_path`` scopes the walk to a library subtree at the Graph delta level
+    (default ``/Matters``; set it to ``/`` or empty to walk the whole drive) — the
+    single, config-driven scoping knob that supersedes the old hard-coded
+    ``/Matters`` filter (ADR-0019), and handy for pointing an integration test at
+    a small subset of files. ``time_budget_seconds`` bounds one scheduled run so a
+    large first enumeration is resumed across slots rather than forced to finish in
+    a single slot (default 10 min).
     """
 
     model_config = SettingsConfigDict(env_prefix="CLASSIFIER__WALKER_", env_file=".env", extra="ignore")
 
     drive_id: str | None = None
+    root_path: str = Field(default=DEFAULTS["walker_root_path"])
     time_budget_seconds: int = Field(default=DEFAULTS["walker_time_budget_seconds"], gt=0)
 
     @property

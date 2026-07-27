@@ -18,8 +18,12 @@ Two properties define it:
   content hash is unchanged is never re-enqueued. A hash change rotates the old
   hash into ``previous_hash`` and re-queues; a ``pending`` reset re-queues through
   the same path (a re-classification), always preserving a manual
-  ``classification_override``. Files outside ``/Matters/`` are recorded
-  ``skipped`` and never enqueued.
+  ``classification_override``.
+
+The walk is scoped to a configurable library subtree (``WalkerSettings.root_path``,
+default ``/Matters``) at the Graph delta level, so the walker sees only in-scope
+items — the single config-driven scoping knob that supersedes the old hard-coded
+``/Matters`` post-walk filter (ADR-0019).
 
 The delta pagination, path/hash parsing (``graph_client``), the queue producer
 (``message_queue``), and the state-store models (``db``) are reused as-is; this
@@ -54,13 +58,6 @@ logger = logging.getLogger(__name__)
 # duplicate work (ADR-0014). This is the walker's cross-walk idempotency guard.
 _IN_FLIGHT = frozenset({DocumentStatus.queued, DocumentStatus.processing})
 
-# The library layout the walker ingests: only files under the ``/Matters/`` root
-# of the drive are classified; everything else is skipped (ADR-0014). The raw
-# Graph path is ``.../root:/Matters/...``, so the check is on the segment after
-# the ``root:`` marker.
-_LIBRARY_ROOT_MARKER = "root:"
-_MATTERS_PREFIX = "/Matters"
-
 
 def _utc_now() -> datetime:
     """Return the current time as a timezone-aware UTC datetime."""
@@ -69,32 +66,17 @@ def _utc_now() -> datetime:
 
 @dataclass(frozen=True)
 class WalkRequest:
-    """The parameters of one walk: which drive to enumerate and its time budget.
+    """The parameters of one walk: which drive, from where, and its time budget.
 
     A resolved, non-optional view of :class:`~config.WalkerSettings` that
     :func:`run` builds once the settings are known to be present, so the core
-    :class:`Walker` never deals with unconfigured state.
+    :class:`Walker` never deals with unconfigured state. ``root_path`` scopes the
+    walk to a library subtree at the Graph delta level (ADR-0019).
     """
 
     drive_id: str
+    root_path: str
     budget_seconds: int
-
-
-def _is_in_matters(path: str | None) -> bool:
-    """True when ``path`` names a location under the drive's ``/Matters/`` root.
-
-    ``path`` is the raw Graph ``parentReference.path``
-    (``/drives/{id}/root:/Matters/Smith-2026-001/Discovery``); the part after the
-    ``root:`` marker is the drive-relative path. A file directly in ``/Matters``
-    or in any descendant matches; ``/MattersArchive`` (a different top folder)
-    does not.
-    """
-    if path is None:
-        return False
-    _, marker, relative = path.partition(_LIBRARY_ROOT_MARKER)
-    if not marker:
-        return False
-    return relative == _MATTERS_PREFIX or relative.startswith(_MATTERS_PREFIX + "/")
 
 
 def _mime_type(item: Mapping[str, Any]) -> str | None:
@@ -147,6 +129,7 @@ class Walker:
         self._graph = graph
         self._queue = queue
         self._drive_id = request.drive_id
+        self._root_path = request.root_path
         self._budget = timedelta(seconds=request.budget_seconds)
         self._now = now
 
@@ -160,7 +143,7 @@ class Walker:
         """
         sync = self._begin_walk()
         deadline = self._now() + self._budget
-        pages = self._graph.iter_delta_pages(self._drive_id, self._start_url(sync))
+        pages = self._graph.iter_delta_pages(self._drive_id, self._start_url(sync), root_path=self._root_path)
         while True:
             try:
                 page = next(pages)
@@ -208,12 +191,13 @@ class Walker:
         return WalkStatus.interrupted
 
     def _process_item(self, sync: SyncState, item: dict[str, Any]) -> None:
-        """Apply the enqueue decision for one driveItem (ADR-0014).
+        """Apply the enqueue decision for one driveItem (ADR-0014/0019).
 
         Deletion tombstones, folders and hashless items carry no content signal
-        and are ignored. A file outside ``/Matters/`` is recorded ``skipped``; a
-        file inside is enqueued only when it is new, changed, or a ``pending``
-        re-classification — never when in flight or unchanged.
+        and are ignored. The walk is already scoped to the configured subtree at
+        the Graph level, so every remaining file is in scope and is enqueued only
+        when it is new, changed, or a ``pending`` re-classification — never when in
+        flight or unchanged.
         """
         if item.get("deleted") is not None:
             return
@@ -221,9 +205,6 @@ class Walker:
         if new_hash is None:
             return
         document = self._existing_document(sync, item["id"])
-        if not _is_in_matters(folder_path(item)):
-            self._mark_skipped(sync, item, document)
-            return
         if self._should_enqueue(document, new_hash):
             self._queue_document(sync, item, document, new_hash)
 
@@ -250,16 +231,6 @@ class Walker:
         if document.status is DocumentStatus.pending:
             return True
         return new_hash != document.content_hash
-
-    def _mark_skipped(self, sync: SyncState, item: dict[str, Any], document: Document | None) -> None:
-        """Record a non-``/Matters`` file as ``skipped`` without enqueuing it."""
-        if document is None:
-            document = Document(sync_state_id=sync.id, drive_item_id=item["id"])
-            self._session.add(document)
-        document.file_name = item.get("name")
-        document.folder_path = folder_path(item)
-        document.status = DocumentStatus.skipped
-        self._session.commit()
 
     def _queue_document(self, sync: SyncState, item: dict[str, Any], document: Document | None, new_hash: str) -> None:
         """Persist the row as ``queued`` then enqueue its work item.
@@ -327,7 +298,11 @@ def run(argv: list[str]) -> int:
         walker = settings.walker
         if walker is None or walker.drive_id is None:
             raise ValueError("Walker is not configured; set CLASSIFIER__WALKER_DRIVE_ID.")
-        request = WalkRequest(drive_id=walker.drive_id, budget_seconds=walker.time_budget_seconds)
+        request = WalkRequest(
+            drive_id=walker.drive_id,
+            root_path=walker.root_path,
+            budget_seconds=walker.time_budget_seconds,
+        )
         with create_graph_client() as graph, create_message_queue() as queue, get_sessionmaker()() as session:
             status = Walker(session, graph, queue, request).walk()
     except (AppError, ValidationError):
