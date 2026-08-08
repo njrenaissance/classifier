@@ -7,24 +7,26 @@ message, so there is no polling loop — the job handles a single work item and
 exits (ADR-0012).
 
 For one E2 work item (:class:`~models.Message`) the processor: marks the
-``documents`` row ``processing``; re-checks the Graph ``content_hash`` and skips
-(letting the walker re-enqueue) on a mismatch; downloads the bytes via Graph
-(E3, ADR-0015); extracts text by ``mime_type`` (E4), recording ``skipped`` for an
-unsupported type; classifies with the self-consistency voter (#10, ADR-0005); and
-UPSERTs the result via the E1 :class:`~writer.DatabaseWriter` — which never
-overwrites a manual ``classification_override`` (ADR-0014) — while appending a
-``processing_log`` audit row. A failure marks the row ``failed`` with an
-``error_message``, bumps ``retry_count``, logs the attempt, and re-raises
-(chained): the message is not deleted, so the queue redelivers it and its
-``dequeueCount`` — never a message field — drives retry/poison shedding.
+``documents`` row ``processing``; re-checks the ``content_hash`` via the injected
+:class:`~content_source.ContentSource` and skips (letting the walker re-enqueue)
+on a mismatch; downloads the bytes through the same source (Graph, ADR-0015, or a
+mounted filesystem, ADR-0020); extracts text by ``mime_type`` (E4), recording
+``skipped`` for an unsupported type; classifies with the self-consistency voter
+(#10, ADR-0005); and UPSERTs the result via the E1
+:class:`~writer.DatabaseWriter` — which never overwrites a manual
+``classification_override`` (ADR-0014) — while appending a ``processing_log``
+audit row. A failure marks the row ``failed`` with an ``error_message``, bumps
+``retry_count``, logs the attempt, and re-raises (chained): the message is not
+deleted, so the queue redelivers it and its ``dequeueCount`` — never a message
+field — drives retry/poison shedding.
 
 The classification core (``categories``, ``extraction``, ``classifier``,
-``self_consistency``) and the seams (``graph_client``, ``message_queue``,
+``self_consistency``) and the seams (``content_source``, ``message_queue``,
 ``writer``, ``db``) are reused as-is; this module owns only the per-message
-orchestration. :class:`Processor` is the testable core (every boundary — Graph,
-queue, session, voter, writer — is injected); :func:`run` is the system boundary
-that wires them, catches domain failures once, and converts them into an exit
-code.
+orchestration. :class:`Processor` is the testable core (every boundary — the
+content source, queue, session, voter, writer — is injected); :func:`run` is the
+system boundary that selects the source, wires them, catches domain failures once,
+and converts them into an exit code.
 """
 
 import argparse
@@ -37,6 +39,7 @@ from sqlalchemy.orm import Session
 
 from categories import parse_category_file
 from config import get_settings
+from content_source import ContentSource, GraphContentSource
 from db import Document, DocumentStatus, ProcessingLog, get_sessionmaker
 from errors import (
     AppError,
@@ -44,10 +47,11 @@ from errors import (
     ExtractionError,
     GraphError,
     PersistenceError,
+    SourceError,
     UnsupportedFormatError,
 )
 from extraction import extract_text_from_bytes
-from graph_client import GraphClient, create_graph_client
+from graph_client import create_graph_client
 from message_queue import MessageQueue, ReceivedMessage, create_message_queue
 from models import DocumentClassification, Message
 from self_consistency import SelfConsistencyClassifier, Verdict, create_self_consistency_classifier
@@ -65,28 +69,31 @@ _LOG_FAILED = "failed"
 # is marked ``failed`` and the exception re-raised (chained, never swallowed).
 # ``UnsupportedFormatError`` is a subclass of ``ExtractionError`` but is handled
 # separately as a ``skipped`` outcome, so it must be caught *before* this tuple.
-_ATTEMPT_FAILURES = (GraphError, ExtractionError, ClassificationError, PersistenceError)
+# ``SourceError`` is the filesystem retrieval failure (ADR-0020), the peer of
+# ``GraphError`` on the Graph path — both are content-retrieval attempt failures.
+_ATTEMPT_FAILURES = (GraphError, SourceError, ExtractionError, ClassificationError, PersistenceError)
 
 
 class Processor:
     """Classifies one queued document per invocation (E6, ADR-0012).
 
     Every boundary is injected so the core is trivially unit-testable: the queue
-    (dequeue/delete), Graph (hash re-check + download), the self-consistency voter,
-    the SQLAlchemy session, and the result writer. The session's lifecycle is
-    owned by the caller (see :func:`run`).
+    (dequeue/delete), the content source (hash re-check + download — Graph or
+    filesystem, ADR-0020), the self-consistency voter, the SQLAlchemy session, and
+    the result writer. The session's lifecycle is owned by the caller (see
+    :func:`run`).
     """
 
     def __init__(
         self,
         session: Session,
-        graph: GraphClient,
+        source: ContentSource,
         queue: MessageQueue,
         voter: SelfConsistencyClassifier,
         writer: Writer,
     ) -> None:
         self._session = session
-        self._graph = graph
+        self._source = source
         self._queue = queue
         self._voter = voter
         self._writer = writer
@@ -125,11 +132,11 @@ class Processor:
     def _run_pipeline(self, document: Document, message: Message, received: ReceivedMessage) -> None:
         """Re-check the hash, then download → extract → classify, recording the outcome."""
         try:
-            current_hash = self._graph.fetch_content_hash(message.drive_id, message.drive_item_id)
+            current_hash = self._source.fetch_content_hash(message)
             if current_hash != message.content_hash:
                 self._record_skipped(document, received, "content_hash mismatch; walker will re-enqueue")
                 return
-            data = self._graph.download(message.drive_id, message.drive_item_id)
+            data = self._source.download(message)
             text = extract_text_from_bytes(data, message.mime_type)
             verdict = self._voter.classify(text)
         except UnsupportedFormatError as err:
@@ -252,7 +259,8 @@ def run(argv: list[str]) -> int:
         categories = parse_category_file(processor.category_file)
         voter = create_self_consistency_classifier(categories, settings)
         with create_graph_client() as graph, create_message_queue() as queue, get_sessionmaker()() as session:
-            Processor(session, graph, queue, voter, DatabaseWriter(session)).run_once()
+            source = GraphContentSource(graph)
+            Processor(session, source, queue, voter, DatabaseWriter(session)).run_once()
     except (AppError, ValidationError):
         logger.exception("Processing failed")
         return 1
