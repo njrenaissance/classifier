@@ -14,7 +14,7 @@ import pytest
 from pydantic import ValidationError
 
 import walker
-from db import Document, DocumentStatus, SyncState, WalkStatus
+from db import Document, SyncState, WalkStatus
 from errors import GraphError
 from graph_client import DeltaPage
 from walker import Walker, WalkRequest
@@ -46,20 +46,6 @@ def _folder(item_id):
 def _deleted(item_id):
     """A Graph delta tombstone for a removed item."""
     return {"id": item_id, "deleted": {"state": "deleted"}, "parentReference": {"path": _MATTERS_PATH}}
-
-
-def _document(drive_item_id, *, status, content_hash="H", override=None, previous_hash=None):
-    """A persisted ``documents`` row stand-in with a fixed id."""
-    doc = Document(
-        sync_state_id=1,
-        drive_item_id=drive_item_id,
-        content_hash=content_hash,
-        previous_hash=previous_hash,
-        classification_override=override,
-        status=status,
-    )
-    doc.id = 500
-    return doc
 
 
 class _FakeGraph:
@@ -144,73 +130,12 @@ def _enqueued_ids(queue):
 # --- enqueue decisions -----------------------------------------------------
 
 
-def test_new_and_changed_matters_files_are_each_enqueued_exactly_once(mocker):
-    items = [
-        _file("A", quick_xor="HA"),  # new -> enqueue
-        _file("B", quick_xor="HB"),  # unchanged -> skip
-        _file("C", quick_xor="HC-new"),  # in flight -> skip despite change
-        _file("D", quick_xor="HD-new"),  # hash changed -> enqueue
-    ]
-    documents = (
-        None,
-        _document("B", status=DocumentStatus.completed, content_hash="HB"),
-        _document("C", status=DocumentStatus.queued, content_hash="HC-old"),
-        _document("D", status=DocumentStatus.completed, content_hash="HD-old"),
-    )
+def test_new_file_is_enqueued(mocker):
+    # The full walk wires a driveItem through to the shared Enqueuer; the detailed
+    # new/changed/in-flight/pending decision matrix is covered in test_enqueuer.py.
+    _status, _session, queue, _graph = _walk(mocker, [DeltaPage([_file("A", quick_xor="HA")], None)], documents=(None,))
 
-    _status, _session, queue, _graph = _walk(mocker, [DeltaPage(items, None)], documents=documents)
-
-    assert _enqueued_ids(queue) == ["A", "D"]
-
-
-def test_hash_change_rotates_the_previous_hash_and_requeues(mocker):
-    changed = _document("D", status=DocumentStatus.completed, content_hash="old")
-    item = _file("D", quick_xor="new")
-
-    _status, _session, queue, _graph = _walk(mocker, [DeltaPage([item], None)], documents=(changed,))
-
-    assert changed.previous_hash == "old"
-    assert changed.content_hash == "new"
-    assert changed.status is DocumentStatus.queued
-    assert _enqueued_ids(queue) == ["D"]
-
-
-@pytest.mark.parametrize(
-    "status",
-    [
-        pytest.param(DocumentStatus.queued, id="queued"),
-        pytest.param(DocumentStatus.processing, id="processing"),
-    ],
-)
-def test_in_flight_files_are_never_enqueued(mocker, status):
-    in_flight = _document("C", status=status, content_hash="old")
-    item = _file("C", quick_xor="new")  # even a real change must not re-enqueue
-
-    _status, _session, queue, _graph = _walk(mocker, [DeltaPage([item], None)], documents=(in_flight,))
-
-    queue.enqueue.assert_not_called()
-    assert in_flight.previous_hash is None  # untouched while in flight
-
-
-def test_unchanged_file_is_not_enqueued(mocker):
-    unchanged = _document("B", status=DocumentStatus.completed, content_hash="H")
-    item = _file("B", quick_xor="H")
-
-    _status, _session, queue, _graph = _walk(mocker, [DeltaPage([item], None)], documents=(unchanged,))
-
-    queue.enqueue.assert_not_called()
-
-
-def test_pending_reset_is_reenqueued_preserving_the_override(mocker):
-    reset = _document("P", status=DocumentStatus.pending, content_hash="H", override="Correspondence")
-    item = _file("P", quick_xor="H")  # unchanged hash — the pending reset still re-queues
-
-    _status, _session, queue, _graph = _walk(mocker, [DeltaPage([item], None)], documents=(reset,))
-
-    assert _enqueued_ids(queue) == ["P"]
-    assert reset.status is DocumentStatus.queued
-    assert reset.classification_override == "Correspondence"  # never clobbered
-    assert reset.previous_hash is None  # unchanged hash, so nothing rotated
+    assert _enqueued_ids(queue) == ["A"]
 
 
 def test_folders_and_deletions_are_ignored(mocker):

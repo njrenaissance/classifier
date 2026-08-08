@@ -26,9 +26,12 @@ items — the single config-driven scoping knob that supersedes the old hard-cod
 ``/Matters`` post-walk filter (ADR-0019).
 
 The delta pagination, path/hash parsing (``graph_client``), the queue producer
-(``message_queue``), and the state-store models (``db``) are reused as-is; this
-module owns only the budgeted loop and the enqueue decisions. :class:`Walker` is
-the testable core (every boundary — Graph, queue, session, clock — is injected);
+(``message_queue``), and the state-store models (``db``) are reused as-is; the
+new/changed/in-flight/pending enqueue decision and the commit-before-enqueue
+persistence live in the shared source-neutral :class:`~enqueuer.Enqueuer`
+(ADR-0020), so this module owns only the budgeted delta loop and turning each
+driveItem into an :class:`~enqueuer.DocumentCandidate`. :class:`Walker` is the
+testable core (every boundary — Graph, queue, session, clock — is injected);
 :func:`run` is the system boundary that wires them, catches domain failures once,
 and converts them into an exit code.
 """
@@ -38,7 +41,7 @@ import logging
 import sys
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from pydantic import ValidationError
@@ -46,22 +49,14 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from config import get_settings
-from db import Document, DocumentStatus, SyncState, WalkStatus, get_sessionmaker
+from db import SyncState, WalkStatus, get_sessionmaker
+from enqueuer import DocumentCandidate, Enqueuer, _utc_now
 from errors import AppError
 from graph_client import GraphClient, content_hash, create_graph_client, folder_path
 from message_queue import MessageQueue, create_message_queue
-from models import Message
+from models import MessageSource
 
 logger = logging.getLogger(__name__)
-
-# A file already queued or processing is "in flight"; re-enqueuing it would
-# duplicate work (ADR-0014). This is the walker's cross-walk idempotency guard.
-_IN_FLIGHT = frozenset({DocumentStatus.queued, DocumentStatus.processing})
-
-
-def _utc_now() -> datetime:
-    """Return the current time as a timezone-aware UTC datetime."""
-    return datetime.now(UTC)
 
 
 @dataclass(frozen=True)
@@ -89,25 +84,6 @@ def _mime_type(item: Mapping[str, Any]) -> str | None:
     return None
 
 
-def _build_message(document: Document, drive_id: str, enqueued_at: datetime) -> Message:
-    """Build the queue work item for a just-persisted ``queued`` document row.
-
-    Every field the processor needs is read off the ``documents`` row (populated
-    from the driveItem moments earlier), so the message carries the file's
-    identity without a further DB read (ADR-0014).
-    """
-    return Message(
-        document_id=document.id,
-        sync_state_id=document.sync_state_id,
-        drive_id=drive_id,
-        drive_item_id=document.drive_item_id,
-        file_name=document.file_name or "",
-        mime_type=document.mime_type or "",
-        content_hash=document.content_hash or "",
-        enqueued_at=enqueued_at,
-    )
-
-
 class Walker:
     """A single budgeted, resumable walk of one document library (ADR-0014).
 
@@ -127,11 +103,11 @@ class Walker:
     ) -> None:
         self._session = session
         self._graph = graph
-        self._queue = queue
         self._drive_id = request.drive_id
         self._root_path = request.root_path
         self._budget = timedelta(seconds=request.budget_seconds)
         self._now = now
+        self._enqueuer = Enqueuer(session, queue, now=now)
 
     def walk(self) -> WalkStatus:
         """Walk the drive's delta under the time budget; return the final status.
@@ -191,83 +167,27 @@ class Walker:
         return WalkStatus.interrupted
 
     def _process_item(self, sync: SyncState, item: dict[str, Any]) -> None:
-        """Apply the enqueue decision for one driveItem (ADR-0014/0019).
+        """Build a candidate from one driveItem and hand it to the shared enqueuer (ADR-0014/0019).
 
         Deletion tombstones, folders and hashless items carry no content signal
         and are ignored. The walk is already scoped to the configured subtree at
-        the Graph level, so every remaining file is in scope and is enqueued only
-        when it is new, changed, or a ``pending`` re-classification — never when in
-        flight or unchanged.
+        the Graph level, so every remaining file is in scope; the source-neutral
+        :class:`~enqueuer.Enqueuer` then applies the new/changed/in-flight/pending
+        decision (identical to the filesystem producer, ADR-0020).
         """
         if item.get("deleted") is not None:
             return
         new_hash = content_hash(item)
         if new_hash is None:
             return
-        document = self._existing_document(sync, item["id"])
-        if self._should_enqueue(document, new_hash):
-            self._queue_document(sync, item, document, new_hash)
-
-    def _existing_document(self, sync: SyncState, drive_item_id: str) -> Document | None:
-        """Return the ``documents`` row for ``(sync, drive_item_id)``, or ``None``."""
-        return self._session.scalars(
-            select(Document).where(
-                Document.sync_state_id == sync.id,
-                Document.drive_item_id == drive_item_id,
-            )
-        ).one_or_none()
-
-    @staticmethod
-    def _should_enqueue(document: Document | None, new_hash: str) -> bool:
-        """Decide whether a driveItem inside ``/Matters/`` needs (re-)queuing.
-
-        New file → yes; in flight → no; ``pending`` reset → yes (re-classify);
-        otherwise only when the content hash changed.
-        """
-        if document is None:
-            return True
-        if document.status in _IN_FLIGHT:
-            return False
-        if document.status is DocumentStatus.pending:
-            return True
-        return new_hash != document.content_hash
-
-    def _queue_document(self, sync: SyncState, item: dict[str, Any], document: Document | None, new_hash: str) -> None:
-        """Persist the row as ``queued`` then enqueue its work item.
-
-        The row is committed *before* the enqueue because a queue send cannot be
-        rolled back: committing first means a rare send failure leaves an
-        at-most-once gap (a stuck ``queued`` row, recoverable via a ``pending``
-        reset), never a duplicate message. The in-flight guard then skips the row
-        on any later walk.
-        """
-        document = self._upsert_queued_row(sync, item, document, new_hash)
-        message = _build_message(document, self._drive_id, self._now())
-        self._session.commit()
-        self._queue.enqueue(message)
-
-    def _upsert_queued_row(
-        self, sync: SyncState, item: dict[str, Any], document: Document | None, new_hash: str
-    ) -> Document:
-        """Insert or update the ``documents`` row to ``queued``, flushing its id.
-
-        On a genuine hash change the previous hash is rotated into
-        ``previous_hash``; a ``pending`` reset with an unchanged hash keeps it.
-        ``classification_override`` is never touched — the walker must not clobber
-        a human decision (ADR-0014).
-        """
-        if document is None:
-            document = Document(sync_state_id=sync.id, drive_item_id=item["id"])
-            self._session.add(document)
-        elif new_hash != document.content_hash:
-            document.previous_hash = document.content_hash
-        document.file_name = item.get("name")
-        document.mime_type = _mime_type(item)
-        document.folder_path = folder_path(item)
-        document.content_hash = new_hash
-        document.status = DocumentStatus.queued
-        self._session.flush()  # assign document.id for the message
-        return document
+        candidate = DocumentCandidate(
+            drive_item_id=item["id"],
+            content_hash=new_hash,
+            file_name=item.get("name"),
+            mime_type=_mime_type(item),
+            folder_path=folder_path(item),
+        )
+        self._enqueuer.enqueue_if_needed(sync, self._drive_id, MessageSource.sharepoint, candidate)
 
 
 def build_parser() -> argparse.ArgumentParser:
