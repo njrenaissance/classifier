@@ -202,4 +202,5 @@ verdict = sc.classify("Some document text")
 - **Error handling:** If any run fails, propagate `ClassificationError` to the CLI
 - **CSV output:** The `Verdict` is converted to a `ClassificationResult` row for CSV writing
 
+<!-- openwiki: broken internal link [../architecture/overview.md#b2-self-consistency--confidence] heading anchor "b2-self-consistency--confidence" does not exist in "../architecture/overview.md". Fix the href or restore the target, then delete this comment. -->
 See [../architecture/overview.md](../architecture/overview.md#b2-self-consistency--confidence) for the role of B2 in the system and [../workflows/classification-pipeline.md](../workflows/classification-pipeline.md#step-5-extract--classify-each-document-a2--b1--b2) for the pipeline context.

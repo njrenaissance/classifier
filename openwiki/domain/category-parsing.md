@@ -199,4 +199,5 @@ except CategoryFileError as e:
 - Prevents subtle bugs where "Invoice" and "INVOICE" are treated as different labels
 - Keeps output unambiguous and deterministic
 
+<!-- openwiki: broken internal link [../architecture/overview.md#a1-category-parsing] heading anchor "a1-category-parsing" does not exist in "../architecture/overview.md". Fix the href or restore the target, then delete this comment. -->
 See [../architecture/overview.md](../architecture/overview.md#a1-category-parsing) for the role of A1 in the system and [../workflows/classification-pipeline.md](../workflows/classification-pipeline.md#step-1-parse-categories-a1) for the pipeline context.

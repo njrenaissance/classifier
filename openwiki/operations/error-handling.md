@@ -20,7 +20,10 @@ Exception (Python built-in)
     ├── ExtractionError          (A2: text extraction)
     │   └── UnsupportedFormatError
     ├── ClassificationError      (B1: API call)
-    └── OutputError              (A4: CSV write)
+    ├── OutputError              (A4: CSV write)
+    ├── GraphError               (Cloud: Graph API failures)
+    ├── QueueError               (Cloud: Queue transport/serialization)
+    └── PersistenceError         (Cloud: Database write failures)
 ```
 
 ## Error Types
@@ -187,6 +190,93 @@ except OutputError as e:
 - Fail the entire run
 - User cannot use the results if they weren't written
 
+### GraphError (Cloud)
+
+**When it occurs:**
+- Microsoft Graph authentication fails (invalid credentials, revoked managed identity)
+- Graph API call fails (timeout, rate limiting, service unavailable)
+- Graph API returns unexpected response format
+- Delta walk token is invalid or expired
+- SharePoint file item not found (deleted while queued)
+
+**Example:**
+```python
+from graph_client import GraphClient
+from errors import GraphError
+
+try:
+    items = graph_client.list_changes(drive_id, delta_token=token)
+except GraphError as e:
+    print(f"Graph error: {e}")
+    # "Failed to enumerate SharePoint"
+    # "Authentication failed"
+    # "Graph API error"
+```
+
+**Recovery:**
+- **Walker:** Log error, fail the walk, keep current `resume_token` / `delta_token` (don't persist new state)
+  - Next scheduled run will retry from same position
+- **Processor:** Mark Document `status=failed`, do NOT delete message from queue
+  - Queue redelivers message after visibility timeout
+  - If `dequeue_count` exceeds threshold, mark as poison message
+
+### QueueError (Cloud)
+
+**When it occurs:**
+- Azure Queue authentication fails
+- Queue transport error (network timeout, service unavailable)
+- Message body is malformed (fails to parse as `Message`)
+- Serialization error when enqueueing a message
+
+**Example:**
+```python
+from message_queue import MessageQueue
+from errors import QueueError
+
+try:
+    queue.enqueue(message)
+except QueueError as e:
+    print(f"Queue error: {e}")
+    # "Failed to enqueue message"
+    # "Queue authentication failed"
+```
+
+**Recovery:**
+- **Walker (enqueue):** Log error, fail the walk
+  - Keep current state; don't persist `resume_token` / `delta_token`
+  - Next scheduled run will retry from same position
+- **Processor (dequeue/delete):** Log error, mark Document `status=failed`
+  - Do NOT delete message from queue
+  - Queue redelivers after visibility timeout
+
+### PersistenceError (Cloud)
+
+**When it occurs:**
+- PostgreSQL connection fails (network, authentication, service unavailable)
+- Database query fails (constraint violation, syntax error, permission denied)
+- Transaction rollback (deadlock, concurrent modification)
+
+**Example:**
+```python
+from writer import DatabaseWriter
+from errors import PersistenceError
+
+try:
+    writer.upsert_classification(doc, classification)
+except PersistenceError as e:
+    print(f"Database error: {e}")
+    # "Failed to update document"
+    # "Database connection lost"
+```
+
+**Recovery:**
+- **Walker:** Log error, fail the walk
+  - Keep current state; don't persist `resume_token` / `delta_token`
+  - Next scheduled run will retry
+- **Processor:** Mark Document `status=failed`
+  - Do NOT delete message from queue (will be retried)
+  - If `dequeue_count` exceeds threshold, mark as poison message
+
 ## Error Chains
 
 All errors preserve the root cause via Python's `raise ... from` syntax:
@@ -227,19 +317,76 @@ from errors import CategoryFileError
 raise CategoryFileError("Invalid category format")
 ```
 
-## CLI Error Handling (Future)
+## Local CLI Error Handling
 
-When the CLI (C1) is implemented, it should:
+The local CLI (`main.py`) handles errors as follows:
 
 1. **Catch `CategoryFileError` immediately** → Print error and exit
 2. **Catch `SourceError` immediately** → Print error and exit
 3. **For each document:**
    - Try to extract and classify
-   - Catch `ExtractionError` → Log warning, skip document (or fail run?)
-   - Catch `ClassificationError` → Log error, skip document (or fail run?)
+   - Catch `ExtractionError` → Log warning, skip document, continue
+   - Catch `ClassificationError` → Log error, skip document, continue
 4. **After all documents, catch `OutputError`** → Print error and exit
 
-**Decision TBD:** Should a single document failure fail the entire run, or should the CLI skip failed documents and write partial results?
+**Behavior:** A single document failure is logged but does not fail the entire run; other documents are still classified and written to CSV.
+
+## Cloud Pipeline Error Handling
+
+### Walker
+
+On domain error, the walker:
+
+1. **Catch `CategoryFileError`** → Log error, exit (no state change)
+2. **Catch `GraphError`** → Log error, exit (no state change; next run retries from same position)
+3. **Catch `QueueError`** → Log error, exit (no state change; next run retries)
+4. **Catch `PersistenceError`** → Log error, exit (no state change; database state unchanged)
+
+**Key:** If an error occurs, the walker does NOT commit a new `resume_token` or `delta_token`. The next scheduled run will use the previous state and retry from the same position.
+
+**Entry point handler** (`walker.run()`):
+```python
+try:
+    walker = Walker(...)
+    walker.walk()
+except AppError as e:
+    logger.exception(f"Walk failed: {e}")
+    sys.exit(1)
+```
+
+### Processor
+
+On domain error, the processor:
+
+1. **Catch `UnsupportedFormatError`** (subclass of `ExtractionError`)
+   - Mark Document `status=skipped`
+   - DELETE message from queue (no retry)
+   - Exit normally
+
+2. **Catch `GraphError`, `ExtractionError` (non-unsupported), `ClassificationError`, `PersistenceError`**
+   - Mark Document `status=failed`
+   - Increment `retry_count`
+   - Do NOT delete message from queue
+   - Re-raise exception (logs and monitoring)
+   - Exit with error code
+
+   Queue redelivers the message after visibility timeout.
+   If `dequeue_count` exceeds threshold (e.g., 5), processor marks row as poison and exits.
+
+**Entry point handler** (`processor.run()`):
+```python
+try:
+    processor = Processor(...)
+    processor.process_one(received_message)
+    queue.delete(received.message_id, received.pop_receipt)
+except UnsupportedFormatError:
+    # Mark skipped, delete message, exit normally
+    ...
+except AppError as e:
+    # Mark failed, do NOT delete message, re-raise
+    logger.exception(f"Processing failed: {e}")
+    sys.exit(1)
+```
 
 ## Testing & Mocking
 
@@ -327,4 +474,9 @@ logging.basicConfig(level=logging.DEBUG)    # Show all
    return False
    ```
 
-See [../architecture/overview.md](../architecture/overview.md#error-handling) for the error handling design overview.
+## Related Pages
+
+- [Architecture Overview](../architecture/overview.md#error-handling) — Error handling design overview
+- [Cloud Pipeline Workflow](../workflows/cloud-pipeline.md) — How errors are handled in walker and processor
+- [State Store](state-store.md) — Document status transitions and failure recovery
+- [Cloud Seams](cloud-seams.md) — Graph and queue error translation
