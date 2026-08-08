@@ -10,9 +10,24 @@ Two models live here: :class:`DocumentClassification`, the input to
 the walker (producer) enqueues and the processor (consumer) reads (ADR-0014).
 """
 
+from enum import StrEnum
+
 from pydantic import AwareDatetime, BaseModel
 
 from db import DocumentStatus
+
+
+class MessageSource(StrEnum):
+    """Which source produced a work item — the message's self-describing origin (ADR-0020).
+
+    ``sharepoint`` is the Graph delta pipeline (ADR-0014); ``filesystem`` is the
+    mounted-directory source (ADR-0020). The processor selects its retrieval seam
+    from configuration, but carrying the source on the wire lets it fail fast on a
+    misconfigured queue whose messages do not match the configured source.
+    """
+
+    sharepoint = "sharepoint"
+    filesystem = "filesystem"
 
 
 class DocumentClassification(BaseModel):
@@ -44,8 +59,15 @@ class Message(BaseModel):
     and the processor reads ``model_validate_json()``. ``enqueued_at`` is required
     to be timezone-aware (:class:`~pydantic.AwareDatetime`) so a naive stamp is
     rejected at the boundary rather than misread as local time downstream.
+
+    ``source`` (ADR-0020) discriminates the producer. It defaults to
+    :attr:`~MessageSource.sharepoint` so a message written before the field
+    existed still parses. ``drive_item_id`` doubles as the source-neutral
+    locator: a Graph item id for SharePoint, a root-relative path for filesystem
+    — resolved against the configured mount root by the filesystem retrieval seam.
     """
 
+    source: MessageSource = MessageSource.sharepoint
     document_id: int
     sync_state_id: int
     drive_id: str

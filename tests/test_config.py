@@ -1,7 +1,14 @@
 import pytest
 from pydantic import ValidationError
 
-from config import DatabaseSettings, GraphSettings, QueueSettings, Settings, WalkerSettings
+from config import (
+    DatabaseSettings,
+    FilesystemSettings,
+    GraphSettings,
+    QueueSettings,
+    Settings,
+    WalkerSettings,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -265,3 +272,33 @@ def test_walker_root_path_overrides_from_env(monkeypatch):
     s = Settings(_env_file=None)
     assert s.walker is not None
     assert s.walker.root_path == "/Matters/Smith-2026-001"
+
+
+# --- source toggle + filesystem section (ADR-0020) -------------------------
+
+
+def test_source_defaults_to_sharepoint():
+    assert Settings(_env_file=None).source == "sharepoint"
+
+
+def test_source_overrides_from_env(monkeypatch):
+    monkeypatch.setenv("CLASSIFIER_SOURCE", "filesystem")
+    assert Settings(_env_file=None).source == "filesystem"
+
+
+def test_invalid_source_rejected(monkeypatch):
+    monkeypatch.setenv("CLASSIFIER_SOURCE", "sharepont")  # typo
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)
+
+
+def test_filesystem_section_is_none_without_a_root():
+    assert FilesystemSettings().is_configured is False
+    assert Settings(_env_file=None).filesystem is None
+
+
+def test_filesystem_section_configured_by_root(monkeypatch, tmp_path):
+    monkeypatch.setenv("CLASSIFIER__FILESYSTEM_ROOT", str(tmp_path))
+    s = Settings(_env_file=None)
+    assert s.filesystem is not None
+    assert s.filesystem.root == tmp_path

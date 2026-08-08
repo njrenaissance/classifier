@@ -7,6 +7,7 @@ from errors import AppError, ExtractionError, UnsupportedFormatError
 from extraction import (
     extract_text,
     extract_text_from_bytes,
+    mime_type_for_suffix,
     supported_mime_types,
     supported_suffixes,
 )
@@ -137,6 +138,21 @@ def test_supported_suffixes_are_pdf_and_docx():
 
 def test_supported_mime_types_are_pdf_and_docx():
     assert supported_mime_types() == frozenset({_PDF_MIME, _DOCX_MIME})
+
+
+@pytest.mark.parametrize(
+    ("suffix", "expected"),
+    [
+        pytest.param(".pdf", _PDF_MIME, id="pdf"),
+        pytest.param(".docx", _DOCX_MIME, id="docx"),
+        pytest.param(".PDF", _PDF_MIME, id="uppercase_normalised"),
+        pytest.param(".doc", None, id="legacy_doc_unsupported"),
+        pytest.param(".txt", None, id="unknown_suffix"),
+        pytest.param("", None, id="empty_suffix"),
+    ],
+)
+def test_mime_type_for_suffix(suffix: str, expected: str | None):
+    assert mime_type_for_suffix(suffix) == expected
 
 
 def _write_pdf(path: Path) -> None:

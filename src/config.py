@@ -28,11 +28,13 @@ from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 Provider = Literal["anthropic", "foundry"]
+Source = Literal["sharepoint", "filesystem"]
 
 DEFAULT_MODEL = "claude-haiku-4-5"  # ADR-0002 — pinned; never append a date suffix.
 
 DEFAULTS: dict[str, Any] = {
     "provider": "anthropic",
+    "source": "sharepoint",
     "self_consistency_n": 5,
     "temperature": 0.4,
     "confidence_threshold": 0.6,
@@ -257,6 +259,28 @@ class ProcessorSettings(BaseSettings):
         return self.category_file is not None
 
 
+class FilesystemSettings(BaseSettings):
+    """Local-filesystem source settings: the mounted root to enumerate (ADR-0020).
+
+    Parses its own slice of the environment (and ``.env``) under the
+    ``CLASSIFIER__FILESYSTEM_`` prefix. ``root`` is the directory the filesystem
+    walker enumerates and the filesystem retrieval seam resolves relative locators
+    against; it is the section's one required input, so a job running against
+    SharePoint simply gets ``Settings.filesystem is None``. Selected by
+    ``CLASSIFIER_SOURCE=filesystem`` — the walker/processor never construct a
+    ``GraphClient`` on this path.
+    """
+
+    model_config = SettingsConfigDict(env_prefix="CLASSIFIER__FILESYSTEM_", env_file=".env", extra="ignore")
+
+    root: Path | None = None
+
+    @property
+    def is_configured(self) -> bool:
+        """True once the mounted root directory is present — the source's one required input."""
+        return self.root is not None
+
+
 def _load_section[T: BaseSettings](section_type: type[T]) -> T | None:
     """Construct a nested settings section, or ``None`` when it is unconfigured.
 
@@ -275,12 +299,17 @@ class Settings(BaseSettings):
     absent (see :func:`_load_section`). ``provider`` selects which inference
     section a classifier uses; that section's credentials are enforced in
     :func:`~classifier.create_classifier`, not here, so building ``Settings``
-    never demands credentials a job does not use.
+    never demands credentials a job does not use. ``source`` (ADR-0020) selects
+    whether the walker/processor bind to SharePoint/Graph (``sharepoint``, the
+    default) or a mounted directory (``filesystem``, requiring
+    :class:`FilesystemSettings`); the wiring branch lives in ``walker.run`` /
+    ``processor.run``.
     """
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     provider: Provider = Field(default=DEFAULTS["provider"], validation_alias="CLASSIFIER_PROVIDER")
+    source: Source = Field(default=DEFAULTS["source"], validation_alias="CLASSIFIER_SOURCE")
 
     anthropic: AnthropicSettings | None = Field(default_factory=lambda: _load_section(AnthropicSettings))
     foundry: FoundrySettings | None = Field(default_factory=lambda: _load_section(FoundrySettings))
@@ -289,6 +318,7 @@ class Settings(BaseSettings):
     queue: QueueSettings | None = Field(default_factory=lambda: _load_section(QueueSettings))
     walker: WalkerSettings | None = Field(default_factory=lambda: _load_section(WalkerSettings))
     processor: ProcessorSettings | None = Field(default_factory=lambda: _load_section(ProcessorSettings))
+    filesystem: FilesystemSettings | None = Field(default_factory=lambda: _load_section(FilesystemSettings))
 
     self_consistency_n: int = Field(default=DEFAULTS["self_consistency_n"], ge=1, validation_alias="CLASSIFIER_N")
     temperature: float = Field(

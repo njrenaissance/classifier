@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from models import Message
+from models import Message, MessageSource
 
 pytestmark = pytest.mark.unit
 
@@ -35,6 +35,31 @@ def test_json_round_trip_reproduces_the_original():
     message = _message()
 
     assert Message.model_validate_json(message.model_dump_json()) == message
+
+
+def test_source_defaults_to_sharepoint():
+    # The default keeps the Graph pipeline unchanged and lets a message written
+    # before the field existed still parse (ADR-0020).
+    assert _message().source is MessageSource.sharepoint
+
+
+def test_source_json_body_without_source_still_parses():
+    body = _message().model_dump_json()
+    without_source = Message.model_validate_json(body).model_copy(update={}).model_dump()
+    del without_source["source"]
+
+    parsed = Message.model_validate(without_source)
+
+    assert parsed.source is MessageSource.sharepoint
+
+
+def test_filesystem_source_round_trips():
+    message = _message(source=MessageSource.filesystem, drive_item_id="sub/report.pdf")
+
+    parsed = Message.model_validate_json(message.model_dump_json())
+
+    assert parsed.source is MessageSource.filesystem
+    assert parsed.drive_item_id == "sub/report.pdf"
 
 
 @pytest.mark.parametrize(

@@ -79,6 +79,10 @@ _MIME_TO_SUFFIX: dict[str, str] = {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
 }
 
+# Reverse of ``_MIME_TO_SUFFIX``, derived so the suffix↔MIME mapping has a single
+# source of truth. Used by :func:`mime_type_for_suffix` for the filesystem source.
+_SUFFIX_TO_MIME: dict[str, str] = {suffix: mime for mime, suffix in _MIME_TO_SUFFIX.items()}
+
 
 def supported_suffixes() -> frozenset[str]:
     """The lower-cased file suffixes that have a registered extractor."""
@@ -88,6 +92,17 @@ def supported_suffixes() -> frozenset[str]:
 def supported_mime_types() -> frozenset[str]:
     """The MIME types that map to a registered extractor."""
     return frozenset(_MIME_TO_SUFFIX)
+
+
+def mime_type_for_suffix(suffix: str) -> str | None:
+    """Return the canonical MIME type for a file ``suffix``, or ``None`` if unsupported.
+
+    The reverse of :data:`_MIME_TO_SUFFIX`, so the suffix↔MIME mapping stays owned
+    in this one module. The filesystem source (ADR-0020) uses it to stamp a
+    driveItem-less local file's ``mime_type`` from its extension, which the
+    processor's :func:`extract_text_from_bytes` then dispatches on unchanged.
+    """
+    return _SUFFIX_TO_MIME.get(suffix.lower())
 
 
 def extract_text(path: Path) -> str:
