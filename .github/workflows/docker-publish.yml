@@ -1,0 +1,73 @@
+name: Docker Publish
+
+# Build the production image and push it to Azure Container Registry (ACR) on
+# every merge to main. The ACA jobs (walker/processor) pull from ACR directly
+# via managed identity — there is no GHCR hop.
+#
+# GATED ON E8 (#46): this job is SKIPPED until the ACR_LOGIN_SERVER repository
+# variable is set (the `if:` below). E8 provisions the registry and the
+# federated identity, then sets these repo variables/secrets, which activates
+# publishing with no further code change. Until then, merges to main show this
+# job as skipped (neutral), never failed.
+#
+# Required configuration — see the "GitHub Actions configuration reference" table
+# in README.md (the single source of truth). Scopes matter:
+#   Repository Variables:  ACR_LOGIN_SERVER (e.g. myregistry.azurecr.io), ACR_NAME
+#       (ACR_LOGIN_SERVER must be a *repository* variable — the job-level `if:`
+#        skip-gate below cannot read environment-scoped values.)
+#   `production` environment Secrets:  AZURE_CLIENT_ID, AZURE_TENANT_ID,
+#       AZURE_SUBSCRIPTION_ID  (OIDC federated identity — no registry password stored)
+# The federated credential subject must be repo:<owner>/<repo>:environment:production
+# because this job declares `environment: production` (see README OIDC wiring).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # request the OIDC token for azure/login
+
+concurrency:
+  group: "docker-publish-${{ github.ref }}"
+  cancel-in-progress: false # never abort a publish mid-push
+
+jobs:
+  publish:
+    name: Publish to ACR
+    # Dormant until E8 sets ACR_LOGIN_SERVER; then it activates automatically.
+    if: ${{ vars.ACR_LOGIN_SERVER != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+
+    env:
+      IMAGE_REF: ${{ vars.ACR_LOGIN_SERVER }}/classifier
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Azure login (OIDC)
+        uses: azure/login@f5d393ae46f8fde4be8b75f32e3fc50e654ad0ca # v3.0.1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to ACR
+        run: az acr login --name "${{ vars.ACR_NAME }}"
+
+      - name: Build image
+        run: docker build -t "$IMAGE_REF:${{ github.sha }}" -t "$IMAGE_REF:latest" .
+
+      - name: Smoke-check the image before publishing
+        # Same checks as the PR build gate (scripts/smoke-image.sh) so a broken
+        # image is never pushed to :latest.
+        run: bash scripts/smoke-image.sh "$IMAGE_REF:${{ github.sha }}"
+
+      - name: Push image
+        run: |
+          docker push "$IMAGE_REF:${{ github.sha }}"
+          docker push "$IMAGE_REF:latest"
