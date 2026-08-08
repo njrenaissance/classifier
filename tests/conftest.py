@@ -8,6 +8,7 @@ from config import get_settings
 # source of truth so each test starts from a known-empty config.
 _SETTINGS_ENV_VARS = (
     "CLASSIFIER_PROVIDER",
+    "CLASSIFIER_SOURCE",
     "ANTHROPIC_API_KEY",
     "CLASSIFIER_ANTHROPIC_MODEL",
     "ANTHROPIC_FOUNDRY_RESOURCE",
@@ -33,6 +34,7 @@ _SETTINGS_ENV_VARS = (
     "CLASSIFIER__WALKER_ROOT_PATH",
     "CLASSIFIER__WALKER_TIME_BUDGET_SECONDS",
     "CLASSIFIER__PROCESSOR_CATEGORY_FILE",
+    "CLASSIFIER__FILESYSTEM_ROOT",
 )
 
 
