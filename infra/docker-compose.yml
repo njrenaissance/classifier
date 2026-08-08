@@ -1,0 +1,98 @@
+# Local live-fire stack for the filesystem source (ADR-0020, #61).
+#
+# Brings up PostgreSQL + Azurite and runs the two-job pipeline against a MOUNTED
+# host directory instead of SharePoint/Graph: real files -> real queue -> real
+# PostgreSQL -> real classification. Classification makes REAL LLM calls, so this
+# is a MANUAL, local stack (needs a valid ANTHROPIC_API_KEY) — it is NOT run in CI
+# and costs money per run. See infra/README.md for the runbook.
+#
+# Two one-shot init steps run BEFORE the jobs and are depended on by them:
+#   - migrate     : `alembic upgrade head` (jobs never self-migrate; fix-forward)
+#   - queue-init  : creates the Azurite queue (neither Azurite nor the app auto-creates it)
+
+x-db-url: &db_url postgresql+psycopg://classifier:classifier@postgres:5432/classifier
+
+# The well-known Azurite dev-storage account (fixed public credentials, not a secret).
+x-queue-conn: &queue_conn >-
+  DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;QueueEndpoint=http://azurite:10001/devstoreaccount1;
+
+# Shared environment for the filesystem-source jobs.
+x-filesystem-env: &filesystem_env
+  CLASSIFIER_SOURCE: filesystem
+  CLASSIFIER__FILESYSTEM_ROOT: /data
+  CLASSIFIER__DATABASE_URL: *db_url
+  CLASSIFIER__QUEUE_NAME: classifier-work-items
+  CLASSIFIER__QUEUE_CONNECTION_STRING: *queue_conn
+
+x-job-deps: &job_deps
+  postgres:
+    condition: service_healthy
+  azurite:
+    condition: service_started
+  migrate:
+    condition: service_completed_successfully
+  queue-init:
+    condition: service_completed_successfully
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: classifier
+      POSTGRES_PASSWORD: classifier
+      POSTGRES_DB: classifier
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U classifier -d classifier"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    command: azurite-queue --queueHost 0.0.0.0 --queuePort 10001 --skipApiVersionCheck
+
+  # One-time schema migration; the jobs depend on it completing (never self-migrate).
+  migrate:
+    image: classifier:ci
+    command: alembic upgrade head
+    environment:
+      CLASSIFIER__DATABASE_URL: *db_url
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # Idempotently create the work queue in Azurite (production semantics unchanged).
+  queue-init:
+    image: classifier:ci
+    command: python /app/create-queue.py
+    environment:
+      CLASSIFIER__QUEUE_NAME: classifier-work-items
+      CLASSIFIER__QUEUE_CONNECTION_STRING: *queue_conn
+    volumes:
+      - ./create-queue.py:/app/create-queue.py:ro
+    depends_on:
+      - azurite
+    restart: "no"
+
+  # Producer: full re-enumeration of the mounted /data, enqueue changed files.
+  walker:
+    image: classifier:ci
+    command: python -m walker
+    environment: *filesystem_env
+    volumes:
+      - ${SAMPLE_DOCS:-./sample-docs}:/data:ro
+    depends_on: *job_deps
+
+  # Consumer: classify ONE queued document per invocation (run_once), then exit.
+  # KEDA drives one replica per message in production; locally, drain the queue by
+  # re-running this service (see infra/README.md), e.g. docker compose run --rm processor.
+  processor:
+    image: classifier:ci
+    command: python -m processor
+    environment:
+      <<: *filesystem_env
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY for real classification}
+    volumes:
+      - ${SAMPLE_DOCS:-./sample-docs}:/data:ro
+    depends_on: *job_deps

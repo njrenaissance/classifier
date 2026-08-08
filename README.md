@@ -97,6 +97,25 @@ A local run of the processor with no queued message simply finds nothing to do a
 exits — point `CLASSIFIER__QUEUE_CONNECTION_STRING` at [Azurite](https://github.com/Azure/Azurite)
 to exercise the producer→consumer seam without real Azure resources.
 
+### Selectable source: SharePoint or a mounted filesystem (ADR-0020)
+
+Both jobs read their documents through a swappable source, chosen by
+`CLASSIFIER_SOURCE`:
+
+- **`sharepoint`** (default) — the Microsoft Graph delta walk + download described above.
+- **`filesystem`** — enumerate a **mounted directory** (`CLASSIFIER__FILESYSTEM_ROOT`),
+  hash each file, and read bytes from disk. No Graph credentials or `drive_id` are
+  needed. The walker does a **full re-enumeration** each run (a filesystem has no delta
+  token); idempotency still comes from the content hash, so an unchanged tree enqueues
+  nothing.
+
+This makes the whole pipeline runnable end-to-end with **no Graph/SharePoint** — the
+basis for the local **live-fire** stack in [`infra/`](infra/) (PostgreSQL + Azurite +
+walker + processor over a host directory of real documents, with a one-time
+`alembic upgrade head` migration step). See [`infra/README.md`](infra/README.md) for the
+runbook. An automated, no-cost version of the same path (real Postgres + real Azurite,
+faked voter) runs as `pytest -m integration tests/test_filesystem_pipeline_integration.py`.
+
 Runtime configuration is supplied via environment variables — see
 [`.env.example`](.env.example) for the full set (PostgreSQL URL, Microsoft Graph
 credentials, the work queue, and the walker/processor knobs). The image bakes in
