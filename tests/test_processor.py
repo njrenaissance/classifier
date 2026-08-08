@@ -1,12 +1,14 @@
-"""Tests for the processor entry point (E6, ADR-0012/0015).
+"""Tests for the processor entry point (E6, ADR-0012/0015/0020).
 
-Every boundary the processor touches — the queue, Microsoft Graph, the extraction
-and voting pipeline, the database, and the result writer — is injected, so the
-per-message orchestration is exercised as fast unit tests with no queue, tenant,
-real DB, or model call. The queue and Graph are ``pytest-mock`` doubles; the DB
-is a lightweight fake whose ``get`` returns a scripted ``documents`` row;
-``extract_text_from_bytes`` is patched on the processor module namespace to script
-the extraction outcome without building real file bytes.
+Every boundary the processor touches — the queue, the content source (Graph or
+filesystem), the extraction and voting pipeline, the database, and the result
+writer — is injected, so the per-message orchestration is exercised as fast unit
+tests with no queue, tenant, real DB, or model call. The queue and content source
+are ``pytest-mock`` doubles (the source's ``fetch_content_hash``/``download`` take
+the whole :class:`~models.Message`); the DB is a lightweight fake whose ``get``
+returns a scripted ``documents`` row; ``extract_text_from_bytes`` is patched on the
+processor module namespace to script the extraction outcome without building real
+file bytes.
 """
 
 from datetime import UTC, datetime
@@ -115,7 +117,11 @@ class _FakeQueue:
 
 
 def _make(mocker, *, document, dequeue_count=1, message=None):
-    """Wire a :class:`Processor` around fakes; return it plus every collaborator."""
+    """Wire a :class:`Processor` around fakes; return it plus every collaborator.
+
+    ``source`` is a fake :class:`~content_source.ContentSource` whose
+    ``fetch_content_hash``/``download`` take the whole :class:`~models.Message`.
+    """
     received = (
         None
         if document is None and message is None
@@ -123,11 +129,11 @@ def _make(mocker, *, document, dequeue_count=1, message=None):
     )
     session = _FakeSession(document)
     queue = _FakeQueue(received)
-    graph = mocker.Mock()
+    source = mocker.Mock()
     voter = mocker.Mock()
     writer = mocker.Mock()
-    proc = Processor(session, graph, queue, voter, writer)
-    return proc, received, session, queue, graph, voter, writer
+    proc = Processor(session, source, queue, voter, writer)
+    return proc, received, session, queue, source, voter, writer
 
 
 def _logs(session):
@@ -140,15 +146,15 @@ def _logs(session):
 
 def test_happy_path_classifies_and_completes(mocker):
     document = _document(status=DocumentStatus.queued)
-    proc, received, session, queue, graph, voter, writer = _make(mocker, document=document, dequeue_count=1)
-    graph.fetch_content_hash.return_value = "H"
-    graph.download.return_value = b"pdf-bytes"
+    proc, received, session, queue, source, voter, writer = _make(mocker, document=document, dequeue_count=1)
+    source.fetch_content_hash.return_value = "H"
+    source.download.return_value = b"pdf-bytes"
     extract = mocker.patch("processor.extract_text_from_bytes", return_value="hello world")
     voter.classify.return_value = Verdict(category="contract", confidence=0.8)
 
     proc.run_once()
 
-    graph.download.assert_called_once_with("drive-1", "item-1")
+    source.download.assert_called_once_with(received.message)
     extract.assert_called_once_with(b"pdf-bytes", "application/pdf")
     # The completed result is UPSERTed via the E1 writer, carrying the verdict.
     writer.write.assert_called_once()
@@ -174,14 +180,14 @@ def test_happy_path_classifies_and_completes(mocker):
 
 def test_content_hash_mismatch_skips_without_classifying(mocker):
     document = _document(content_hash="OLD")
-    proc, received, session, queue, graph, voter, writer = _make(mocker, document=document)
-    graph.fetch_content_hash.return_value = "NEW"  # differs from message content_hash "H"
+    proc, received, session, queue, source, voter, writer = _make(mocker, document=document)
+    source.fetch_content_hash.return_value = "NEW"  # differs from message content_hash "H"
     extract = mocker.patch("processor.extract_text_from_bytes")
 
     proc.run_once()
 
     assert document.status is DocumentStatus.skipped
-    graph.download.assert_not_called()
+    source.download.assert_not_called()
     extract.assert_not_called()
     voter.classify.assert_not_called()
     writer.write.assert_not_called()
@@ -194,9 +200,9 @@ def test_content_hash_mismatch_skips_without_classifying(mocker):
 def test_unsupported_mime_type_skips(mocker):
     document = _document()
     message = _message(mime_type="application/x-weird")
-    proc, received, session, queue, graph, voter, writer = _make(mocker, document=document, message=message)
-    graph.fetch_content_hash.return_value = "H"
-    graph.download.return_value = b"bytes"
+    proc, received, session, queue, source, voter, writer = _make(mocker, document=document, message=message)
+    source.fetch_content_hash.return_value = "H"
+    source.download.return_value = b"bytes"
     mocker.patch(
         "processor.extract_text_from_bytes",
         side_effect=UnsupportedFormatError("no extractor for application/x-weird"),
@@ -214,18 +220,18 @@ def test_unsupported_mime_type_skips(mocker):
 # --- failure outcome -------------------------------------------------------
 
 
-def _fail_at_download(mocker, graph, _voter, error):
-    graph.download.side_effect = error
+def _fail_at_download(mocker, source, _voter, error):
+    source.download.side_effect = error
     mocker.patch("processor.extract_text_from_bytes")
 
 
-def _fail_at_extraction(mocker, graph, _voter, error):
-    graph.download.return_value = b"bytes"
+def _fail_at_extraction(mocker, source, _voter, error):
+    source.download.return_value = b"bytes"
     mocker.patch("processor.extract_text_from_bytes", side_effect=error)
 
 
-def _fail_at_classification(mocker, graph, voter, error):
-    graph.download.return_value = b"bytes"
+def _fail_at_classification(mocker, source, voter, error):
+    source.download.return_value = b"bytes"
     mocker.patch("processor.extract_text_from_bytes", return_value="text")
     voter.classify.side_effect = error
 
@@ -240,9 +246,9 @@ def _fail_at_classification(mocker, graph, voter, error):
 )
 def test_failure_marks_failed_bumps_retry_and_reraises(mocker, configure, error):
     document = _document(retry_count=2)
-    proc, received, session, queue, graph, voter, writer = _make(mocker, document=document, dequeue_count=3)
-    graph.fetch_content_hash.return_value = "H"
-    configure(mocker, graph, voter, error)
+    proc, received, session, queue, source, voter, writer = _make(mocker, document=document, dequeue_count=3)
+    source.fetch_content_hash.return_value = "H"
+    configure(mocker, source, voter, error)
 
     with pytest.raises(type(error)) as excinfo:
         proc.run_once()
@@ -261,9 +267,9 @@ def test_failure_marks_failed_bumps_retry_and_reraises(mocker, configure, error)
 
 def test_persistence_failure_on_commit_is_translated(mocker):
     document = _document()
-    proc, received, session, queue, graph, voter, writer = _make(mocker, document=document)
-    graph.fetch_content_hash.return_value = "H"
-    graph.download.return_value = b"bytes"
+    proc, received, session, queue, source, voter, writer = _make(mocker, document=document)
+    source.fetch_content_hash.return_value = "H"
+    source.download.return_value = b"bytes"
     mocker.patch("processor.extract_text_from_bytes", return_value="text")
     voter.classify.return_value = Verdict(category="contract", confidence=0.9)
     from sqlalchemy.exc import SQLAlchemyError
@@ -281,15 +287,15 @@ def test_persistence_failure_on_commit_is_translated(mocker):
 
 def test_classification_override_is_not_overwritten(mocker):
     document = _document(status=DocumentStatus.queued, override="hand-labelled")
-    proc, received, session, queue, graph, voter, writer = _make(mocker, document=document)
+    proc, received, session, queue, source, voter, writer = _make(mocker, document=document)
     extract = mocker.patch("processor.extract_text_from_bytes")
 
     proc.run_once()
 
     writer.write.assert_not_called()
     voter.classify.assert_not_called()
-    graph.download.assert_not_called()
-    graph.fetch_content_hash.assert_not_called()
+    source.download.assert_not_called()
+    source.fetch_content_hash.assert_not_called()
     extract.assert_not_called()
     assert document.classification_override == "hand-labelled"
     assert document.category is None  # the classifier never touched the label
@@ -304,12 +310,12 @@ def test_classification_override_is_not_overwritten(mocker):
 def test_run_once_is_a_no_op_on_empty_queue(mocker):
     session = _FakeSession(None)
     queue = _FakeQueue(None)
-    graph, voter, writer = mocker.Mock(), mocker.Mock(), mocker.Mock()
+    source, voter, writer = mocker.Mock(), mocker.Mock(), mocker.Mock()
 
-    Processor(session, graph, queue, voter, writer).run_once()
+    Processor(session, source, queue, voter, writer).run_once()
 
     writer.write.assert_not_called()
-    graph.download.assert_not_called()
+    source.download.assert_not_called()
     assert queue.deleted == []
 
 
@@ -317,12 +323,12 @@ def test_missing_documents_row_raises_persistence_error(mocker):
     message = _message()
     session = _FakeSession(None)
     queue = _FakeQueue(_ReceivedMessage(message))
-    graph, voter, writer = mocker.Mock(), mocker.Mock(), mocker.Mock()
+    source, voter, writer = mocker.Mock(), mocker.Mock(), mocker.Mock()
 
     with pytest.raises(PersistenceError, match="No documents row for id 500"):
-        Processor(session, graph, queue, voter, writer).run_once()
+        Processor(session, source, queue, voter, writer).run_once()
 
-    graph.fetch_content_hash.assert_not_called()
+    source.fetch_content_hash.assert_not_called()
     assert queue.deleted == []
 
 
