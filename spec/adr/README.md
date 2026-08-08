@@ -22,3 +22,5 @@ Each decision with meaningful tradeoffs gets its own file (`NNNN-<slug>.md`). AD
 | [0016](0016-foundry-inference-provider.md) | Selectable inference provider: Anthropic API or Microsoft Foundry | accepted |
 | [0017](0017-graph-content-hash-field.md) | Graph content-hash field for change detection (`quickXorHash` first) | accepted |
 | [0018](0018-store-folder-path-not-matter.md) | Store the driveItem folder path, not a derived matter | accepted |
+| [0019](0019-config-driven-walk-scope.md) | Config-driven walk scope, enforced at the Graph delta level | accepted |
+| [0020](0020-local-filesystem-source.md) | Local-filesystem source for the two-job pipeline (source-mode toggle) | accepted |
