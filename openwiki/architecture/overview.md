@@ -8,47 +8,148 @@ tags: [architecture, design, layers, components]
 
 # Architecture Overview
 
-The classifier is organized into **four functional layers** that flow from document enumeration → extraction → classification → output:
+The system supports **two deployment paths** that share a common **classification core** but differ in how they enumerate documents, manage state, and persist results.
+
+## Deployment Paths
+
+### Path v1: Local CLI
+
+Local single-machine batch processing:
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│  CLI (C1)                                                          │
-│  - Orchestrates sources, extraction, classification, output       │
-│  - Wires configuration into components                           │
-└──────────────────────────────────────────────────────────────────┘
-                                 ▲
-                                 │
-      ┌──────────────────────────┴──────────────────────────────┐
-      │                                                            │
-      ▼                                                            ▼
-┌─────────────────────────┐                    ┌──────────────────────────────┐
-│ Sources (A3)            │                    │ Self-Consistency (B2)         │
-│ DocumentSource protocol │                    │ & CSV Writer (A4)             │
-│ - LocalFileSystemSource │                    │ - SelfConsistencyClassifier   │
-│ - SharePoint (future)   │◄──────────────────►│ - ClassificationResult        │
-└─────────────────────────┘                    │ - write_results_csv()         │
-        │                                       └──────────────────────────────┘
-        │                                                        ▲
+                    ┌──────────────────────────┐
+                    │  main.py (CLI Entry)     │
+                    │  - Parse CLI args        │
+                    │  - Orchestrate flow      │
+                    └──────────────┬───────────┘
+                                   │
+        ┌──────────────────────────┴──────────────────────────────┐
+        │                                                            │
+        ▼                                                            ▼
+┌────────────────────────┐                        ┌──────────────────────────┐
+│  Categories (A1)       │                        │  Sources (A3)            │
+│  Parse Markdown file   │                        │  LocalFileSystemSource   │
+│  → CategorySet         │                        │  → enumerate files       │
+└────────────────────────┘                        └──────────────────────────┘
         │                                                        │
-        ▼                                                        │
-┌──────────────────────────────┐                                 │
-│ Extraction (A2)              │                                 │
-│ - TextExtractor protocol     │                                 │
-│ - PdfTextExtractor           │                                 │
-│ - DocxTextExtractor          │                                 │
-│ - extract_text()             ├────────────────┐                │
-└──────────────────────────────┘                │                │
-                                                ▼                │
-                                        ┌──────────────────────┐ │
-                                        │ Classifier Core (B1) │ │
-                                        │ - Classifier class   │ │
-                                        │ - classify()         │ │
-                                        └──────────────────────┘ │
-                                                │                │
-                                                └────────────────┘
+        │                                                        ▼
+        │                                        ┌──────────────────────────┐
+        │                                        │  Extraction (A2)         │
+        │                                        │  TextExtractor strategy  │
+        │                                        │  (PDF, DOCX)             │
+        │                                        │  → plain text            │
+        │                                        └────────────┬─────────────┘
+        │                                                     │
+        └──────────────────┬──────────────────────────────────┘
+                           ▼
+                ┌──────────────────────────────┐
+                │  Self-Consistency (B2)       │
+                │  Run inner classifier N times│
+                │  → Verdict (category, conf)  │
+                └─────────────┬────────────────┘
+                              │
+        ┌─────────────────────┴──────────────────┐
+        │                                         │
+        ▼                                         ▼
+┌──────────────────────┐              ┌──────────────────────────┐
+│ Classifier (B1)      │              │  CSV Writer (A4)         │
+│ Single LLM call      │              │  Write results CSV       │
+│ Structured output    │              │  → file                  │
+└──────────────────────┘              └──────────────────────────┘
 ```
 
-## Layer Breakdown
+### Path v2: Cloud Pipeline
+
+Distributed multi-job system with SharePoint integration and PostgreSQL persistence:
+
+```
+                    ┌──────────────────────────┐
+                    │  Scheduler               │
+                    │  (Azure Container Apps)  │
+                    └──────────────┬───────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────┐
+                    │  walker.py (Producer)    │
+                    │  - Scheduled job         │
+                    │  - Time-budgeted run     │
+                    └──────────────┬───────────┘
+        ┌───────────────────────────┴──────────────────────────┐
+        │                                                        │
+        ▼                                                        ▼
+┌──────────────────────────┐                        ┌──────────────────────────┐
+│  Graph Client            │                        │  Message Queue           │
+│  - Delta walk SharePoint │                        │  (Azure Queue)           │
+│  - Resumable pagination  │                        │  - Enqueue Message       │
+│  - Content hash          │                        │  - One item per file     │
+│  → (file, hash, delta)   │                        │  → work_items            │
+└──────────────────────────┘                        └────────────┬─────────────┘
+        │                                                       │
+        │   ┌─────────────────────────────────────────────────┐│
+        └───┤ Persist: SyncState (delta, resume), Document    ││
+            │ (hash, status, classification)                   ││
+            └─────────────────────────────────────────────────┘│
+                                                                │
+                                                    ┌───────────┘
+                                                    │
+                                                    ▼
+                                    ┌──────────────────────────┐
+                                    │  KEDA Queue Scaler       │
+                                    │  Spawn one replica per   │
+                                    │  queued message          │
+                                    └───────────┬──────────────┘
+                                                │
+                                                ▼
+                                    ┌──────────────────────────┐
+                                    │ processor.py (Consumer)  │
+                                    │ - Queue-triggered job    │
+                                    │ - Handles one item       │
+                                    └───────────┬──────────────┘
+        ┌──────────────────────────────────────┼────────────────────────┐
+        │                                       │                        │
+        ▼                                       ▼                        ▼
+┌──────────────────────┐              ┌──────────────────┐    ┌──────────────────┐
+│ Dequeue Message      │              │ Download from    │    │ Categories (A1)  │
+│ (from queue)         │              │ SharePoint via   │    │ Parse category   │
+│                      │              │ Graph            │    │ definitions      │
+└──────────────────────┘              └──────────────────┘    └──────────────────┘
+        │                                      │                       │
+        └──────────────────┬────────────────────┴───────────────────────┘
+                           │
+                           ▼
+        ┌──────────────────────────────────────┐
+        │ Extraction (A2)                      │
+        │ Extract text from downloaded bytes   │
+        │ (PDF, DOCX, or unsupported)          │
+        └──────────────────┬───────────────────┘
+                           │
+                           ▼
+        ┌──────────────────────────────────────┐
+        │ Self-Consistency Classifier (B2)     │
+        │ Run inner classifier N times         │
+        │ → Verdict (category, confidence)     │
+        └──────────────────┬───────────────────┘
+                           │
+                           ▼
+        ┌──────────────────────────────────────┐
+        │ Database Writer                      │
+        │ UPSERT Document result               │
+        │ Append ProcessingLog audit row       │
+        │ → PostgreSQL                         │
+        └──────────────────┬───────────────────┘
+                           │
+                           ▼
+        ┌──────────────────────────────────────┐
+        │ Delete Message from Queue            │
+        │ (success path only)                  │
+        └──────────────────────────────────────┘
+```
+
+## Shared Classification Core
+
+Both paths use the same four layers for parsing categories, extracting text, and classifying documents.
+
+### Layer Breakdown
 
 ### A1: Category Parsing (`src/categories.py`)
 
@@ -132,6 +233,95 @@ The classifier is organized into **four functional layers** that flow from docum
 
 **Design decision:** [ADR-0004](../../spec/adr/0004-csv-file-output.md)
 
+## Cloud-Specific Components
+
+### Walker: Scheduled SharePoint Enumeration
+
+The producer half of the two-job cloud pipeline ([ADR-0012](../../spec/adr/0012-cloud-two-job-pipeline.md), [ADR-0014](../../spec/adr/0014-sharepoint-delta-walker.md)):
+
+- **Entry point:** `python -m walker` (scheduled Azure Container Apps job)
+- **Input:** SharePoint drive ID, library subtree path, time budget
+- **Output:** Enqueued `Message` work items (one per changed/new file)
+- **Key features:**
+  - **Resumable:** Time-budgeted; large first enumerations spread across scheduled slots
+  - **Delta walk:** Uses Microsoft Graph `@odata.deltaLink` and `@odata.nextLink` for efficient change detection
+  - **Idempotent:** Tracks content hash and document status to prevent duplicate work
+  - **Scoped:** Root path filters SharePoint items at the Graph level ([ADR-0019](../../spec/adr/0019-config-driven-walk-scope.md))
+
+**Design decisions:** [ADR-0012](../../spec/adr/0012-cloud-two-job-pipeline.md), [ADR-0014](../../spec/adr/0014-sharepoint-delta-walker.md), [ADR-0019](../../spec/adr/0019-config-driven-walk-scope.md)
+
+### Message Queue: Walker→Processor Decoupling
+
+Azure Queue Storage abstraction ([ADR-0012](../../spec/adr/0012-cloud-two-job-pipeline.md)):
+
+- **Wire format:** Pydantic `Message` serialized to JSON
+- **Semantics:** At-least-once delivery; processor deletes message on success, queue redelivers on timeout
+- **Dequeue count:** Azure's redelivery counter used for poison-message detection
+- **Protocol:** `QueueBackend` is injected, so unit tests fake the queue without touching Azure
+
+**Design decision:** [ADR-0012](../../spec/adr/0012-cloud-two-job-pipeline.md)
+
+### Graph Client: SharePoint Download & Content Tracking
+
+Microsoft Graph integration ([ADR-0007](../../spec/adr/0007-sharepoint-app-only-auth.md), [ADR-0015](../../spec/adr/0015-graph-authenticated-download.md)):
+
+- **Auth:** App-only credentials (client ID/secret) or managed identity (production)
+- **Delta walk:** Efficient change enumeration with resumable pagination
+- **Content hash:** Stores SHA-256 hash of file bytes to detect changes and prevent duplicate classifications ([ADR-0017](../../spec/adr/0017-graph-content-hash-field.md))
+- **Download:** Fetches file bytes via Graph for extraction (processor only)
+
+**Design decisions:** [ADR-0007](../../spec/adr/0007-sharepoint-app-only-auth.md), [ADR-0015](../../spec/adr/0015-graph-authenticated-download.md), [ADR-0017](../../spec/adr/0017-graph-content-hash-field.md)
+
+### Processor: Queue-Triggered Classification
+
+The consumer half of the two-job cloud pipeline ([ADR-0012](../../spec/adr/0012-cloud-two-job-pipeline.md)):
+
+- **Entry point:** `python -m processor` (Azure Container Apps queue-triggered job)
+- **Input:** One `Message` from the queue
+- **Output:** Classified result in PostgreSQL, deleted from queue on success
+- **Scaling:** Stateless; KEDA spawns one replica per queued message, scales to zero when queue drains
+- **Lifecycle:** Dequeue → hash re-check → download bytes → extract text → classify → UPSERT result → delete message
+
+**Design decision:** [ADR-0012](../../spec/adr/0012-cloud-two-job-pipeline.md)
+
+### PostgreSQL State Store
+
+Durable, queryable state for the cloud pipeline ([ADR-0013](../../spec/adr/0013-postgresql-state-store.md)):
+
+**Three ORM models:**
+
+1. **SyncState** — Walker position per document library
+   - `delta_token` — Terminal `@odata.deltaLink` (set only on completion)
+   - `resume_token` — Current `@odata.nextLink` (set on interruption)
+   - `status` — `idle`, `walking`, `interrupted`, or `completed`
+   - Next walk resumes from `resume_token` > `delta_token` > full enumeration
+
+2. **Document** — One row per file
+   - Identity: `drive_item_id`, `sync_state_id`
+   - Content: `file_name`, `folder_path`, `mime_type`
+   - Hashes: `content_hash`, `previous_hash` (detects changes)
+   - Status: `queued`, `processing`, `completed`, `skipped`, `pending`, `failed`
+   - Result: `category`, `confidence`, `classification_override` (manual veto, never overwritten)
+   - Tracking: `retry_count`, `error_message`, `last_synced_at`
+
+3. **ProcessingLog** — Per-attempt audit trail
+   - Outcome: `status` (completed, skipped, failed)
+   - Metrics: `input_tokens`, `output_tokens`, `total_cost`
+   - Timestamp: When the attempt completed
+
+**Schema migrations:** [Alembic](../../alembic/) manages schema versioning; `alembic upgrade head` runs once per deploy.
+
+**Design decision:** [ADR-0013](../../spec/adr/0013-postgresql-state-store.md)
+
+### Database Writer: Result Persistence
+
+Abstraction over PostgreSQL UPSERT ([ADR-0013](../../spec/adr/0013-postgresql-state-store.md)):
+
+- **Keyed on:** `(sync_state_id, drive_item_id)` unique pair
+- **Semantics:** UPSERT the Document row, append ProcessingLog audit entry
+- **Invariant:** Never overwrites a manual `classification_override`; the processor skips the classification if override is set
+- **Isolation:** Multiple concurrent processors can safely UPSERT the same file; last-write-wins for result, audit trail is append-only
+
 ## Design Patterns
 
 ### Strategy Pattern
@@ -158,11 +348,18 @@ See [../operations/configuration.md](../operations/configuration.md) for environ
 
 Every error derives from `AppError`, so a caller can catch one failure mode without swallowing unrelated ones:
 
+**Local path:**
 - `CategoryFileError` — Markdown parsing failed
 - `SourceError` — Source path is missing or invalid
 - `ExtractionError` / `UnsupportedFormatError` — Text extraction failed or format unsupported
 - `ClassificationError` — API call or response parsing failed
 - `OutputError` — CSV write failed
+
+**Cloud path:**
+- `GraphError` — Microsoft Graph auth, delta walk, or download failed
+- `QueueError` — Azure Queue transport or malformed message
+- `PersistenceError` — PostgreSQL write failed
+- Poison message handling via `dequeue_count` threshold
 
 See [../operations/error-handling.md](../operations/error-handling.md) for details.
 

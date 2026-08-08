@@ -198,4 +198,5 @@ class FakeExtractor:
 - **No caching:** Text is extracted fresh for each classification run (not cached between runs)
 - **Memory:** Entire document text is loaded into memory for classification (target < 100 files)
 
+<!-- openwiki: broken internal link [../architecture/overview.md#a2-text-extraction] heading anchor "a2-text-extraction" does not exist in "../architecture/overview.md". Fix the href or restore the target, then delete this comment. -->
 See [../architecture/overview.md](../architecture/overview.md#a2-text-extraction) for the role of A2 in the system and [../workflows/classification-pipeline.md](../workflows/classification-pipeline.md#step-5-extract--classify-each-document-a2--b1--b2) for the pipeline context.

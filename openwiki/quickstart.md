@@ -7,46 +7,90 @@ tags: [overview, guide, classifier, document-classification]
 
 # Classifier — OpenWiki Quickstart
 
-Welcome to the classifier wiki. This is a **document classifier powered by Claude Haiku 4.5**, designed to automatically categorize documents (PDF, DOCX) into user-defined categories with confidence scores.
+Welcome to the classifier wiki. This is a **document classifier powered by Claude or Claude via Microsoft Foundry**, designed to automatically categorize documents (PDF, DOCX) into user-defined categories with confidence scores.
+
+The system supports **two deployment modes**:
+1. **Local CLI** — single-machine batch processing, writes CSV results
+2. **Cloud Pipeline** — distributed multi-job system with SharePoint integration, Azure Queue decoupling, and PostgreSQL persistence
 
 ## What This Project Does
 
-The classifier reads documents from your local filesystem or SharePoint, extracts their text, and assigns each one to exactly one category from a user-provided category definition (Markdown file). It outputs a CSV with columns: `filename`, `category`, `confidence`.
+The classifier reads documents from your local filesystem or SharePoint, extracts their text, and assigns each one to exactly one category from a user-provided category definition (Markdown file). The local CLI outputs a CSV with columns: `filename`, `category`, `confidence`. The cloud pipeline persists results to PostgreSQL and coordinates work via Azure Queue.
 
 **Key features:**
-- **LLM-based**: Uses Claude Haiku 4.5 for semantic understanding
+- **LLM-based**: Uses Claude Haiku 4.5 via Anthropic or Microsoft Foundry
 - **Confidence via self-consistency**: Runs classification N times and reports agreement rate as confidence
 - **Config-driven labels**: Categories come from a Markdown file, never hardcoded
 - **Structured output**: The model cannot invent or paraphrase labels — they must match the defined set
 - **Prompt caching**: The category definitions are cached to reduce latency and API cost
+- **Cloud ready**: Two-job pipeline (walker + processor) decoupled by Azure Queue, stateless consumers scale with KEDA
+- **Resumable enumeration**: Walker delta-walks SharePoint with time budgets, persists position across scheduled runs
+- **Idempotent**: Tracks file content hash and processing status to prevent duplicate work
 
 See [spec/spec.md](../spec/spec.md) for the full product specification.
 
+## Deployment Paths
+
+### Local CLI (v1)
+Point the CLI at a local file or directory plus a categories Markdown file; it enumerates documents, classifies them, and writes a CSV:
+```bash
+uv run python src/main.py ./docs -c categories.md -o results.csv
+```
+
+### Cloud Pipeline (v2)
+Docker image with two role-based entry points, decoupled by Azure Queue and backed by PostgreSQL:
+- **Walker** (scheduled job) — Delta-walks SharePoint, enqueues work
+- **Processor** (queue-triggered job) — Dequeues, downloads, extracts, classifies, persists result
+
+See [README.md](../README.md) for container usage and [workflows/cloud-pipeline.md](workflows/cloud-pipeline.md) for the distributed flow.
+
 ## Architecture at a Glance
 
-The system has **four main layers**:
+Both paths share a **common classification core** (category parsing, text extraction, LLM classifier, self-consistency voting) but differ in how they enumerate documents, persist state, and handle orchestration.
 
-1. **Sources** (A3) — Enumerate documents to classify (local filesystem or SharePoint)
+**Common layers:**
+1. **Categories** (A1) — Parse Markdown category definitions
 2. **Extraction** (A2) — Extract plain text from PDFs and DOCX files
 3. **Classifier Core** (B1) — Single LLM call using structured output
-4. **Self-Consistency + CSV** (B2/A4) — Vote over N runs, then write CSV results
+4. **Self-Consistency** (B2) — Vote over N runs to determine confidence
 
-See [architecture/overview.md](architecture/overview.md) for the full diagram and layer descriptions.
+**Path-specific**:
+- **Local path**: DocumentSource (local filesystem) → CSV output
+- **Cloud path**: Walker → Queue → Processor → PostgreSQL output
+
+See [architecture/overview.md](architecture/overview.md) for full diagrams and layer descriptions.
 
 ## Key Concepts
 
-- **CategorySet** — The parsed categories from the Markdown file; includes the reserved `unknown` bucket
-- **Classifier** — Wraps one API call; builds a static prompt-cache prefix for efficiency
-- **SelfConsistencyClassifier** — Votes over N single-call classifications to produce a (category, confidence) verdict
-- **DocumentSource** — Protocol for enumerating documents; implemented by LocalFileSystemSource and (future) SharePoint source
-- **TextExtractor** — Strategy for extracting text; PDF and DOCX extractors are registered; legacy `.doc` is deferred
+### Core Classification
+- **CategorySet** — Parsed categories from Markdown; includes reserved `unknown` bucket
+- **Classifier** — Wraps one API call; builds a static prompt-cache prefix
+- **SelfConsistencyClassifier** — Votes over N calls to produce (category, confidence) verdict
+- **TextExtractor** — Strategy for extracting text; PDF and DOCX extractors are registered
+
+### Cloud Pipeline (v2)
+- **Walker** — Scheduled job enumerating SharePoint via Microsoft Graph delta queries, issuing resumable with time budgets
+- **Processor** — Queue-triggered job that classifies one document per invocation, UPSERT result to database
+- **SyncState** — Persisted walker position: delta token, resume token, completion status
+- **Document** — State row tracking file identity, content hash, processing status, and classification result
+- **Message** — Work item passed from walker to processor via Azure Queue
 
 ## Where to Go Next
 
-- **[Architecture](architecture/overview.md)** — Layer breakdown, component relationships, design patterns
-- **[Workflows](workflows/classification-pipeline.md)** — How a document flows through the system from source to CSV
+### Understanding the System
+- **[Architecture](architecture/overview.md)** — Both deployment paths, component relationships, design patterns
+- **[Local Workflow](workflows/classification-pipeline.md)** — Local CLI: document enumeration through CSV output
+- **[Cloud Workflow](workflows/cloud-pipeline.md)** — Cloud pipeline: walker → queue → processor → database
 - **[Domain Concepts](domain/)** — Categories, text extraction, self-consistency voting, error handling
-- **[Operations](operations/)** — Configuration, CLI entry point, error types
+
+### Operations & Configuration
+- **[Configuration](operations/configuration.md)** — Environment variables, inference provider selection, cloud settings
+- **[State Store](operations/state-store.md)** — PostgreSQL schema, document lifecycle, sync state
+- **[Cloud Boundaries](operations/cloud-seams.md)** — Message queue, Graph client, auth modes
+- **[Deployment](operations/deployment.md)** — Container build, CI gates, OIDC federated credentials
+- **[Error Handling](operations/error-handling.md)** — Exception types, retry logic, poison messages
+
+### Development
 - **[Tests](testing.md)** — Testing strategy and key test patterns
 - **[ADRs](../spec/adr/README.md)** — Architectural decisions behind the design
 
@@ -55,18 +99,26 @@ See [architecture/overview.md](architecture/overview.md) for the full diagram an
 ```
 ├── spec/
 │   ├── spec.md          # Product spec and acceptance criteria
-│   └── adr/             # Architectural decision records (ADR-0001 through ADR-0011)
+│   └── adr/             # Architectural decision records (ADR-0001 through ADR-0019)
 ├── src/
-│   ├── main.py          # CLI entry point (TBD — under construction)
+│   ├── main.py          # Local CLI entry point
+│   ├── walker.py        # Cloud producer: SharePoint enumeration + queue
+│   ├── processor.py     # Cloud consumer: dequeue → download → classify → persist
 │   ├── config.py        # Pydantic-settings configuration management
 │   ├── categories.py    # Markdown category parser (A1)
 │   ├── extraction.py    # Text extraction strategies (A2)
-│   ├── sources.py       # Document source protocol & LocalFileSystemSource (A3)
+│   ├── sources.py       # Document source protocol & LocalFileSystemSource
 │   ├── classifier.py    # Core LLM classifier with structured output (B1)
 │   ├── self_consistency.py  # N-run voting & confidence (B2)
-│   ├── writer.py        # CSV results writer (A4)
+│   ├── writer.py        # CSV output (local) + DatabaseWriter (cloud)
+│   ├── db.py            # PostgreSQL models & session management (cloud)
+│   ├── message_queue.py # Azure Queue abstraction (cloud)
+│   ├── graph_client.py  # Microsoft Graph API client (cloud)
+│   ├── models.py        # Pydantic models (Message, DocumentClassification)
 │   └── errors.py        # Exception hierarchy
+├── alembic/             # Database schema migrations
 ├── tests/               # Unit and integration tests
+├── Dockerfile           # Container image (both entry points)
 ├── pyproject.toml       # Python project config (uv, pytest, ruff, mypy)
 ├── CLAUDE.md            # Agent instructions (OpenWiki standard)
 └── openwiki/            # This wiki
@@ -76,21 +128,29 @@ See [architecture/overview.md](architecture/overview.md) for the full diagram an
 
 See [README.md](../README.md) for setup and test/lint/format commands.
 
-The CLI is under construction. Once complete, usage will be:
+### Local CLI
 ```bash
-uv run python src/main.py --source <path> --categories <category-file.md> --output results.csv
+uv run python src/main.py ./docs -c categories.md -o results.csv
 ```
+
+### Cloud Container
+```bash
+docker build -t classifier .
+
+# Producer: enumerate SharePoint and enqueue work
+docker run --rm --env-file .env classifier python -m walker
+
+# Consumer: process one queued document
+docker run --rm --env-file .env classifier python -m processor
+```
+
+See [operations/deployment.md](operations/deployment.md) for the full container setup and CI workflow.
 
 ## Configuration
 
-The application reads settings from the environment or a `.env` file via [Pydantic Settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/):
+All settings are loaded from environment variables or a `.env` file via [Pydantic Settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/). The local CLI requires only `ANTHROPIC_API_KEY` and the classification knobs (`CLASSIFIER_N`, `CLASSIFIER_TEMPERATURE`, `CLASSIFIER_CONFIDENCE_THRESHOLD`). The cloud pipeline requires additional settings for inference provider selection, database, Microsoft Graph, and Azure Queue.
 
-- `ANTHROPIC_API_KEY` — Anthropic API key (required)
-- `CLASSIFIER_N` — Number of self-consistency runs (default: 5)
-- `CLASSIFIER_TEMPERATURE` — Temperature for LLM sampling (default: 0.4, range: [0.0, 1.0])
-- `CLASSIFIER_CONFIDENCE_THRESHOLD` — Confidence threshold; labels at/below this resolve to `unknown` (default: 0.6, range: [0.0, 1.0])
-
-See [operations/configuration.md](operations/configuration.md) for details.
+See [operations/configuration.md](operations/configuration.md) for the complete reference, including all environment variables, defaults, and selection guidance for Anthropic vs Microsoft Foundry inference.
 
 ## Important Design Rules
 
@@ -104,7 +164,6 @@ See [spec/spec.md](../spec/spec.md) for acceptance criteria and the ADRs (linked
 
 ## Backlog
 
-- **CLI implementation** (main.py orchestration) — Wires together sources, extraction, classifier, and writer
-- **SharePoint source** (D1) — Implements DocumentSource protocol for Microsoft Graph-backed file enumeration (app-only auth)
 - **Legacy `.doc` extraction** — Binary DOC format handler (currently deferred; see ADR-0006 and ADR-0009)
-- **Performance tuning** — N, temperature, and context-overflow handling (tunables pinned during implementation planning; see ADR-0005, ADR-0008)
+- **Category file authoring and deployment** (#42) — Pipeline for defining and managing category definitions in production
+- **Performance tuning** — Context-overflow handling and context budget planning (see ADR-0005, ADR-0008)

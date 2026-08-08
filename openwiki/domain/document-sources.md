@@ -202,4 +202,5 @@ docs = source.documents()  # → [Path("test1.pdf"), Path("test2.docx")]
 - Symlinks *to files* are still processed, so users can organize with links
 - Directory traversal stays predictable and safe
 
+<!-- openwiki: broken internal link [../architecture/overview.md#a3-document-sources] heading anchor "a3-document-sources" does not exist in "../architecture/overview.md". Fix the href or restore the target, then delete this comment. -->
 See [../architecture/overview.md](../architecture/overview.md#a3-document-sources) for the role of A3 in the system and [../workflows/classification-pipeline.md](../workflows/classification-pipeline.md#step-4-enumerate-documents-a3) for the pipeline context.
