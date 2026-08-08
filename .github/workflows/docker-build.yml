@@ -1,0 +1,28 @@
+name: Docker Build
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "docker-build-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build image
+        run: docker build -t classifier:ci .
+
+      - name: Smoke-check the image
+        run: bash scripts/smoke-image.sh classifier:ci

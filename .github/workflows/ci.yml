@@ -6,6 +6,9 @@ on:
     branches: [main]
     paths-ignore:
       - "**.md"
+      # ...but categories.md is baked into the image and parsed at runtime, so a
+      # change to it must NOT skip CI (negation exempts it from the ignore above).
+      - "!categories.md"
       - ".claude/**"
 
 permissions:
@@ -29,3 +32,8 @@ jobs:
     name: Unit Tests
     needs: [lint, type-check]
     uses: ./.github/workflows/unit-tests.yml
+
+  docker-build:
+    name: Docker Build
+    needs: [lint, type-check]
+    uses: ./.github/workflows/docker-build.yml
