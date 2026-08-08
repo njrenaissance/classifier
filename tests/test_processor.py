@@ -337,6 +337,7 @@ def test_missing_documents_row_raises_persistence_error(mocker):
 
 def test_run_wires_the_processor_and_returns_zero(mocker):
     settings = mocker.patch("processor.get_settings").return_value
+    settings.source = "sharepoint"
     settings.processor.category_file = Path("categories.md")
     parse = mocker.patch("processor.parse_category_file")
     voter = mocker.patch("processor.create_self_consistency_classifier")
@@ -354,8 +355,31 @@ def test_run_wires_the_processor_and_returns_zero(mocker):
     processor_cls.return_value.run_once.assert_called_once_with()
 
 
+def test_run_filesystem_wires_a_filesystem_content_source_without_graph(mocker):
+    settings = mocker.patch("processor.get_settings").return_value
+    settings.source = "filesystem"
+    settings.processor.category_file = Path("categories.md")
+    settings.filesystem.root = Path("/data")
+    mocker.patch("processor.parse_category_file")
+    mocker.patch("processor.create_self_consistency_classifier")
+    graph = mocker.patch("processor.create_graph_client")
+    mocker.patch("processor.create_message_queue")
+    mocker.patch("processor.get_sessionmaker")
+    mocker.patch("processor.DatabaseWriter")
+    fs_source = mocker.patch("processor.FilesystemContentSource")
+    processor_cls = mocker.patch("processor.Processor")
+
+    exit_code = processor.run([])
+
+    assert exit_code == 0
+    graph.assert_not_called()  # the filesystem source never builds a Graph client
+    fs_source.assert_called_once_with(Path("/data"))
+    processor_cls.return_value.run_once.assert_called_once_with()
+
+
 def test_run_returns_one_on_app_error(mocker, caplog):
     settings = mocker.patch("processor.get_settings").return_value
+    settings.source = "sharepoint"
     settings.processor.category_file = Path("categories.md")
     mocker.patch("processor.parse_category_file")
     mocker.patch("processor.create_self_consistency_classifier")
@@ -373,6 +397,18 @@ def test_run_fails_loudly_when_the_processor_section_is_unconfigured(mocker):
     settings.processor = None  # a deploy-time misconfiguration must not be a silent no-op
 
     with pytest.raises(ValueError, match="Processor is not configured"):
+        processor.run([])
+
+
+def test_run_fails_loudly_when_the_filesystem_root_is_unconfigured(mocker):
+    settings = mocker.patch("processor.get_settings").return_value
+    settings.source = "filesystem"
+    settings.processor.category_file = Path("categories.md")
+    settings.filesystem = None  # source=filesystem but no mounted root
+    mocker.patch("processor.parse_category_file")
+    mocker.patch("processor.create_self_consistency_classifier")
+
+    with pytest.raises(ValueError, match="Filesystem source is not configured"):
         processor.run([])
 
 
