@@ -48,10 +48,11 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from config import get_settings
+from config import Settings, get_settings
 from db import SyncState, WalkStatus, get_sessionmaker
 from enqueuer import DocumentCandidate, Enqueuer, _utc_now
 from errors import AppError
+from filesystem_walker import FilesystemWalker
 from graph_client import GraphClient, content_hash, create_graph_client, folder_path
 from message_queue import MessageQueue, create_message_queue
 from models import MessageSource
@@ -203,32 +204,56 @@ def configure_logging() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 
-def run(argv: list[str]) -> int:
-    """Parse ``argv``, run one budgeted walk, and return an exit code.
+def _run_sharepoint_walk(settings: Settings) -> tuple[WalkStatus, str]:
+    """Wire and run one Graph delta walk; return its status and a log label (ADR-0014)."""
+    walker = settings.walker
+    if walker is None or walker.drive_id is None:
+        raise ValueError("Walker is not configured; set CLASSIFIER__WALKER_DRIVE_ID.")
+    request = WalkRequest(
+        drive_id=walker.drive_id,
+        root_path=walker.root_path,
+        budget_seconds=walker.time_budget_seconds,
+    )
+    with create_graph_client() as graph, create_message_queue() as queue, get_sessionmaker()() as session:
+        status = Walker(session, graph, queue, request).walk()
+    return status, f"drive={walker.drive_id}"
 
-    Configuration errors (an unconfigured section) are deploy-time programmer
-    errors and are left to fail loudly; only domain failures (:class:`AppError`)
-    and invalid settings (:class:`ValidationError`) are converted here into a
-    clean, logged exit code — the single system boundary (see error-handling
-    standard).
+
+def _run_filesystem_walk(settings: Settings) -> tuple[WalkStatus, str]:
+    """Wire and run one filesystem re-enumeration; return its status and a log label (ADR-0020).
+
+    The filesystem source needs no Graph credentials and no ``drive_id`` — only the
+    mounted root — so no :class:`~graph_client.GraphClient` is constructed here.
+    """
+    filesystem = settings.filesystem
+    if filesystem is None or filesystem.root is None:
+        raise ValueError("Filesystem source is not configured; set CLASSIFIER__FILESYSTEM_ROOT.")
+    with create_message_queue() as queue, get_sessionmaker()() as session:
+        status = FilesystemWalker(session, queue, filesystem.root).walk()
+    return status, f"root={filesystem.root}"
+
+
+def run(argv: list[str]) -> int:
+    """Parse ``argv``, run one walk against the configured source, and return an exit code.
+
+    ``CLASSIFIER_SOURCE`` selects the producer: the Graph delta walker (default) or
+    the filesystem re-enumeration (ADR-0020). Configuration errors (an unconfigured
+    section) are deploy-time programmer errors and are left to fail loudly; only
+    domain failures (:class:`AppError`) and invalid settings (:class:`ValidationError`)
+    are converted here into a clean, logged exit code — the single system boundary
+    (see error-handling standard).
     """
     build_parser().parse_args(argv)
     try:
         settings = get_settings()
-        walker = settings.walker
-        if walker is None or walker.drive_id is None:
-            raise ValueError("Walker is not configured; set CLASSIFIER__WALKER_DRIVE_ID.")
-        request = WalkRequest(
-            drive_id=walker.drive_id,
-            root_path=walker.root_path,
-            budget_seconds=walker.time_budget_seconds,
-        )
-        with create_graph_client() as graph, create_message_queue() as queue, get_sessionmaker()() as session:
-            status = Walker(session, graph, queue, request).walk()
+        if settings.source == "filesystem":
+            status, label = _run_filesystem_walk(settings)
+        else:
+            status, label = _run_sharepoint_walk(settings)
     except (AppError, ValidationError):
         logger.exception("Walk failed")
         return 1
-    logger.info("Walk finished: drive=%s status=%s", walker.drive_id, status.value)
+    logger.info("Walk finished: %s status=%s", label, status.value)
     return 0
 
 

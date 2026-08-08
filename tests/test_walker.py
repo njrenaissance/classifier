@@ -9,6 +9,7 @@ the queue is a ``pytest-mock`` mock; time is a scripted callable.
 """
 
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
@@ -218,6 +219,7 @@ def test_walk_scopes_the_delta_to_the_configured_root_path(mocker):
 
 def test_run_wires_the_walk_and_returns_zero(mocker):
     settings = mocker.patch("walker.get_settings").return_value
+    settings.source = "sharepoint"
     settings.walker.drive_id = "drive-1"
     settings.walker.root_path = "/Matters/TestSubset"
     settings.walker.time_budget_seconds = 900
@@ -236,8 +238,27 @@ def test_run_wires_the_walk_and_returns_zero(mocker):
     walker_cls.return_value.walk.assert_called_once_with()
 
 
+def test_run_filesystem_wires_the_filesystem_walker_without_graph(mocker):
+    settings = mocker.patch("walker.get_settings").return_value
+    settings.source = "filesystem"
+    settings.filesystem.root = Path("/data")
+    graph = mocker.patch("walker.create_graph_client")
+    mocker.patch("walker.create_message_queue")
+    mocker.patch("walker.get_sessionmaker")
+    fs_walker = mocker.patch("walker.FilesystemWalker")
+    fs_walker.return_value.walk.return_value = WalkStatus.completed
+
+    exit_code = walker.run([])
+
+    assert exit_code == 0
+    graph.assert_not_called()  # the filesystem source never builds a Graph client
+    assert fs_walker.call_args.args[2] == Path("/data")  # (session, queue, root)
+    fs_walker.return_value.walk.assert_called_once_with()
+
+
 def test_run_returns_one_on_app_error(mocker, caplog):
     settings = mocker.patch("walker.get_settings").return_value
+    settings.source = "sharepoint"
     settings.walker.drive_id = "drive-1"
     mocker.patch("walker.create_graph_client", side_effect=GraphError("token boom"))
 
@@ -250,9 +271,19 @@ def test_run_returns_one_on_app_error(mocker, caplog):
 
 def test_run_fails_loudly_when_the_walker_section_is_unconfigured(mocker):
     settings = mocker.patch("walker.get_settings").return_value
+    settings.source = "sharepoint"
     settings.walker = None  # a deploy-time misconfiguration must not be a silent no-op
 
     with pytest.raises(ValueError, match="Walker is not configured"):
+        walker.run([])
+
+
+def test_run_fails_loudly_when_the_filesystem_root_is_unconfigured(mocker):
+    settings = mocker.patch("walker.get_settings").return_value
+    settings.source = "filesystem"
+    settings.filesystem = None  # source=filesystem but no mounted root
+
+    with pytest.raises(ValueError, match="Filesystem source is not configured"):
         walker.run([])
 
 

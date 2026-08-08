@@ -38,8 +38,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from categories import parse_category_file
-from config import get_settings
-from content_source import ContentSource, GraphContentSource
+from config import Settings, get_settings
+from content_source import ContentSource, FilesystemContentSource, GraphContentSource
 from db import Document, DocumentStatus, ProcessingLog, get_sessionmaker
 from errors import (
     AppError,
@@ -240,15 +240,37 @@ def configure_logging() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 
-def run(argv: list[str]) -> int:
-    """Parse ``argv``, process one work item, and return an exit code.
+def _process_via_sharepoint(voter: SelfConsistencyClassifier) -> None:
+    """Process one work item, retrieving content via Microsoft Graph (ADR-0015)."""
+    with create_graph_client() as graph, create_message_queue() as queue, get_sessionmaker()() as session:
+        source = GraphContentSource(graph)
+        Processor(session, source, queue, voter, DatabaseWriter(session)).run_once()
 
-    Configuration errors (an unconfigured section) are deploy-time programmer
-    errors and are left to fail loudly; only domain failures (:class:`AppError`)
-    and invalid settings (:class:`ValidationError`) are converted here into a
-    clean, logged exit code — the single system boundary (see error-handling
-    standard). A failed attempt logs and returns ``1`` with the message left on
-    the queue, so it is redelivered.
+
+def _process_via_filesystem(settings: Settings, voter: SelfConsistencyClassifier) -> None:
+    """Process one work item, retrieving content from the mounted root (ADR-0020).
+
+    No :class:`~graph_client.GraphClient` is constructed — the filesystem source needs
+    no Graph credentials.
+    """
+    filesystem = settings.filesystem
+    if filesystem is None or filesystem.root is None:
+        raise ValueError("Filesystem source is not configured; set CLASSIFIER__FILESYSTEM_ROOT.")
+    source = FilesystemContentSource(filesystem.root)
+    with create_message_queue() as queue, get_sessionmaker()() as session:
+        Processor(session, source, queue, voter, DatabaseWriter(session)).run_once()
+
+
+def run(argv: list[str]) -> int:
+    """Parse ``argv``, process one work item against the configured source, and return an exit code.
+
+    ``CLASSIFIER_SOURCE`` selects the retrieval seam: Microsoft Graph (default) or the
+    mounted filesystem (ADR-0020). Configuration errors (an unconfigured section) are
+    deploy-time programmer errors and are left to fail loudly; only domain failures
+    (:class:`AppError`) and invalid settings (:class:`ValidationError`) are converted
+    here into a clean, logged exit code — the single system boundary (see
+    error-handling standard). A failed attempt logs and returns ``1`` with the message
+    left on the queue, so it is redelivered.
     """
     build_parser().parse_args(argv)
     try:
@@ -258,9 +280,10 @@ def run(argv: list[str]) -> int:
             raise ValueError("Processor is not configured; set CLASSIFIER__PROCESSOR_CATEGORY_FILE.")
         categories = parse_category_file(processor.category_file)
         voter = create_self_consistency_classifier(categories, settings)
-        with create_graph_client() as graph, create_message_queue() as queue, get_sessionmaker()() as session:
-            source = GraphContentSource(graph)
-            Processor(session, source, queue, voter, DatabaseWriter(session)).run_once()
+        if settings.source == "filesystem":
+            _process_via_filesystem(settings, voter)
+        else:
+            _process_via_sharepoint(voter)
     except (AppError, ValidationError):
         logger.exception("Processing failed")
         return 1
