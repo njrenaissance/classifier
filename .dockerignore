@@ -1,0 +1,47 @@
+# Keep the build context small and free of dev/test/secret files. The Dockerfile
+# copies only what it needs (pyproject.toml, uv.lock, src/, alembic/, alembic.ini,
+# categories.md); everything below is excluded from the context entirely.
+
+# Virtual environments / caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Secrets and local env — never ship into the image context
+.env
+
+# Tests and dev-only tooling
+tests/
+scripts/
+.github/
+.claude/
+
+# Docs and specs (not needed at runtime)
+openwiki/
+spec/
+*.md
+
+# ...but the processor needs the (placeholder) category file
+!categories.md
+
+# Coverage / build artifacts and local sample data
+coverage.json
+htmlcov/
+.coverage
+adv-results.csv
+adversarial-samples/
+synthetic-samples/
+
+# VCS / editor
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# Docker's own files
+Dockerfile
+.dockerignore
