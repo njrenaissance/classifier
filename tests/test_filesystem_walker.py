@@ -93,7 +93,7 @@ def test_new_files_are_enumerated_hashed_and_enqueued(mocker, tmp_path):
     (tmp_path / "alpha.pdf").write_bytes(b"pdf-bytes")
     (tmp_path / "sub").mkdir()
     (tmp_path / "sub" / "beta.docx").write_bytes(b"docx-bytes")
-    (tmp_path / "note.txt").write_text("unsupported")  # filtered out by LocalFileSystemSource
+    (tmp_path / "legacy.doc").write_bytes(b"unsupported")  # filtered out by LocalFileSystemSource
 
     _status, session, queue = _walk(mocker, tmp_path, documents=(None, None))
 
@@ -131,7 +131,7 @@ def test_changed_file_is_reenqueued_and_rotates_previous_hash(mocker, tmp_path):
 
 
 def test_unsupported_only_directory_enqueues_nothing(mocker, tmp_path):
-    (tmp_path / "note.txt").write_text("unsupported")
+    (tmp_path / "legacy.doc").write_bytes(b"unsupported")
 
     status, _session, queue = _walk(mocker, tmp_path)
 

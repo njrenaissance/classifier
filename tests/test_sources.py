@@ -23,13 +23,21 @@ def _documents(root: Path) -> list[Path]:
 def test_directory_yields_only_supported_files_each_once(tmp_path: Path):
     pdf = _touch(tmp_path / "invoice.pdf")
     docx = _touch(tmp_path / "contract.docx")
-    _touch(tmp_path / "notes.txt")
+    txt = _touch(tmp_path / "notes.txt")
     _touch(tmp_path / "legacy.doc")
 
     result = _documents(tmp_path)
 
-    assert result == sorted([pdf, docx])
+    assert result == sorted([pdf, docx, txt])
     assert len(result) == len(set(result))
+
+
+def test_directory_enumerates_plain_text_formats(tmp_path: Path):
+    created = [
+        _touch(tmp_path / name) for name in ("notes.txt", "config.json", "values.yml", "compose.yaml", "readme.md")
+    ]
+
+    assert _documents(tmp_path) == sorted(created)
 
 
 def test_directory_walk_is_recursive(tmp_path: Path):
@@ -96,18 +104,17 @@ def test_single_unsupported_file_yields_nothing_and_warns(tmp_path: Path, caplog
 
 def test_unsupported_files_in_directory_are_skipped_with_warning(tmp_path: Path, caplog):
     pdf = _touch(tmp_path / "keep.pdf")
-    _touch(tmp_path / "notes.txt")
-    _touch(tmp_path / "legacy.doc")
+    unsupported = [_touch(tmp_path / "legacy.doc"), _touch(tmp_path / "archive.zip")]
 
     with caplog.at_level(logging.WARNING):
         result = _documents(tmp_path)
 
     assert result == [pdf]
     warnings = [record for record in caplog.records if record.levelno == logging.WARNING]
-    assert len(warnings) == 2  # exactly one warning per unsupported file, no duplicates
+    assert len(warnings) == len(unsupported)  # exactly one warning per unsupported file, no duplicates
     warned = " ".join(caplog.messages)
-    assert "notes.txt" in warned
     assert "legacy.doc" in warned
+    assert "archive.zip" in warned
 
 
 @pytest.mark.parametrize(
