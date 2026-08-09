@@ -24,3 +24,4 @@ Each decision with meaningful tradeoffs gets its own file (`NNNN-<slug>.md`). AD
 | [0018](0018-store-folder-path-not-matter.md) | Store the driveItem folder path, not a derived matter | accepted |
 | [0019](0019-config-driven-walk-scope.md) | Config-driven walk scope, enforced at the Graph delta level | accepted |
 | [0020](0020-local-filesystem-source.md) | Local-filesystem source for the two-job pipeline (source-mode toggle) | accepted |
+| [0021](0021-plain-text-extraction.md) | Plain-text format extraction (.txt/.json/.yml/.yaml/.md/.csv/.xml + text/*) | accepted |
