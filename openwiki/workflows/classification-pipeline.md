@@ -134,7 +134,10 @@ result = ClassificationResult(
 ```
 
 **Extraction (A2):**
-- `extract_text()` dispatches on file suffix (`.pdf` → `PdfTextExtractor`, `.docx` → `DocxTextExtractor`)
+- `extract_text()` dispatches on file suffix
+  - `.pdf` → `PdfTextExtractor` (pypdf, page-by-page)
+  - `.docx` → `DocxTextExtractor` (python-docx, paragraphs + tables)
+  - `.txt`, `.json`, `.yml`, `.yaml`, `.md`, `.csv`, `.xml` → `PlainTextExtractor` (UTF-8 with Latin-1 fallback)
 - Each extractor returns plain text
 - Failures raise `ExtractionError` (chained from the underlying library error)
 

@@ -7,7 +7,7 @@ tags: [overview, guide, classifier, document-classification]
 
 # Classifier — OpenWiki Quickstart
 
-Welcome to the classifier wiki. This is a **document classifier powered by Claude or Claude via Microsoft Foundry**, designed to automatically categorize documents (PDF, DOCX) into user-defined categories with confidence scores.
+Welcome to the classifier wiki. This is a **document classifier powered by Claude or Claude via Microsoft Foundry**, designed to automatically categorize documents (PDF, DOCX, plain text formats) into user-defined categories with confidence scores.
 
 The system supports **two deployment modes**:
 1. **Local CLI** — single-machine batch processing, writes CSV results
@@ -50,7 +50,7 @@ Both paths share a **common classification core** (category parsing, text extrac
 
 **Common layers:**
 1. **Categories** (A1) — Parse Markdown category definitions
-2. **Extraction** (A2) — Extract plain text from PDFs and DOCX files
+2. **Extraction** (A2) — Extract plain text from PDFs, DOCX, and plain-text formats (.txt, .json, .yaml, .md, .csv, .xml)
 3. **Classifier Core** (B1) — Single LLM call using structured output
 4. **Self-Consistency** (B2) — Vote over N runs to determine confidence
 
@@ -66,7 +66,7 @@ See [architecture/overview.md](architecture/overview.md) for full diagrams and l
 - **CategorySet** — Parsed categories from Markdown; includes reserved `unknown` bucket
 - **Classifier** — Wraps one API call; builds a static prompt-cache prefix
 - **SelfConsistencyClassifier** — Votes over N calls to produce (category, confidence) verdict
-- **TextExtractor** — Strategy for extracting text; PDF and DOCX extractors are registered
+- **TextExtractor** — Strategy for extracting text; PDF, DOCX, and plain-text extractors are registered
 
 ### Cloud Pipeline (v2)
 - **Walker** — Scheduled job enumerating SharePoint via Microsoft Graph delta queries, issuing resumable with time budgets

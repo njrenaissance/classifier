@@ -59,7 +59,8 @@ docs = source.documents()  # → All supported files, sorted, recursively
    - Symlinks *to files* are still enumerated like any other file
    - This prevents infinite loops from circular symlinks
 4. **Format filtering:** Only files with registered text extractors are included
-   - Unsupported files (e.g., `.txt`, `.exe`) log a `WARNING` and are skipped
+   - Supported formats: PDF, DOCX, and plain-text formats (.txt, .json, .yaml, .md, .csv, .xml)
+   - Unsupported files (e.g., `.exe`, `.zip`, binary `.doc`) log a `WARNING` and are skipped
 5. **Validation:** Missing or invalid root paths raise `SourceError`
 
 ### Example
@@ -68,7 +69,8 @@ docs = source.documents()  # → All supported files, sorted, recursively
 documents/
 ├── invoice_2024.pdf          ✓ Included (PDF supported)
 ├── contract.docx             ✓ Included (DOCX supported)
-├── readme.txt                ✗ Skipped (WARNING: no extractor)
+├── readme.txt                ✓ Included (plain-text supported)
+├── notes.json                ✓ Included (plain-text supported)
 ├── images/
 │   └── photo.png             ✗ Skipped (WARNING: no extractor)
 └── link_to_archive -> /mnt/  ✗ Symlink not descended
@@ -80,6 +82,8 @@ Result:
 [
     Path("documents/contract.docx"),
     Path("documents/invoice_2024.pdf"),
+    Path("documents/notes.json"),
+    Path("documents/readme.txt"),
 ]
 ```
 
