@@ -154,8 +154,19 @@ variable "walker_time_budget_seconds" {
   default     = 600
 }
 
+variable "walker_trigger_mode" {
+  description = "How the walker runs: \"manual\" (on demand, the default for validation) or \"schedule\" (activates walker_cron)."
+  type        = string
+  default     = "manual"
+
+  validation {
+    condition     = contains(["manual", "schedule"], var.walker_trigger_mode)
+    error_message = "walker_trigger_mode must be \"manual\" or \"schedule\"."
+  }
+}
+
 variable "walker_cron" {
-  description = "Cron expression (UTC) for the scheduled walker run. Default: every 6 hours."
+  description = "Cron expression (UTC) for the scheduled walker run; only used when walker_trigger_mode = \"schedule\". Default: every 6 hours."
   type        = string
   default     = "0 */6 * * *"
 }

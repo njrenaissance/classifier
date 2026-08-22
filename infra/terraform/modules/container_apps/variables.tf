@@ -132,8 +132,19 @@ variable "walker_time_budget_seconds" {
   default     = 600
 }
 
+variable "walker_trigger_mode" {
+  description = "How the walker is triggered: \"manual\" (run on demand via `az containerapp job start`) or \"schedule\" (walker_cron). Manual is the default for initial validation; flip to schedule to activate the cron."
+  type        = string
+  default     = "manual"
+
+  validation {
+    condition     = contains(["manual", "schedule"], var.walker_trigger_mode)
+    error_message = "walker_trigger_mode must be \"manual\" or \"schedule\"."
+  }
+}
+
 variable "walker_cron" {
-  description = "Cron expression for the scheduled walker run (UTC)."
+  description = "Cron expression for the scheduled walker run (UTC). Only used when walker_trigger_mode = \"schedule\"."
   type        = string
   default     = "0 */6 * * *"
 }

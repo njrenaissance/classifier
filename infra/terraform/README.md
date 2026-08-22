@@ -121,6 +121,11 @@ and the classification knobs (`self_consistency_n`, `temperature`,
 `confidence_threshold`) fall back to the `src/config.py`-aligned defaults; override
 in `dev.tfvars` only if a run needs different values.
 
+The walker defaults to **`walker_trigger_mode = "manual"`** — it runs only when you
+start it (step 4d), with no automatic cron runs during validation. Once the pipeline
+is proven, set `walker_trigger_mode = "schedule"` (and optionally `walker_cron`) and
+re-apply to activate the schedule.
+
 #### 4b. Seed the manual Key Vault secrets
 
 The Graph client secret and the Anthropic key are **never** in Terraform state —
@@ -153,7 +158,7 @@ az containerapp job execution list -g "$RG" -n "$MIGRATE" -o table   # wait for 
 
 #### 4d. Verify end-to-end
 
-Trigger a walk on demand (or wait for `walker_cron`), then watch a document flow
+Trigger a walk on demand (the default manual mode), then watch a document flow
 walker → queue → processor → a row in `documents`:
 
 ```bash

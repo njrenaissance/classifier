@@ -92,8 +92,18 @@ resource "azurerm_container_app_job" "walker" {
     identity            = var.runtime_identity_id
   }
 
-  schedule_trigger_config {
-    cron_expression = var.walker_cron
+  # Exactly one trigger type. Manual for initial validation (run on demand);
+  # switch walker_trigger_mode to "schedule" to activate the cron instead.
+  dynamic "manual_trigger_config" {
+    for_each = var.walker_trigger_mode == "manual" ? [1] : []
+    content {}
+  }
+
+  dynamic "schedule_trigger_config" {
+    for_each = var.walker_trigger_mode == "schedule" ? [1] : []
+    content {
+      cron_expression = var.walker_cron
+    }
   }
 
   template {

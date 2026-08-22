@@ -130,6 +130,7 @@ module "container_apps" {
   walker_drive_id            = var.walker_drive_id
   walker_root_path           = var.walker_root_path
   walker_time_budget_seconds = var.walker_time_budget_seconds
+  walker_trigger_mode        = var.walker_trigger_mode
   walker_cron                = var.walker_cron
   processor_max_executions   = var.processor_max_executions
   self_consistency_n         = var.self_consistency_n
