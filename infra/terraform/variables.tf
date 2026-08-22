@@ -79,6 +79,16 @@ variable "postgres_database_name" {
 }
 
 # ---------------------------------------------------------------------------
+# Container Registry
+# ---------------------------------------------------------------------------
+
+variable "acr_sku" {
+  description = "ACR SKU. Basic (default) is the cheap dev choice (~$5/mo, 10 GB); Standard/Premium for higher storage/throughput."
+  type        = string
+  default     = "Basic"
+}
+
+# ---------------------------------------------------------------------------
 # Queue
 # ---------------------------------------------------------------------------
 
