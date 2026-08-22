@@ -3,7 +3,7 @@
 # secrets are seeded into Key Vault out of band (PR2). Safe to commit.
 
 subscription_id = "2458052a-3cc8-43e3-a53b-e10df34a44d6"
-location        = "eastus"
+location        = "eastus2"
 environment     = "dev"
 
 # name_prefix defaults to "classifier"; queue_name and Postgres sizing use the

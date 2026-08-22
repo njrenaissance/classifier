@@ -12,9 +12,9 @@ variable "subscription_id" {
 }
 
 variable "location" {
-  description = "Azure region for all resources (e.g. \"uksouth\")."
+  description = "Azure region for all resources (e.g. \"eastus2\")."
   type        = string
-  default     = "uksouth"
+  default     = "eastus2"
 }
 
 variable "name_prefix" {

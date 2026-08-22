@@ -20,8 +20,8 @@ resource "azurerm_storage_account" "main" {
 }
 
 resource "azurerm_storage_queue" "work" {
-  name                 = var.queue_name
-  storage_account_name = azurerm_storage_account.main.name
+  name               = var.queue_name
+  storage_account_id = azurerm_storage_account.main.id
 }
 
 # Poison / dead-letter queue. Provisioned now; the processor's move-to-poison logic
@@ -29,6 +29,6 @@ resource "azurerm_storage_queue" "work" {
 # server-side max-dequeue-to-poison, and processor.py currently re-raises and lets
 # dequeueCount climb.
 resource "azurerm_storage_queue" "poison" {
-  name                 = "${var.queue_name}-poison"
-  storage_account_name = azurerm_storage_account.main.name
+  name               = "${var.queue_name}-poison"
+  storage_account_id = azurerm_storage_account.main.id
 }

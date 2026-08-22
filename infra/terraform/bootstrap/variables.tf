@@ -6,7 +6,7 @@ variable "subscription_id" {
 variable "location" {
   description = "Azure region for the state resource group / storage account."
   type        = string
-  default     = "uksouth"
+  default     = "eastus2"
 }
 
 variable "resource_group_name" {

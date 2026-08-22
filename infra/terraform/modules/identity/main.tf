@@ -56,10 +56,9 @@ resource "azurerm_role_assignment" "publisher_acr_push" {
 }
 
 resource "azurerm_federated_identity_credential" "publisher_github" {
-  name                = "github-actions-${var.github_environment}"
-  resource_group_name = var.resource_group_name
-  parent_id           = azurerm_user_assigned_identity.publisher.id
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = "https://token.actions.githubusercontent.com"
-  subject             = "repo:${var.github_repository}:environment:${var.github_environment}"
+  name                      = "github-actions-${var.github_environment}"
+  user_assigned_identity_id = azurerm_user_assigned_identity.publisher.id
+  audience                  = ["api://AzureADTokenExchange"]
+  issuer                    = "https://token.actions.githubusercontent.com"
+  subject                   = "repo:${var.github_repository}:environment:${var.github_environment}"
 }
