@@ -2,7 +2,7 @@
 # concern is a module. Dependency order is expressed through input references
 # (not depends_on): identity grants RBAC on the registry, key vault, and storage it
 # receives ids for; keyvault stores the URL the database module assembles. The ACA
-# jobs (modules/container_apps) land in PR2 and consume these outputs.
+# jobs (modules/container_apps) consume these outputs.
 
 data "azurerm_client_config" "current" {}
 
@@ -93,6 +93,48 @@ module "identity" {
   # Publisher federated credential (GitHub Actions OIDC).
   github_repository  = var.github_repository
   github_environment = var.github_environment
+
+  tags = local.tags
+}
+
+module "container_apps" {
+  source = "./modules/container_apps"
+
+  resource_group_name        = azurerm_resource_group.main.name
+  location                   = azurerm_resource_group.main.location
+  environment_name           = local.container_app_environment_name
+  log_analytics_workspace_id = module.observability.workspace_id
+
+  # Image + registry + runtime identity.
+  image                      = local.image_ref
+  registry_server            = module.registry.login_server
+  runtime_identity_id        = module.identity.runtime_identity_id
+  runtime_identity_client_id = module.identity.runtime_client_id
+
+  # Key Vault secret references (versionless).
+  database_url_secret_id      = local.database_url_secret_id
+  graph_client_secret_id      = local.graph_client_secret_secret_id
+  anthropic_api_key_secret_id = local.anthropic_api_key_secret_id
+
+  # Queue: managed identity at run time; connection string for the KEDA scaler only.
+  queue_account_url       = module.storage_queue.queue_endpoint
+  queue_name              = module.storage_queue.work_queue_name
+  queue_connection_string = module.storage_queue.primary_connection_string
+  storage_account_name    = module.storage_queue.name
+
+  # Graph app-only credentials (ids plain; secret is the Key Vault ref above).
+  graph_tenant_id = var.graph_tenant_id
+  graph_client_id = var.graph_client_id
+
+  # Walker + processor knobs.
+  walker_drive_id            = var.walker_drive_id
+  walker_root_path           = var.walker_root_path
+  walker_time_budget_seconds = var.walker_time_budget_seconds
+  walker_cron                = var.walker_cron
+  processor_max_executions   = var.processor_max_executions
+  self_consistency_n         = var.self_consistency_n
+  temperature                = var.temperature
+  confidence_threshold       = var.confidence_threshold
 
   tags = local.tags
 }
