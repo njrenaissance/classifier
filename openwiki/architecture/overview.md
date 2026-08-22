@@ -167,17 +167,19 @@ Both paths use the same four layers for parsing categories, extracting text, and
 
 ### A2: Text Extraction (`src/extraction.py`)
 
-**Input:** File path (PDF or DOCX)
+**Input:** File path or bytes + MIME type
 **Output:** Plain text
 
 - Strategy pattern: each format has a registered `TextExtractor` implementation
 - **PDF**: `PdfTextExtractor` uses `pypdf`, extracts page by page
 - **DOCX**: `DocxTextExtractor` uses `python-docx`, extracts paragraphs then tables
+- **Plain text** (`.txt`, `.json`, `.yml`, `.yaml`, `.md`, `.csv`, `.xml`): `PlainTextExtractor` decodes bytes with UTF-8-sig → Latin-1 fallback (ADR-0021)
 - **Legacy `.doc`**: Intentionally deferred (ADR-0006, ADR-0009)
+- MIME-based dispatch for cloud pipeline (bytes + MIME type) includes a `text/*` catch-all for robustness
 - Unsupported formats raise `UnsupportedFormatError` when pointed at directly; skipped with a `WARNING` during directory enumeration
 - All extraction errors are chained from the underlying library exception
 
-**Design decision:** [ADR-0006](../../spec/adr/0006-text-extraction-per-format-libs.md), [ADR-0009](../../spec/adr/0009-defer-legacy-doc-extraction.md)
+**Design decision:** [ADR-0006](../../spec/adr/0006-text-extraction-per-format-libs.md), [ADR-0009](../../spec/adr/0009-defer-legacy-doc-extraction.md), [ADR-0021](../../spec/adr/0021-plain-text-extraction.md)
 
 ### A3: Document Sources (`src/sources.py`)
 

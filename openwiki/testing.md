@@ -121,64 +121,35 @@ def test_parse_from_file(tmp_path):
 
 **Goal:** Test extractors without hitting the filesystem (when possible).
 
+Key test areas (see `tests/test_extraction.py`):
+
+- **PDF extraction:** Hand-rolled minimal PDF builder exercises the `pypdf` path end-to-end
+- **DOCX extraction:** Paragraphs and table cells from `python-docx`; blank paragraphs filtered
+- **Plain-text formats:** UTF-8 with BOM stripping; Latin-1 fallback for non-UTF-8 bytes; format-agnostic raw decode for JSON/YAML/XML/etc.
+- **MIME dispatch:** `extract_text_from_bytes()` with MIME type normalization and `text/*` catch-all
+- **Error cases:** Unsupported formats, missing files, corrupt documents (errors chained from library exceptions)
+- **Encoding edge cases:** UTF-8 BOM, mixed-encoding files, empty files
+
+Example (plain-text parametrized test):
 ```python
-# tests/test_extraction.py
+@pytest.mark.parametrize("suffix", _TEXT_SUFFIXES)
+def test_plain_text_is_decoded_verbatim(tmp_path: Path, suffix: str):
+    content = '{"note": "line one"}\n\n  trailing indent  '
+    path = tmp_path / f"doc{suffix}"
+    path.write_bytes(content.encode("utf-8"))
+    # Raw decode: whitespace, blank lines and indentation are preserved as-is.
+    assert extract_text(path) == content
 
-from pathlib import Path
-from extraction import extract_text, PdfTextExtractor, DocxTextExtractor, \
-    ExtractionError, UnsupportedFormatError
-from unittest.mock import Mock, patch, MagicMock
-import pytest
-
-def test_extract_text_pdf(tmp_path):
-    # Create a minimal valid PDF (or use a fixture)
-    pdf_path = tmp_path / "test.pdf"
-    # ... write PDF bytes ...
-    
-    text = extract_text(pdf_path)
-    assert isinstance(text, str)
-
-def test_unsupported_format():
-    with pytest.raises(UnsupportedFormatError):
-        extract_text(Path("document.txt"))
-
-def test_extract_missing_file():
-    with pytest.raises(ExtractionError, match="Cannot extract"):
-        extract_text(Path("/nonexistent/file.pdf"))
-
-def test_pdf_extractor_with_mocked_pypdf():
-    # Mock the PdfReader to avoid I/O
-    with patch("extraction.PdfReader") as mock_reader:
-        mock_reader.return_value.pages = [
-            Mock(extract_text=lambda: "Page 1"),
-            Mock(extract_text=lambda: ""),  # Blank page
-            Mock(extract_text=lambda: "Page 3"),
-        ]
-        
-        extractor = PdfTextExtractor()
-        text = extractor.extract(Path("any.pdf"))
-        
-        # Blank page is filtered out
-        assert "Page 1" in text
-        assert "Page 3" in text
-
-def test_docx_extractor_with_mocked_docx():
-    with patch("extraction.Document") as mock_doc:
-        # Mock paragraphs
-        mock_doc.return_value.paragraphs = [
-            Mock(text="Paragraph 1"),
-            Mock(text="Paragraph 2"),
-        ]
-        mock_doc.return_value.tables = []
-        
-        extractor = DocxTextExtractor()
-        text = extractor.extract(Path("any.docx"))
-        
-        assert "Paragraph 1" in text
-        assert "Paragraph 2" in text
+def test_plain_text_falls_back_to_latin1_on_non_utf8_bytes(tmp_path: Path):
+    path = tmp_path / "resume.txt"
+    path.write_bytes(b"caf\xe9")  # 0xE9 is 'é' in latin-1, invalid as UTF-8
+    assert extract_text(path) == "café"
 ```
 
-**Approach:** Mock file readers to avoid I/O and test extraction logic.
+**Approach:** 
+- PDF/DOCX tests use hand-rolled or minimal fixtures (not mocked libraries) to exercise real parsers
+- Plain-text tests are parametrized over all supported suffixes to verify format-agnostic behavior
+- MIME tests verify the cloud pipeline's byte-based dispatch
 
 ### Unit Tests: Document Sources (A3)
 

@@ -156,6 +156,7 @@ class Message(BaseModel):
 5. **Extract text** — Call `extract_text_from_bytes(bytes, mime_type)`:
    - PDF → pypdf page-by-page extraction
    - DOCX → python-docx paragraphs + tables
+   - Plain text (JSON, YAML, Markdown, CSV, etc.) → raw text decode with UTF-8-sig → Latin-1 fallback
    - Unsupported type → mark Document `skipped`, delete message, exit
 6. **Classify** — Build `SelfConsistencyClassifier` and run N times:
    - Each run: call LLM with category definitions + document text

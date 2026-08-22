@@ -103,7 +103,8 @@ except ExtractionError as e:
 ```
 
 **UnsupportedFormatError — When it occurs:**
-- File suffix has no registered text extractor (e.g., `.txt`, `.exe`, `.doc`)
+- File suffix has no registered text extractor (e.g., `.exe`, `.zip`, `.doc`)
+- Supported formats: PDF, DOCX, plain-text formats (.txt, .json, .yaml, .md, .csv, .xml)
 - This is a subclass of `ExtractionError`
 
 **Example:**
@@ -113,7 +114,7 @@ from errors import UnsupportedFormatError, ExtractionError
 from pathlib import Path
 
 try:
-    text = extract_text(Path("document.txt"))
+    text = extract_text(Path("archive.zip"))  # Unsupported format
 except UnsupportedFormatError as e:
     print(f"Format not supported: {e}")
 except ExtractionError as e:
