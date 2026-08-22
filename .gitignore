@@ -23,6 +23,22 @@ dist/
 build/
 *.egg-info/
 
+# Terraform (infra/terraform/). State must never be committed; the provider/module
+# cache and crash logs are local artifacts. The dependency lock (.terraform.lock.hcl)
+# is intentionally NOT ignored — it is committed so provider versions are pinned.
+# Environment tfvars here hold no secrets (region, name prefix, tenant/client/drive
+# ids), so environments/*.tfvars are committed; any stray *.auto.tfvars is not.
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.auto.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
 # OpenWiki maintains an AGENTS.md (the non-Claude counterpart to CLAUDE.md);
 # this project keeps it untracked so `openwiki code --update` (locally or in
 # CI) never commits it. CLAUDE.md, by contrast, is tracked and its OPENWIKI
