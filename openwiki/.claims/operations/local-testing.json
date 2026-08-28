@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:0f630b1db084629121d173f3bb898d2cec323fa77aff37b52af129a838129243",
+  "claims": [
+    {
+      "id": "claim_994704d991f74d4d9afcae72fa2ef869",
+      "statement": "Integration tests (pytest -m integration tests/test_filesystem_pipeline_integration.py) exercise the real files → real queue → real PostgreSQL leg of the pipeline with a faked self-consistency voter to avoid real LLM calls and costs, making them suitable for pre-merge CI validation and rapid local feedback loops",
+      "evidence": [
+        {
+          "resource": "repo://infra/README.md#L9-L14",
+          "version": "repo-lines-v1:sha256:878f88600cbda21a4b70c0f66426a7bec0a9b5584a9d80cd888719bdcea5979a:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWI2MzNlODE4ZGUwZjY1MzUyM2U5MThjYTBlMjhhMDM5OTgxNTNjMTQzN2E2M2RlOTIwZTgyNzA5OWI5MGJhZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGJjNTZmN2IwMDU1MjljODdhZDdhZDQ0NjhhZTQyZjJkNDVlMDJkYTc1YmQ0NmU0NDkzNTQ5YTQ5MzFkMDE3OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGZlMDM3YzgyZWIxMTE4YzIzNWU5NTZlM2Y2NzI4YjNjYjQ5YWYzYzZkNDk5NmZhMWZjMDYzMTNhZGFhYmQ2NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzNlZmU0N2U1MGYzNjEwYThmZGZjZTA2ZWMzM2EyZWNhZmNjOGNhYzBkNjM4NDgwNjM3MGRkY2Q0ZjhlYTdmOSJ9"
+        },
+        {
+          "resource": "repo://tests/test_filesystem_pipeline_integration.py#L1-L30",
+          "version": "repo-lines-v1:sha256:db0cd943f640a7e72148b65fb02130c76de3efc0d609f891504d8a08fb72c543:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmMmU2Mjk2Mzg1NmM3NTg5MmY3YmFmNWU5NTBjYjIzNzJmYjgwYTRmNzM4MGNmMDkyN2Q5ZmE5ZDJiNjVjOWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEyZjg4MTBjZDFhNzU2ZmU3MDIwYThkNzcwYzA5NWFkMmVjYmJiN2ViODNiNTY3ZTQ0YTc0MTRiMTI5NjY4NjIifQ"
+        },
+        {
+          "resource": "repo://tests/test_filesystem_pipeline_integration.py#L64-L71",
+          "version": "repo-lines-v1:sha256:90faa409cee0165ce9fee7151621c16813b088c9b02a67972207399161bc664c:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDE2OTk0MGQzYWE1NjIzMmQ4ZWI2MzExNzgyYTRmNjE2NGY0YmY2NjQxNWQ4ZDgzMWRlYTUwNTJhZjNjZjI0ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzU5ZmIyOTkxYWEwN2YwMTdiMWUyMzhiYjZkMjA5MDQ0ZDIzMzAwNDNmYjY5YTgxYzVjNTQyMWNiZTJhZmFhYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2FlYmFmNjU3NmRiYWNkOWU3MmQwMTBlMGFhMGYwYjYwZjFhOGQ2ZmVjMDdjN2Y1M2Y2YWVmMDIyOWI4ZDRkOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4d33a18ed338491a8698a382846ba877",
+      "statement": "The live-fire stack (docker-compose) runs the full two-job pipeline with real Anthropic API calls against a mounted host directory, providing end-to-end acceptance testing at the cost of real LLM API charges per invocation, and is deliberately excluded from CI",
+      "evidence": [
+        {
+          "resource": "repo://infra/README.md#L1-L15",
+          "version": "repo-lines-v1:sha256:d0f8bdc2c4ec9e8de9dc63d453a74d9f0bf29957ad5ea3cdbd0ff33373759994:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3YjZlZDAzZGM0NTc1MDE3ZGFjYTVhNmFmY2VhMDJlOTRiYTgwZTUwODljMGNkNjA3NDYyZWFhMjFlZGU1MDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiOGViODRiNmQ1NjIwNDI3NDAyNWY2YzhkNDI3MDUwOWZkNjNlYWUwMTg3Y2JiMjk2ZDk4ZDFlNGYyZmQ0ZDAifQ"
+        },
+        {
+          "resource": "repo://infra/docker-compose.yml#L1-L11",
+          "version": "repo-lines-v1:sha256:5ea507eca215b72db47ea2b5e3946b74b4a50b880a1197cab672693b5d4c835d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2ZTMyMjgwYjExOGNkMTdlM2I4NWYwOTQ0ODYxNTUyODgxMWE4NTdiYzBjZmU3NmMyNGVkNTEyMTdhYzZlM2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiZjI2YThlMzI2MGZhYWM4OWRlMDQ0NzA4YTQyN2RkY2YyMzI4MjM0MGVjNjQ0ZjBjODAxNzliYWFjNzJjYmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY1YzlmNjdiM2YxZGU5YzA3YTUxOWRhN2M0ZDQ4ZjBhODc1YjcxNTU2ZmZhYTA4NmE2ZGRkYmVlMWYzZWM0N2YifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cb1b9b6ae1ac44ffa7c6198f983d1f30",
+      "statement": "FilesystemWalker performs full re-enumeration (not delta) of a mounted directory root, hashing each supported file and enqueuing new/changed ones through the shared Enqueuer, using a synthetic SyncState row keyed by filesystem:<root> with no delta/resume tokens because filesystem sources have no change feed",
+      "evidence": [
+        {
+          "resource": "repo://src/filesystem_walker.py#L49-L101",
+          "version": "repo-lines-v1:sha256:2c1e2d2a8e8bd1fb2de2ce4da212d7b3cd604d5607f444d9297288932d44aada:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0MDlhMjY2YTQyNjA4NTE3YWFhZDQzYzdjYTkwZGU4YTIzNjUyY2NlMjM1MTc4Y2E2YmI4ZGY1YjIxYTY0ZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5OGYwM2Y4ODA3MjBlNjdjYTIwMTRhMGRmMWM4YTgxMjZiYjRhZjMzYTRhZjhiYjg1ZTNkMTcxMDMzODg0YWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI5MjJkYTI1OTI2Y2NjNTM5Y2EwY2E4MDg1OWJkNDJmMjRlNTcxYTkzMzc5NmY4MmUxODZlYzQzZmZlNTQxYTgifQ"
+        },
+        {
+          "resource": "repo://src/filesystem_walker.py#L8-L23",
+          "version": "repo-lines-v1:sha256:14fad76d8f0c5db54da5c9081d1bc956451d59866408d7806b44515edf06e220:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxM2E1Yjc5YjFmYjk5YjMwNzgzZDc3ZGQ5YzJmNGVkZGUzMTY4ZTFiMjQ4NTk3NGQyNGMyYjliNzNhMWNjYjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA1ZjQ5NDU5YmUxZTk0YWYwNWFiOTNiNTY5MjlhMDlhZmU0YjRhNjk1NjViMDNjNjJiYTA5NzdkZTVkZmIzMDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVmNTQyZTU4YjYxOWEyMDEzOTU3MjEzYmExYzljMTI1ZjU3ZjU2OWMyNjY0MmI5MTcxODRhMzNmZGQ0Zjk0ZTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bbcc16b264e94d1094be3ff2d2757c32",
+      "statement": "The docker-compose stack defines a dependency graph starting with postgres health-check, then migrate (alembic upgrade head), then queue-init (idempotent queue creation), then walker and processor which depend on all preceding steps; this ensures correct initialization order and schema readiness before any job runs",
+      "evidence": [
+        {
+          "resource": "repo://infra/README.md#L49-L51",
+          "version": "repo-lines-v1:sha256:8c33421bf5ded0e9f1c47c689f41da82b48f40cd440edc7143c4561e4485fba9:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjA4Mjg4NjdkM2EzYmMzZjVmNDIxYTMwYmYzYWVhMDlkYjc5MzRiZGMyMjZmNTA0YTZmMDYxMDYwN2EzNTEyMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmYyN2JmYjRiNTg0ZTYyMTU2MTgzYTk0MmNiOGQ2OTA1NjZmNjhlZjAwNDg0ZDE2ZjA3NDhmNTE3NjRiY2JkOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmJiNmEyMmJjMjQxZjdjNGJlMDk4ZDk3ZWI3MTllMzkxMTY2ZTY2ZjZhYTA5OGQ2YzU4Mzk2NmViODYyOGRhNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWU1NDU4NjlhNjQwZjQwNzNiYTU2OTNjYzczZTFjMWIyMDdmZTg2YTA3NWM2NjhmZWQxMDcyMzZiNGUzMTE2YiJ9"
+        },
+        {
+          "resource": "repo://infra/docker-compose.yml#L27-L35",
+          "version": "repo-lines-v1:sha256:710213679c3e145882810465c0ede3734f285f54a04d7b95eb32b9ba7974ac19:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzJkODExN2QxNGRmYjYwNmRhOTBhOWU3MmIwNjYyMGFlNGFkMDJmNzk2NGU5ZDVlMTUxZTQzZTQ1OWJkMWFkNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTgwYTY2YTU3YTc4NDU3MDBjYWEwOTcxNWE4MmMwY2FiNTVkODkxNzJlMTczMjM1NTAyZjQwNTBjM2M4YzI1YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjE2NjNmYjFhNGRjMTliMDUzYWE2YTgzYjFhOTVjMDQ2YmQ3OWViZWQ2ZjFkODkwNzdlODExMGFkZDhiYWMyMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzRjNDJlMmMwZTAyNjNlZmJkYTZkNDg0NWRhMTUzOWUyOWZhMjhhNDZhN2NjMzEyNGQ3ZTY0YTM0MWI1Nzg1NSJ9"
+        },
+        {
+          "resource": "repo://infra/docker-compose.yml#L54-L76",
+          "version": "repo-lines-v1:sha256:19d80a1dd10c3dd045656fbfd1f547a5bdd61a7d9d9d3c822fc1dd1054519ab6:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZiMjhmOTM2YjQxMTdkZTcxZjUyYTZmMGE0Mjg1MDE1ZWYzYmYyMjEwYTAzNmY2NDE3M2RlZWE4ZGUwYWI4NzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1MmIyOWI3ZWFlMzU3YzlmNTdhMzgzNzU0YTViOTg2MTYzZjY0YTYxODAxYTBiMGYyODgwZTg3MGE2YTRlNjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBiMDQxY2I2MDQ2ZWIzYjg3NzQ3ZjkwMDYxMDc2NTdhNGI5Y2Q1OGZiZjEwZGY1MGVlNjAyNWU0ODIzYjVkMDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkMjMyNjZjY2RmNWMyY2RkYzBlM2JlZjVkYzZjYmRjNWNlZmE0OTQzMGU3NWEwNjRmNmNkYjhkNDEwOGE1YWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_25f3126c322b4964aa3dc01ac82455fd",
+      "statement": "The processor's run_once() method processes exactly one queued message (or exits as a no-op if the queue is empty) and then terminates; it is designed for KEDA-driven scaling (one replica per message in production) and requires manual re-invocation to drain the queue in local testing",
+      "evidence": [
+        {
+          "resource": "repo://infra/README.md#L53-L66",
+          "version": "repo-lines-v1:sha256:5e81c4aa069377cbfe9d212e8667dcd5bec67b560affb5fefa08218cce76443c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzYzNhMWEzYTAyZjljZjdjODZlMzQ2OWIyM2RhMmJkZWJlMjk3NDAxMDIzMDBjYmIxMmZiNjdiNjI1MzM2MDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2OTNhZDllNjBlZTE2MDNmZWZlZTI4YzM5Y2Q4MjJlMWQ0ZmE3MjAwMWEwZGEwMDgxNjkyMzI5Y2IxMjVmOTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRjM2ExMTk5MWI2Mzc3MjQ1YjAzNjEzNDUwMzlkNTIyMzJkNmQ2MWJmNTNlZjYyOTg0MDQxNTEyMWQ3YWFhZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjNmQyMDAxNzk3MTg5YzUzNDM2NDBiOGE3YmNkMzIyNTEwMTdkOTVmMTI4MmIyY2NiN2NiMjJkMzE5YmY0ZjUifQ"
+        },
+        {
+          "resource": "repo://src/processor.py#L101-L114",
+          "version": "repo-lines-v1:sha256:1cdcb25d19bf679ad3c3fcdfe98e0442fa328604a41f9a38faa7610637dd3d02:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhODNmNjY2OGVkZDIzODJkNzAzOTQwYzIyZTdlMjY2ZWVlOTYzYmY4MmFkOGZjZWNkNzhmNmIzMWYwY2EzOWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhMmMyMmRhZTI2ZDMxZTYwMzE5MmE5NzM3NTQxZjYyZGEwMmVhNjMwY2NhZjA1NzRmNjkxZjU0NTY2YTBlNjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiMGI3MmY1MDdlMjRiNDIzY2ZiZWM5ODZmZDFiNjU2ODVhZjIwMjc4NTVhMTUwZTVhN2Y0YzY4OWIwNDJmZjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcwZjU4YTg0NWM0NzVkZWYyOTI2OWUwMjg5YzAyZThlNTg0ZjZmZmExMWM3MTNiOTcyZDZjYTc4NzVlNzgwNGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_05a40d30bfe34e0cb625d07560bf0463",
+      "statement": "FilesystemContentSource (used by Processor in filesystem mode) re-checks content_hash via the mounted directory before downloading, and Processor skips the document (marks it skipped, lets walker re-enqueue) if the hash has changed, implementing content-change detection without delta tokens",
+      "evidence": [
+        {
+          "resource": "repo://src/processor.py#L132-L148",
+          "version": "repo-lines-v1:sha256:e1d8b17f286545ad2923bc96272bf4ae3f5ec53560778a060fd460a487538241:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlYjIwOTMzYmRjZDBhMDUxNjdkNWZmNGY1NzYxYzgwYjczODVhN2Q2MGVhYTQyYmU4NDljZjU5ZjE1YTk0Y2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiZGVmZDJjNTQ1ZTc3ZGFiZGRkOWI5YzJjYWI3MWRkODY3MDZmNTM5OWI0OTk0ZWNkNzZkNGZkYjM1NzBmNWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEzMjIzMDE5MTk2ZmYxOGFiZTFiODBhM2I0NWQ2MTRmN2E1ZWRlYTkxNWUxOWRkMzQ0MjQ1NmRjNjM4YWY5MjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzOTAyYzRiYzc0NDk2MjIwM2ZlYjZlMzhhNDQwYTZlODAzOTE3MmFjOTFkYmFhNWIxZmQxMmE1MWJiMDNkMzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ff18a49225fd4692aeb7722e1eb69e63",
+      "statement": "The queue-init service in docker-compose.yml runs infra/create-queue.py as a one-shot init step that idempotently creates the Azurite queue, treating an already-existing queue as success and retrying up to 30 times if Azurite is still starting",
+      "evidence": [
+        {
+          "resource": "repo://infra/create-queue.py#L1-L45",
+          "version": "repo-lines-v1:sha256:df20b5d9136f86d055b3326e66363c18a4dd820edae5a6fbb98c611ba8d9751e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlMmNiYjI3ZGIxOWU3ZGU4ZDU0NzdhZmUxM2YyYWJhMjgxYTc5MDk4MDM2MmU4NjI5MGIxZGI0MjhmMzBhMjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4ZTk5MjMyY2QzYTMwOWY1MGNiZDZmNjYyMTI3ZWVhYWZjZTFmNzM2MjkyZGVmYjExM2Q5ODFhMjBjN2Q4NTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://infra/docker-compose.yml#L65-L76",
+          "version": "repo-lines-v1:sha256:b72db3382e8f950e86194e6768e976135d68e159c98854b2c5b98b7ae1616bfc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4MTFiMjc4ZjYyZTFmMDUyMjk3ZjBmMzM2ZDUzNWVkNzliMWExYjdkNzhlZWQ3M2YyOGUzNDhlNTQ1ZWQ1MGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1MmIyOWI3ZWFlMzU3YzlmNTdhMzgzNzU0YTViOTg2MTYzZjY0YTYxODAxYTBiMGYyODgwZTg3MGE2YTRlNjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAxODEwNmFiZjJmNjVjODZhNjNjYjc5MGZiNTliYWQ1ZWNhMmU2ODcxMDNjOWZkMzZlZmFmNzE2ZGUzM2U0OWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkMjMyNjZjY2RmNWMyY2RkYzBlM2JlZjVkYzZjYmRjNWNlZmE0OTQzMGU3NWEwNjRmNmNkYjhkNDEwOGE1YWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a6dc22f6135f458cb54423510393ebc2",
+      "statement": "The filesystem source identifies documents by their path relative to the root (the stable identity locator for enqueuing and retrieval) and derives MIME type from file suffix, reusing the registered-suffix filter from LocalFileSystemSource so format registration stays a single change in extraction.py",
+      "evidence": [
+        {
+          "resource": "repo://src/filesystem_walker.py#L103-L118",
+          "version": "repo-lines-v1:sha256:01c77e2f66c031278bd797faed9612aeaea7bfdac5f6debe51eea1da12dde4a0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0NjFkOWRiMTcwOWFmNjFkYTkwNDI0ZTRjNjljZTljYTAzMTQ0YzliODg0OGI0ZDkyMWEwMTE4MTE3NTA5ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM0MTM2MDViMzQyODhhNDUwNmE2NDFhZTc2MTYzMzViYzA5NjUyZDMxOTA3MmZiNWI3ZDJiNGY3NmMzY2Q2NDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxY2I2ZGRlZDdhMjJlOTM4OGY3YjlmODQ5MzRkZjQzM2IxZDE2ZDVmYmUzNGM3OTU2MDkyODEwZDU1MWU0ZDEifQ"
+        },
+        {
+          "resource": "repo://src/filesystem_walker.py#L17-L23",
+          "version": "repo-lines-v1:sha256:beae987a920e7e46ef39267648ec93786b36e3eaffef11881289b244f8bf4cc5:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmU5YzAzNTE1MTIwM2Q3Y2YyN2YyM2U5OTAyMGUzODJjMDczOGFjNjA0N2M1N2M2NTY4YzQxZWU3ZWJmMGE3YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDEzYTViNzliMWZiOTliMzA3ODNkNzdkZDljMmY0ZWRkZTMxNjhlMWIyNDg1OTc0ZDI0YzJiOWI3M2ExY2NiMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDJkODY2ZGQxOTM0M2NkNjJlZmRhMzA3NzAzYjIwZWEyY2ExZjYwN2I3MDU5YzdkODQ4Y2RjY2UyMTc0YmNiMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWY1NDJlNThiNjE5YTIwMTM5NTcyMTNiYTFjOWMxMjVmNTdmNTY5YzI2NjQyYjkxNzE4NGEzM2ZkZDRmOTRlNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_74fc7d3ed293499eb26efee72a7146a3",
+      "statement": "The documents table schema is keyed on the unique (sync_state_id, drive_item_id) pair shared across both SharePoint and filesystem sources, allowing the processor's DatabaseWriter UPSERT logic to work identically regardless of source, with the same respect for manual classification_override",
+      "evidence": [
+        {
+          "resource": "repo://src/db.py#L97-L146",
+          "version": "repo-lines-v1:sha256:cc6f0560c0e86d82e7a75df8589cbd1d8a0796217388017c49f072fb78b8535f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxM2Y2MGY4ZTJlNWM3MTFmNmJiZmYxOTIwOWIzMjE3ZjRmYzNmN2UwYWY2NzNmYWI0ZDBiMTYxY2Q2ODc0NWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYwODFiNjViMDg3Mzk2NzBmNGMwYzY3NWE3MDM4MWYwNWQ5MjMwODRiMjRjYTY1YmM5MjE5NmI3NzcyN2MwZGEifQ"
+        },
+        {
+          "resource": "repo://src/processor.py#L125-L127",
+          "version": "repo-lines-v1:sha256:779b8a981f599208dbc4ec2c11fc25bce8159f494bde2c3ee22fc72f1a60b574:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTlmZWRjYTc2MjRmNTQwZTI0YzY3MzcxY2JkNDdjNGFmNDFiZWYzNzhkZGIyYWMyMDc3Y2MwNTgxZTI4MzFjZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWU3YmNkMzZlZjUzYjQ0NTIzZTY1ZTk4ZDE5NDQ5OTNlMGZmMTc0NmY1NTM2YzFhNTExNzQ2ZjNlMDFlNzU2ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGM1MGFmMmI4NTA5YzM0ZDYzODNjZTA5MzU4ODAzZDM1NTEwY2U3MWIyZGVlNDY1OWIwZTg1YWQ3Yjg2NDYyOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWIyY2U4ZTJkMWY5MjlkNTkwZmJjYzg3NTAwZGEzY2Q0ODY3NmZkYzc4NDY3YTc4NDYyMjkzODhlNTIyYjFhMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_6f0745e127ef4c29b5a5d14908d31c12",
+      "statement": "The live-fire stack uses Azurite's well-known dev-storage account (fixed public credentials: AccountName=devstoreaccount1 with a standard test key) so no secrets are needed for local testing, and the connection string is shared between queue-init and both walker/processor services",
+      "evidence": [
+        {
+          "resource": "repo://infra/docker-compose.yml#L15-L17",
+          "version": "repo-lines-v1:sha256:e0afe06fda62fe00b9e55a402e75d43f0900eefc7d8838011d11dd0cb70bcdfd:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjAxM2FkZWY1MGQwYTkxMDk0NmNkMmNjYWZhYjRhYzg1Y2MxNjlkOWI1MzgzZGEwZTQxZDZmYWFhODkwMTE3ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWMzYTczZDU2MzlmMTkzZjRjNWZlYzhiZGY5YjMyMmExNDEwMTBkYWUyN2NlYmQxMWE2Y2FlMTIzZGY0NzIxNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjVjOWY2N2IzZjFkZTljMDdhNTE5ZGE3YzRkNDhmMGE4NzViNzE1NTZmZmFhMDg2YTZkZGRiZWUxZjNlYzQ3ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzc1ZjI3NzJkOTI2YTMxNjc4MzY0YWVlMGE5NDZlOGNkNzc3ZmU2MDE3MjIwMzNhODAxN2E4MWIxZGIzODI5MyJ9"
+        },
+        {
+          "resource": "repo://tests/test_filesystem_pipeline_integration.py#L33-L36",
+          "version": "repo-lines-v1:sha256:ee5a6449a6aea87aac5a8ce4e218add7ce1a9abaca986582b5264a9a12ce285e:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmNjNDI5MDViNzBhZjdlZjczMWQ3MDc0ZTEwYzJlMjkwYWY4MzEzNDUzM2UwZTkxZDNlNGI2YTBhNWM4NWNlZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2I2YzA1MjZkZDc0OTk5MGNjNjc2NDk0ZWVhNzFkODBiNDM4MmU3OWUxOWJlZjNhYTU1MmIxM2EzMzRlNmFiYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzUzOGNjYzIwZTQxNjNkZWM0ZWZiZTgxZGUzMjI1NWMxNmFjOGQzNTg5Mjc4ODMxZTFjNzczMTdmZDA0YzdjZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjM0NjBjMzRlYWJhMDEyNzIyNzg1MDI0MTI0ZjQ0OTg5ZWQyOGNlYzRlYzZhODliOTdjM2VhOTRjNTdmYTdiZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2087ba532b3a42e5b4df413edd202b37",
+      "statement": "SAMPLE_DOCS environment variable allows overriding the default sample-docs/ directory bind-mount, enabling live-fire testing against any host directory of documents without modifying docker-compose.yml",
+      "evidence": [
+        {
+          "resource": "repo://infra/docker-compose.yml#L84-L84",
+          "version": "repo-lines-v1:sha256:07a0c9c463e578169919556030042a17ca798dbed6dc4dd4cd9c30e422f58ff8:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDdhMGM5YzQ2M2U1NzgxNjk5MTk1NTYwMzAwNDJhMTdjYTc5OGRiZWQ2ZGM0ZGQ0Y2Q5YzMwZTQyMmY1OGZmOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDdhMGM5YzQ2M2U1NzgxNjk5MTk1NTYwMzAwNDJhMTdjYTc5OGRiZWQ2ZGM0ZGQ0Y2Q5YzMwZTQyMmY1OGZmOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTA2YzY1MWZkNTk0OWU0MDUzN2IxODViYWJjOWNiYTBiNzdmOTg3NzMyMzU0MDhjOGYyZjZhMWY5ZmNmNTQ2NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2ViMGY3YmMzOGRlNTIzMTgyNjE0NDY2MTA3NGIxYjdhNjNiZjZmODhhOWY0YmQ1ZTNmNzZmOTc1YWZmZWNjZSJ9"
+        },
+        {
+          "resource": "repo://infra/sample-docs/README.md#L8-L14",
+          "version": "repo-lines-v1:sha256:17fc9baba9aab1e75891054bd18f62a75c2701a7956da87d655eed433ff3ea4e:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjQ4MWQ2ZTBlN2U5ZmMzODgxYjlmNjcwYTA4MGRhMzRkYWVkMWE2ZmFkNDJiNGNjOGIyYzM2MWMyMmQxYjliMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDdjMDZjNTYxZDVjMzI3MzQzNjg1MjY4YTQ2YjMzOTFmMzk5OGVlZTg5MGQyYmU1MWYwZDIxY2M0YTUzYWU2ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTI3NmJmZDkyNWJmOTk3YWMxMzQ2YjAxYTU0MjFkMGJlNmU3NTEwMWUwZjI3NWQ4YzJjMjFmN2ZkYTQxYWU1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDRhYTliZjBjOWQxYzRmNTY0NjY3MTNhZjQ3MWFhZWIxMWYxZDM4MDQ0ZmI0NzU0Y2I0NDY0NDVjNTRlZGRmZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_92b4603e69314f90b9306aee19447d04",
+      "statement": "The processor respects manual classification_override field and never overwrites it; when a document row carries an override, the processor marks it completed and logs the skip without calling the voter or modifying the category/confidence",
+      "evidence": [
+        {
+          "resource": "repo://src/processor.py#L125-L127",
+          "version": "repo-lines-v1:sha256:779b8a981f599208dbc4ec2c11fc25bce8159f494bde2c3ee22fc72f1a60b574:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTlmZWRjYTc2MjRmNTQwZTI0YzY3MzcxY2JkNDdjNGFmNDFiZWYzNzhkZGIyYWMyMDc3Y2MwNTgxZTI4MzFjZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWU3YmNkMzZlZjUzYjQ0NTIzZTY1ZTk4ZDE5NDQ5OTNlMGZmMTc0NmY1NTM2YzFhNTExNzQ2ZjNlMDFlNzU2ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGM1MGFmMmI4NTA5YzM0ZDYzODNjZTA5MzU4ODAzZDM1NTEwY2U3MWIyZGVlNDY1OWIwZTg1YWQ3Yjg2NDYyOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWIyY2U4ZTJkMWY5MjlkNTkwZmJjYzg3NTAwZGEzY2Q0ODY3NmZkYzc4NDY3YTc4NDYyMjkzODhlNTIyYjFhMCJ9"
+        },
+        {
+          "resource": "repo://src/processor.py#L187-L192",
+          "version": "repo-lines-v1:sha256:09f78c5d852228ea39e6aef51ccab1057642fdf6d0dc12f9243339774ac37eac:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjI0YTM2ZjMxMzNiZDhlNTA2OTU2YzNmNDQ5YzJmYjAyN2NjNzBiZDYzZDk4Y2QwMzIzNDVlNGU0MWM3NTc4ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDE0NjY4MTZhZjQ2ZTBhYTU3ZTg3NjlhYTdlZWU1MTI1YTI4NGMzZWFhMmI2NzM4ODgzYTc1ZDJlNDVkZmUzMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2RlNzdhMTcwOTg4NzFkNDFkYjJkYjAyMzY4ZTE2OWJmNTA3YTQyYTkwMWEwZDJkZTcwMmZmNzFkZGNmNTYyYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2Y4YjBhNjNkY2ZmZjNhOTM5YWRhM2Q4YTIxMjkzYTgwYTUxYjY0ZWUzNTFlMjQ5NzgwNWMwOWJiMGZlZGE0NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_bd8465eacf26458db5ef3eda392e620a",
+      "statement": "Processing failures (hash mismatch, download failure, extraction error, classification error, persistence error) do not delete the message from the queue; the exception is re-raised, the message stays enqueued for redelivery, and Azure's dequeueCount (not a message-owned field) governs retry and poison-shedding thresholds",
+      "evidence": [
+        {
+          "resource": "repo://src/processor.py#L101-L114",
+          "version": "repo-lines-v1:sha256:1cdcb25d19bf679ad3c3fcdfe98e0442fa328604a41f9a38faa7610637dd3d02:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhODNmNjY2OGVkZDIzODJkNzAzOTQwYzIyZTdlMjY2ZWVlOTYzYmY4MmFkOGZjZWNkNzhmNmIzMWYwY2EzOWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhMmMyMmRhZTI2ZDMxZTYwMzE5MmE5NzM3NTQxZjYyZGEwMmVhNjMwY2NhZjA1NzRmNjkxZjU0NTY2YTBlNjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiMGI3MmY1MDdlMjRiNDIzY2ZiZWM5ODZmZDFiNjU2ODVhZjIwMjc4NTVhMTUwZTVhN2Y0YzY4OWIwNDJmZjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcwZjU4YTg0NWM0NzVkZWYyOTI2OWUwMjg5YzAyZThlNTg0ZjZmZmExMWM3MTNiOTcyZDZjYTc4NzVlNzgwNGIifQ"
+        },
+        {
+          "resource": "repo://src/processor.py#L132-L148",
+          "version": "repo-lines-v1:sha256:e1d8b17f286545ad2923bc96272bf4ae3f5ec53560778a060fd460a487538241:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlYjIwOTMzYmRjZDBhMDUxNjdkNWZmNGY1NzYxYzgwYjczODVhN2Q2MGVhYTQyYmU4NDljZjU5ZjE1YTk0Y2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiZGVmZDJjNTQ1ZTc3ZGFiZGRkOWI5YzJjYWI3MWRkODY3MDZmNTM5OWI0OTk0ZWNkNzZkNGZkYjM1NzBmNWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEzMjIzMDE5MTk2ZmYxOGFiZTFiODBhM2I0NWQ2MTRmN2E1ZWRlYTkxNWUxOWRkMzQ0MjQ1NmRjNjM4YWY5MjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzOTAyYzRiYzc0NDk2MjIwM2ZlYjZlMzhhNDQwYTZlODAzOTE3MmFjOTFkYmFhNWIxZmQxMmE1MWJiMDNkMzgifQ"
+        },
+        {
+          "resource": "repo://src/processor.py#L142-L147",
+          "version": "repo-lines-v1:sha256:982a89eccf0833285498d7d95fa21a3c7bff32d7285238f26bdda696d7e7e010:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzY0MTBjOGYyZTQ0YzY2NDM5ZWY2NDFjNTdhYzExN2E5OTQyMmZkY2EzMWY1YmRiZDY3ZWY5MTY0ZTgyZmJkNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjI5YzUyNDQzNGMwMDlhYWYwZDdmZTllMmZmZTcyMmIxNzBjZjhlYjFjOGMxNTc1ZTRlM2JkNTFlOTI2YzcxYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGQ3YWQ1OTgxMjIyNjZlMDcxMjNlODdlMDhlMGNlMTIwY2YwZmU5NWUxYzFhZjIyMDUxOTBkMzMyMmEyZDllNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjE2N2UxMGFlYzE0YWRmYzQ4MTgyNTc1N2E1N2Y0MzdiNTdjYjBhOTM2NGY5MzUyOGIwNDA5NjQ0ZTJmNDFiOCJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-28T19:49:26.700Z"
+  }
+}
