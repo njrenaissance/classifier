@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:bbca440de9cc34ce3a03e05c952ad085b01d44f7d0d911e34910d0c1f954dd1b",
+  "claims": [
+    {
+      "id": "claim_72ba2f66a3b34ed6bc0c4eadc3be53fa",
+      "statement": "The TextExtractor Strategy pattern allows formats to be added by implementing the protocol and registering in _EXTRACTORS; no other changes needed",
+      "evidence": [
+        {
+          "resource": "repo://src/extraction.py#L41-L44",
+          "version": "repo-lines-v1:sha256:0a70c19556a93d24e2db58d02acce86213b706b66f046865aaa153f10cc26b31:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTZjY2MxZjRkMTYxMDE4Yjk0ZjRkMDYzMzkyZjY1ZGM5OWYwYjk4MDg0NDJkZGMwY2Y0NGMyY2EyNmQ2MDM3ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjBiZjAzYmQ4MWE2YmZhM2Q0ZGQxNzQxZmViOWE3ZjQ2ZDU5YzE3OGM1NjJiZmI4ZjQ2NDUwNDg4YmI4MDFhMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzRmZDM1MDUxMjk5MzU1MzdlZjU2MjE5OGQ0ODBjNWM0MDBjY2IwZjMwMGI2ZTA3ZDVjOTUwNzE0YzdjZjNhZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzVkMmY4OTdiZTg4N2RkNmNjMmZlMzg4ZWJhOTIyYmZiNDExM2U0N2VhYjk5NDU4NjE0MTkyNTZmZjE1MmU3MiJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py#L97-L107",
+          "version": "repo-lines-v1:sha256:ce3754a9957eb0cb6674d6a3435e67def454613f5cb1576fba78fd43e86a0c2c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlN2UyODhlYjdmMmYxODY1ZWUyYjhiMzJiZjNkMjJhNDJlZjc1MDM2ZTljOTcyM2RhOTQ4YjQ0ZjhhZTg5ZGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxOGZlMDM1OTc4NTMwZWQ5YjdjYTI1NzQ0NDczMDNhOGUyOTMyZDU0ZmNmMDE5YjI5ZDY0NGUxZTU2MThlNDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYxMTVjMDQzYjhmMmQ3MWE5MDdkYTNhOTg3MGQ2NmI5NGMzMzMwNjQ5ZWY2Yjg1NzdjZDdhNWU3YzQ2ZTE1NjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b5fc30c9507a4d058501e85b65de2a06",
+      "statement": "PdfTextExtractor extracts text page-by-page using pypdf; blank pages yield empty strings; non-blank pages are joined with newlines; corrupt PDFs raise ExtractionError",
+      "evidence": [
+        {
+          "resource": "repo://src/extraction.py#L47-L56",
+          "version": "repo-lines-v1:sha256:14eb1d81f458c53931bd8de361dfeaa2111a6bec499ee1d27c8966e5700fb4d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyMGRjYmE4NWQwM2E1Y2M3OTc5YTdkNjI3ZTNmN2E4YjI4MzgzZWM0NTAzMDg0MDMwYWMwYmViYTExYzgwMDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxYmYyOWM5NDRjNjkzMDZjYTlhNjRkYmEzZmYzMTcyMzNjOTJjZGVlOTM3MTUxYTQ1ZGJkYWViZDE3MzdhODIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhMDNjNzdhZDIwNzc4NzY0YmFjZDBkZTFhNWJiYTE5NjdjZjRjZjRhNmFlMzJjYzlkNjBkODg0OTdkNGMyYmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkOTkzMjU4Mzg3NjgzZDdmMjIxZTI0NGNlMTdhNDc4YjUyMmJlMTgzOGQ3MDRiZTY5NzhhMTZhYTY0OGJmODYifQ"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L148-L153",
+          "version": "repo-lines-v1:sha256:f925551f9fed2eb70f46eb3be84f5d3522f514602083cdadd4a9d8e10825dae9:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzg3YTA4MDc0MDdiOTQwZDljZjc1MzNjODMyOGNlYzA4YmViMjQ0NjQxNmI1MTA5MjU3NTAyNmQ1Y2RiMTQzZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDQ5YmZmNTdjN2RiYmYzOTI5ZWNiNjQ2OTU2MzcyNWVjNDQ3M2FjYzBlN2M4YTZkNzFhZmZjOWZmODc1NWY2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTE4YmYxN2Y2ODhmOTYwZDEyYjMyMWRiNWNiZjdhZGE3MzY4ZTI2MzFhNDE2MDg1NDFmMTVhYTJhZjc1ZTY3YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODJjZjcyOTA3YTgxOTY1YjE3MTQxYTczYTUyODQ1MGNmNjZlOGQ2NzU2ZTY1MDQzMmM1NDc3N2RjNTdmN2NhYiJ9"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L69-L73",
+          "version": "repo-lines-v1:sha256:aa6666d5926db3a674e414985fe497ac807b8880293637b1053900feb2a7cb6a:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjBhNWJlNTM3ZWY5MjcxNTkxMmRmOWY4NmEzZjRiNzI1MTcwMjg0NDJhZDMwYjUzNzllNDQ1MzYwNjliMjEwMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2M5NmM1NDVlY2U2MjllMWJjM2ZlNDQ0NTE1YjQ5YWEwMTliMzMzMTcyNTkyYzUxMjFkMmJjNTUzZjQ4NmM0NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTk0MTVmOWVlZmEwOTY2ODYyMTAzNzE2ODI0ZGExNjA4MzFlNjU1MWQ4Mjc0OWFjZDFlYjM4MmMwYzAwZTc3YSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e361443af0344b70b1a14e66ca2faa95",
+      "statement": "DocxTextExtractor extracts paragraphs in document order and table cells as separate lines; blank lines are filtered; corrupt DOCX files raise ExtractionError",
+      "evidence": [
+        {
+          "resource": "repo://src/extraction.py#L59-L71",
+          "version": "repo-lines-v1:sha256:1163016c04b39127e93e9682068ed3836e5d61eb45791c842745847d06a89134:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2NzJmMGE1N2M2MTBmNWEwNDhlNmFiN2UwNDE3YmRmYjIxYWNkYTk4YzZhY2YwZmRhNGVlYzg0OGFmYWE2MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwZmJhNWQ0YzhiNTA5MjBjYTBhZDQwMThhMGExOWQ2MGQzYzhiMzAwMmQ0NDMxMjlkODQxMGM3ODMwZDlmMzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2Y2QyMDkwNTUyYTk3Mzc0MTI3NWZiMzc2ZWE3Yzk2OGRhZTNhMzYyYTVkYzhhNzdmNjNjZjBmNzQxYWFmNDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiZmNkMzNmZjViZDBjNjJkYTQ5YTc5YjE0YjZlMGQzZTFjZGQ0NzU2ZTk4YWY0M2EzN2M0Y2RhNzQxODBhZjIifQ"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L75-L82",
+          "version": "repo-lines-v1:sha256:743864803631e8ff8bb1c52558b01ca263091b5056b5be6d968a851cadbead4f:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzI3MmE4MzY2NTNhZTBiNTA1MGE4MDExZWQyMzE0ZGRhZDM5OTJmMDIzZGQ4YmFkZTAyYmQwNjJiMWEzYjA5ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2I3NTgyMWNjZWNlNWNkYTgzOTEzNzM3ZTIwODI2OGE2MTQzMWFkNDE5M2Y3NmNlMzEwZjk0Zjc1ZTZkM2MyNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWRmOTA2OGI3YTMyY2FhZDg4NjQxOGI3MTFiMGUzN2MyN2M5YjM3NzYwN2UyOWU3MmRlYzJhYzViYzkxMDg4ZCJ9"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L84-L87",
+          "version": "repo-lines-v1:sha256:2415a50c0431a5ac99f8b4e7945b5a3112b0c9749f0686292c81ba2e66a88b39:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2E3MDg5M2Y4MWQ5ZDAyNmM2MDFjM2JlNDdjY2UzM2UxNGZhNWFlYzZmNGMwZmNkZGY5YjJiOWQ5MDk4Mzg0OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGIyYjc5YTRlZTUwZDJlN2JmNTA5NWY5YzkyMmQ1MmUwMTAwYmE1N2RhNGUwNGYxYjBjZjkzZGZlODYzYzQwNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTVmMGM4ZDY1ODE4MDEzNWNlYzQ1NzJjZDZhYTljODEyNDQ4NjkyYzY2Yjk4Y2NlN2I2OTBjZjE5MTljNmQzYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzM0Y2U4OWYzZDc1MjhiYmUxMDg4NzVhYzNhYjhmMzExYjBlZWJiZDIwNmZjZTJlYmFmMmZiYzU3NWY0ZGZkNCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_fd193967187b43c08b42a5a3905c28a6",
+      "statement": "PlainTextExtractor (ADR-0021) decodes bytes as raw text without structural parsing using utf-8-sig then latin-1 fallback; never fails on encoding, always returns text",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0021-plain-text-extraction.md#L22-L46",
+          "version": "repo-lines-v1:sha256:4363c49b343ae01d8a3e6c1c880edccefbc541731535e8f9b8eee8763f74e5e3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkM2RiYzRlN2U3Y2JlNWRkYzg5MWIwODA3MTJmNjM1MWM5NGI3MjhlYzhiZDg1NTZmNDYxMmIwNzBkMjdiNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjZDQyM2YwMmUyZWI5ZTliOWZiNGFmOTcwMGY2MjhiYTc5YzFiOTkxZmE4ODEzOGZjZWI1ZTc1MTI1NDFjY2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiM2I0OTFmZTY4OWQ4MzAwYWEyMDFmZDA3N2U2NmVhMjY5OTQ3OGUxZWJkOGZlMWQ4NWFhM2U2NTYwN2Q1OWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ5MGZmNzA5ZWJkMzIzMDI2ZDQwNjhiNzFmZGMzZmRjZjBhMjc4ZWViZGI3NTgyYjAzNzQ2OTdjMzRiMTg1ZmEifQ"
+        },
+        {
+          "resource": "repo://src/extraction.py#L74-L92",
+          "version": "repo-lines-v1:sha256:e14a4a9d20a15016370131b26a82ac357e32759c791431176fab15edab2427e4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkZjljMGY4Yzk2YTkzMTBjN2ZkOGIzNzMzOTkwYjcxNWE2NTMxNzA5YmQ1NmI0NWRlN2RjZDBmZWNiODAxOWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3NWRkZTdhZjE2NmQ5MTA1MjRjMThhNWZiZjU4OGFmYTZhMDk4Nzg0MjdjNTMyNGNlMmQ3Zjg5MjFhZjA5YWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU0N2RjNTZiNzk4ZmI0YjEzZWU3YTcyNzVmOGM2NzRiZWEyMWEwZjY0ZjMzM2M5OTFlYjBmYjU4YmRlNzMyNjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE3ODIwZWFhNDk1Nzc1ZDAyNWYyNzdiODNjYmQwNDgzZTcyNjM0OWI1NjAyMmU3OWE4MjZiNDQyZDNmNGNmMDgifQ"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L99-L114",
+          "version": "repo-lines-v1:sha256:6587dd17a4eeff5df5923177e151a323361058e4945c0cbb658797f65ba745e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyOWFkNzJlYzBlODMzNjUyODVjZTNiYzQ5NWY1ZDg2NDZhMjVjNDY4ZTIxZGFmZjRjZjc2Yzc0NjJlMTlmYTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4NTJmNGUxMDAyMTQ3NjlkODQ0NjQxNjM0NTNmYTc5MjJmOWVkODIzMTM3MGJlZmQwMDc2Y2QwYzJlMzQyZjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkNzU0YTQ0MzQ3NDZiZjFhNmNiZmJiNGNhZGY0NmVkMjJhNmJmNThjM2UyZTZlYzRkNDVlYmE2YjEwYzRhY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyN2U1NWFkODdkMjcyMTc3MTNlYTVjMjc0MTJkNTM0ZjFjYjRlZDgyZWYxNmY0NzZmYzk2MGYxMGE2OWMxY2UifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_be17f495410a4f8bb9c57f5d6b5ef8ee",
+      "statement": "Plain-text formats (.txt, .json, .yml, .yaml, .md, .csv, .xml) all use the shared PlainTextExtractor instance; one registration backs all suffixes for efficiency",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0021-plain-text-extraction.md#L23-L31",
+          "version": "repo-lines-v1:sha256:dba16b2ad503949bf9890031e4e80405c7b75a2485454d86687577807f9f5c6f:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDZiYzRjZmZjOGY2YzMyMzM4Y2YyNGM3NzFjOGVlMzQ5OGZkOGQ5NTMzODQzMmYzNzZiMGVhOWYxNzQyMTVkNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTE0ZjUwODk3ZjM0MGUyNjg2Yjc1ODNkY2U5NjIyYmFiOTcyNmQwNjhhMmE4MDQ2OWI4YTZhYzdlMTEwNTUyNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTdiYTdkZmU0YzY0YjIyZTUzMmVjYjIwMmM1MzY3OGQ5Y2RkZTkwZDE0YTlhN2RhMmIzOGZmY2EwN2Y4NmQ1MSJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py#L95-L107",
+          "version": "repo-lines-v1:sha256:140347f4bd014d3f7efbe6b841d5641e9d7fcd506e1962a37090aca5fbf97c41:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4ZThjMTVmZjZkNGM2OGQwZmJmNjJkZmY5MmY1NzE2MDMxM2QzNGFmNWUwYmRmMmZmYWY1ZjMzZGFmMjVkN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFkYmEzMDdlZmVmMTE3YTc5ZGJlODJmYmJlODA0MThjN2E1NWFkOTg4ZDFkNzNhNzIwYzVlMjNkOTBiYTY5MGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYxMTVjMDQzYjhmMmQ3MWE5MDdkYTNhOTg3MGQ2NmI5NGMzMzMwNjQ5ZWY2Yjg1NzdjZDdhNWU3YzQ2ZTE1NjgifQ"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L90-L96",
+          "version": "repo-lines-v1:sha256:497efe725bc5a6da7bc31bb6727670fef3a2cd3e9f9ad154e48a4f4a8a942ecc:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTk4MWExNDgwYzFjM2RmNTg5N2IwZjZjMmJhN2I1YTE1NTJjODczMWNmM2EyNTY5ZDExMTZiM2RhOGU0NDRiNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzRjZmE2N2I0ODU1NDFmZjZmM2M3NTUwZWVhMGU3YjViMDJmODNjN2E2ODViNTkxNDYwZTY0NmFkZWIxZjk1OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWExZjNkYjg5NDE5YTgwOTU5Zjc0Y2EzYzAzZjExYWU1ZGRlZGQ1YjY2MjdmNjNiZmYzYjM4NWRhOGY2MjgxMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTdlODBhODViNGMxMjM1M2QyNTNkMzkzYWI1MWJkMjY2OWNlMGQyODNmMjM0ZTEyZThlNGY1MDJhMzhhZmNiMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ad3902dc588545ffbff68cc865ba58c4",
+      "statement": "extract_text() dispatches on file suffix (case-insensitive); UnsupportedFormatError for unregistered suffix; ExtractionError for missing/corrupt/unreadable files (chained from underlying error)",
+      "evidence": [
+        {
+          "resource": "repo://src/extraction.py#L159-L174",
+          "version": "repo-lines-v1:sha256:89def11f020973ad8d2a148d2b46cc76b9a6bb62c705c370590e725b58eeaf8b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjMzdlZTczNmU5MTE1MDU3YmRjZjZhNDkwMzM0Nzk3N2ZlYzMwMGZiMmYyMGEyN2U0ZjI3OGE1M2JkYTQ0ZGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhOTM4N2M1MmY0ZWJjZjY2MjAwNmI5NzdhNDBiMTEyNzkwYmRlMmQ3MTc3OGNmZmRiN2JhNjY4YzBlY2NiYzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY2MDJmMTY3NTU2NjIxOGU5MzBkNjUwMjQ2OGU1NWIwZWVjN2RiMjVmYjI5NTRjMTQ0ZDlmMDkyNmFiMGExMTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM2ODcwNTI1YzgyMWE3YjE0ZWQzYjdiOTVhMTkyNjU3NTc1OTJjOGMwNWIxYTFjODMxYjYxODQyM2E0NzMyOWUifQ"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L135-L153",
+          "version": "repo-lines-v1:sha256:327c9e563d8cc1735e598b8f5b502c35078783b597c347117d1acd5db9888a7f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwYmY0NzY2NDJkMTI1MzZjYjQ2MmFmNWFhZjQxYjA1YTM1NWQwNGQyZjEzYzA1YzY3ODI0Njg4Njg0MDZiMGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ0OWJmZjU3YzdkYmJmMzkyOWVjYjY0Njk1NjM3MjVlYzQ0NzNhY2MwZTdjOGE2ZDcxYWZmYzlmZjg3NTVmNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhmNzhmNGE1NDU4MjA5MTIxMTY0ZmE0OTY1NjlmZTAyZjBhMTFlNWI4ZTMxNzEwMDU1ZTkzZjdhYTA3ZmRhZDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyY2Y3MjkwN2E4MTk2NWIxNzE0MWE3M2E1Mjg0NTBjZjY2ZThkNjc1NmU2NTA0MzJjNTQ3NzdkYzU3ZjdjYWIifQ"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L156-L161",
+          "version": "repo-lines-v1:sha256:9f0a92a4826b2f30f45abc940d282b1a02dba6839e4b41a3998c80ed259fa2ec:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjM0OGQ3ZDc4ZDQ4NWY5MzY5YTVlMjg0NjBlNTQ3MDQwZTEyMTMzMzkyOWU5MTU5NWI5YTI4MTlkMTAxMTNlOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODFlNzIwZTc0OWFkYjBiZjZkOGVkNDVhMjc0MTU0M2VhYWY1YjA1MjEzNWRjMjdlZjkzMTNlNjI4MTZkODFlZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDQ3Yzk0MDEzZjVmNWI4Mzk1Yzc5NDhmNDE3MzM2M2ViYTllNjZlNjk4ODZkYTkyMWZhMjVmOTAyZjE4ZmRlYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTAwYjI2YTNhM2IxZDRkMWJjMGJkM2ZjM2VhZDQzMjMyMzJhNjkzZmU0ZjM5ZjM4YmM1NmE4MGEyYjAxOWRkMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a73adaedcd1f49fc8aee6cc81d43698b",
+      "statement": "extract_text_from_bytes() dispatches on MIME type; normalizes by stripping parameters and lowercasing; any text/* MIME without explicit entry falls back to plain-text strategy (catch-all per ADR-0021)",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0021-plain-text-extraction.md#L42-L43",
+          "version": "repo-lines-v1:sha256:c34f2eb7ef2bd71ead9fa48c3069e4339aa73e3f63699814f0579f6580f82483:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTE1NDRkZTQ0NGE4MDljMTRlMjdiYjY4YzI5OWVlMzFmNjc3YmRkNDcwM2I2NGQ5OGZkYzEzOTE1NDA4NTk0OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmZlMGU2ZDQ2MjQxODA2ZDcwZDFkYTlkNzRlZmYxMmU2OTZhZDI4ZjkxOGQ3MDc3NjQ5NTY0YmVlY2E4YjA2ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDBkODgxMTE2YjBmMTRjMzU4YTY0NDIwYzE4M2EzNzZjMDcwOWQ0N2E5MWExYjFhMmRjNDQ1YzM4YWNmN2JiNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTg3YjYzODIzOGVjNzljNGFkNTA3MGEzMTZjN2EyMWM2ZmY4N2ZiMTcxNWFjOWZmZTE3MDFlNjFlNzk0OGZiNyJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py#L177-L193",
+          "version": "repo-lines-v1:sha256:3367df3ea19c37ae312ba6cd04219a818d508ec92707a6bf33f3ac5ea4986680:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjNzJmNTA5YmJjNDY2ODQ5NGZkYjRhMmNlMTZhNjc0YWE5YjJiMGQxYzJkNThjNThkNDAyOGYzNWUyYTRmMGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5M2EzNGJlMzYxODc4NzQ1Mzk2OThhNzU1YWUwZjhkOWI4NTZiZmQ4YzRlNzljNGQxNGM5NTlmYzA1ZWRhYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRkZWNlOTQzYmY5YTJmODgxYjc1YTcyMDQ2MmY3MzMyNWNjMjFlMWRmYjVmNWRhOWE2YWQ1YzA3ZDVlYWJkNWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4NTVhZWY5NjNjYzJjNmUyYjMzODc4YTJjMjZmMTQ4NTZkNWM4YTViZmIyYzBhZGVlZDFhZDcxYzIyMjA0NzYifQ"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L243-L253",
+          "version": "repo-lines-v1:sha256:6e273155df572ce3cdcbc34eee5d00503ca822a18467d2eb3e96ab0f857eb118:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmMzQ1ODNhNTk4NzY3YmY1NmFlZmViNjVlMjAzM2ExNjUxY2M0YzhkN2U2ZjBhZjNlNWNmZDMyOTNmOTMzYjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxNTgxNzc5NmFlNjVhNWQwNTllZmIwNThiZDNkZGI5NmM3ZTA1NjYzNDhiNTE1YTJkMGUwYmRjNTRjNTRlNGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZlMTE5ZTNjNDRiOGZjYWRiNjE2NTg1MjkxZDI1NDFiNzQ1OWRmZjg5YjkzOWRiYjY3YzQwYjExZDhiZmIxMTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2ODBiMGYyOTI4YWMwZGJmM2RkNGEzMWQ1YzE2ZTkxOThhMjlhNjA4NmQzOWNmYjU3YzIwZjYwYmUzM2E2NWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d1c234a8a43c4d58bcc90ba22bafb283",
+      "statement": "Legacy .doc (OLE binary) is intentionally deferred per ADR-0009; no pure-Python extractor is reliable; rejected with UnsupportedFormatError, same as any unregistered format",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0009-defer-legacy-doc-extraction.md#L1-L36",
+          "version": "repo-lines-v1:sha256:19c70fbf9aa3db62ecfe9eb3c84a42b8f84d5e6e2fde722065e5ec4568e17d39:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzNjgxNDAyMTY0ZDFiMGZlYzk1ZjNkNDA1OWMwYjBlMDg1NjM0YjBhMWE0ZDUzZWE2OGM1YmNhZTc4ZmEwZDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5ZjE1YjgyMDJlNTRjN2UwNjIzNDIwNTk5NTM4NzZhNWQxMTcyZjRiNzI0ZDVmZmE3OTA2ZmQ3OTRmZDMyMGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1OWYzYWVjZWY5YThkZTI5MDQ4OThmNTMwZWRkMjIxZjY5N2VlZDc4YzIzN2JjNmU5ZDhiNTdhODhhOGRlYmIifQ"
+        },
+        {
+          "resource": "repo://src/extraction.py#L14-L20",
+          "version": "repo-lines-v1:sha256:e5eff412ae6359f1362d7d887e1aeb12349bef7558dc223c3d4a27045135db23:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQ0OWNiYTg3NzdkMDAwNTZiMGVkNDM0YjE4OGRjNGRjZDdlZGViNjhmOTJmOWU2ZjYxM2NhMGNmMWMzZmQ0ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWVjOWY1NjA1ZTY2OTY3MWQ0M2ZlY2Y5ODdjMWUyYjhiMzFkYjk3NmI1ZDczYTUxODkyMGE1NTgwYjUxNWJmYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWVkYTY5ZGExYTFmZWZlMzE5ODZmNmQwMmRlNWFmZDA5YzBkMTZkZWIzODE1MjRlM2U3NjY0NjUxYzA4ZTk4YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2QxMWJkMzlhMmJjMzIxYWYxOWRhZWZhOTM4NzlmOGE2MGM5ODc0YzNhZGExM2JkN2M4MWFlZjEwZjZlMTEzNSJ9"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L127-L139",
+          "version": "repo-lines-v1:sha256:49ac3ab60307a81ccf2b5f8438d28f8650ae190d541a480ebaf170b4fbf6c952:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmMzQ1ODNhNTk4NzY3YmY1NmFlZmViNjVlMjAzM2ExNjUxY2M0YzhkN2U2ZjBhZjNlNWNmZDMyOTNmOTMzYjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ0OWJmZjU3YzdkYmJmMzkyOWVjYjY0Njk1NjM3MjVlYzQ0NzNhY2MwZTdjOGE2ZDcxYWZmYzlmZjg3NTVmNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZlYWU4YTAwNmM2NTQ4MWRlOWVhM2I1ODRjMDA4ZWJjMWE3NDZkODljZjEwZGY1Mzk1NDAyM2ZkYjE1Y2ZmNTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiNGE0YmQzYWY4Nzg3ODRjMmM1NGE2YTliZGQwMGMzNzAwNTAyMGVlYTIzODFkNmYzMTRlZGM3Y2EzMTVmZTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_75c3ba26d835455bb46a98fa7dacd2a9",
+      "statement": "supported_suffixes() returns frozenset of registered suffixes; used by LocalFileSystemSource for enumeration; currently includes .pdf, .docx, .txt, .json, .yml, .yaml, .md, .csv, .xml",
+      "evidence": [
+        {
+          "resource": "repo://src/extraction.py#L138-L140",
+          "version": "repo-lines-v1:sha256:c890ae694111ab31ba46f532cf9885728b2ca404f9185532d7dd3b5ba4939014:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTA3MzllMzZlNTA3OTJjMTk0Y2M0NjJhNzZhNTkxNGEyMmIyMTZhZDcwZTcwYTBjNDA0MmYzNDc0OGY4ODYyNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDVlMTVhODEyZDMxM2NjZTU1YjViNDU0NmE3NGQxY2U2Yzc0Y2M2YmE0MTkxZWNlMjk0MWVkMzRlN2M2Mzk3ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTczNmE3OGM0NmIxZTlhNDAxMGRiMDRhZjZlZTU5MDg5MWY2N2NhMWJjNmExNmJiZDdkMmFhNzc0YjcxYzdmYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWZmY2EyMjBiYTYxYWQ3OTM1YTI4NjI0NTA0MjJiZjJlNDZhMDdkZDk5YjFhMDJlNGNiMzc2NDgxN2NjM2MyZSJ9"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L169-L170",
+          "version": "repo-lines-v1:sha256:7a94fa9fc938ea586b62e0478dba244c1abefb47a304d54a7a73d9a7277ce124:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjMwOWVhMmYwYzgxODg3Y2E1YzE3ODBjZWFkMDFjM2ZiYTdmMGZjYjMyOTRkOGExZWZjMzFlOTZkOTc4NjgxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjVlNDlkMDIxMjYzYzgxMjcyYmJlNWYzOTczYTljMmVkOGM3Nzc5YWVhNjMwOTcyYWJmNmYzY2M2MTZlYmNjNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmQ5NDVkOWIwODUyNWEzODE2MGUwNzcyYTZkYmJlMzE4ZjQyYzY0OWM2NDE5ZjcxNjZhNWQ0MzFkYjBlYWNiMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGY5MGNmYWIwYmZlNWMxOGI3MGQ4OTA5MzhiY2MyYjdmNDRiZjJhNDVhODJmMDg3MjkxMzI4YTA0YzhkYWFmOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1477f70afe464e07901990ffef79b7d5",
+      "statement": "_SUFFIX_TO_MIME is the canonical source of truth for suffix→MIME mapping; _MIME_TO_SUFFIX is derived and augmented with aliases; this structure supports many-MIME→one-suffix (e.g., .yml and .yaml share application/yaml)",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0021-plain-text-extraction.md#L72-L76",
+          "version": "repo-lines-v1:sha256:57c994025e70f5bee7f480b25e69dd33d5d525833dcb0bce0ae4e10d58473df9:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTRlZTg3MWU1MDdkNTRjODU2MDlhNmFhMDMwMmZmOWI2MTAwYTQ2NWE2ZjYyNGUwZDM5ZDBhMzFiY2UyOTliZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDcwMjQwNDgyN2M0M2I1YzA5NWJlZmQ2ODRlOGE3YWUwZTk2ZDU5ZGRlZTI5NTA0MjllN2VkZDA1M2E4MWY3YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDY1OGI3MjAxYzg1ZDRkZDU1YjIyYWQ1NTcxMDc4M2ZhNzczNDI3ZGM5ZGY1ZWEwOWY3ZDA4M2M5MjRlMjUxYyJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py#L109-L131",
+          "version": "repo-lines-v1:sha256:8a98b28f11bf0fc317626e04d2dfe5a2aa1fb3d3527f7c71ac3d0ebcf4bb2a13:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5NmEwZjM4NzE3YjYyYTc5MGE4M2E5YmRlZjY4Y2QwNjQyODc3NDNmMjA3MGE5OWUwNjQ0ZjdjYWYxOWVkZDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE1YjY3ODVmN2YwNzg3NzI5YTZjY2Q5ZDA1OTkxMjdkODhjOTMyMWI4ODAyMjhiNWI2ODlhMWIxN2E0NDE4MzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBiMmYyYzI2MjBlN2U4ZTExNjMyMzQ2M2U4YjBiNmUwMzQzYjkxZmI5NzBhNDk1YTkwYjA5YzU4NTRlY2UxZGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e1b133b1bbc74597be82cea29d08e123",
+      "statement": "mime_type_for_suffix() returns canonical MIME for a suffix (case-insensitive) or None if unsupported; used to stamp local files' MIME before cloud processor extracts them",
+      "evidence": [
+        {
+          "resource": "repo://src/extraction.py#L148-L156",
+          "version": "repo-lines-v1:sha256:db4d98ee5ae0a7f9d42c3db9ab1cf4adc0c659c9855866ccafc594a6332bc210:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNThmYzcxYTZiODIyZTg5NTFlZDE5YzcyNjQ3ZTNlNDgyNTdhNTY5Mzg0MDAzNTRlYWNmYTk3OWRiZDQ4YzcyNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODA1Y2Y1NGM2YWZmODIyODRlYWVhZTA3YzYzNGViMDQ0ZjY3YzdlOWNkZjllYjEzYWJhYmExNzUyYzBiNmUwMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTFlYjk4NWNiNzU1ZGIxZDZlOTUwMDU4NDk1ZGQ1NmFhOTRlNDM2YTQ1NTVmZDVmMmRiMzRmMWNkOGY1NGQ5MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmRhZGQ2YTUzMTU4ZDI5YWE5NTRiYzlhZWE4ZDdiMTJiM2Q1YzQ4Y2JiZTY0YTViMWQ4MDhmMjJhMTVhZTZmNCJ9"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L191-L209",
+          "version": "repo-lines-v1:sha256:f9445a908d3057e8b2955ffeee4fd5bb5c2f76b7cdfe11fb91673590e0b19e1f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmMzQ1ODNhNTk4NzY3YmY1NmFlZmViNjVlMjAzM2ExNjUxY2M0YzhkN2U2ZjBhZjNlNWNmZDMyOTNmOTMzYjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhY2ZhMGRmN2ViM2U2YWM2NmVhYTg5NjA4NTc3MmRkY2M1YjdkN2M0ODY5MWI1YThjOTk3YzNkZmZkZDQ3NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI3YmUwNzE2OGZjOTMwYjUyYjcxNDExODhkMDUxNGQ3MjBhNmEwYTZiZmJiZjYwYjFlODEwODliNjQ2MjI5MWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e33b62981ba644b5add70a635b853a88",
+      "statement": "UTF-8 BOM is transparently stripped by utf-8-sig codec; non-UTF-8 bytes fall back to latin-1 which maps every byte; both strategies ensure extraction never fails on encoding",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0021-plain-text-extraction.md#L38-L41",
+          "version": "repo-lines-v1:sha256:ce978acac749791b24198ae40858f4f8d7ae059510c85eaf188eac602acc4f47:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzhkZjgyZjI3OTNjMzJiMmZkN2EwOGUyNTcwZWY4YTk5ODc1MzRiMTY4MDM0Yjk5NjE2OGM2ODhiNmI0YWVhMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmRjMzRhZjA4MTFkMjk1YjBjN2Q1NWUzNjBiOTUwYWQ0ZWJmZjcxYjA3ZmJjZGI0OTJhY2JkMGM3YTcyMGI5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2ZhN2M3Njc4MmE0M2UxMjgxNmNhMzRjMTQyMjI3M2I0ZjRlNzdkMTg0YzQ3ZDI4NDg2NTg0NzA3M2JjYjEyMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmFhY2Y2MjhlNzUzN2U0NTdiYzEzMmRkYTY3ZjllMDkyZjhlY2M2OGVkNzE1ZWJjZDQ5NDNlYjc1NWZiYmVkMCJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py#L74-L92",
+          "version": "repo-lines-v1:sha256:e14a4a9d20a15016370131b26a82ac357e32759c791431176fab15edab2427e4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkZjljMGY4Yzk2YTkzMTBjN2ZkOGIzNzMzOTkwYjcxNWE2NTMxNzA5YmQ1NmI0NWRlN2RjZDBmZWNiODAxOWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3NWRkZTdhZjE2NmQ5MTA1MjRjMThhNWZiZjU4OGFmYTZhMDk4Nzg0MjdjNTMyNGNlMmQ3Zjg5MjFhZjA5YWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU0N2RjNTZiNzk4ZmI0YjEzZWU3YTcyNzVmOGM2NzRiZWEyMWEwZjY0ZjMzM2M5OTFlYjBmYjU4YmRlNzMyNjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE3ODIwZWFhNDk1Nzc1ZDAyNWYyNzdiODNjYmQwNDgzZTcyNjM0OWI1NjAyMmU3OWE4MjZiNDQyZDNmNGNmMDgifQ"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L99-L108",
+          "version": "repo-lines-v1:sha256:9d857edc60346779327f93a9b038d35e5d39b8306707a253e26d793bd2225d2a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyOWFkNzJlYzBlODMzNjUyODVjZTNiYzQ5NWY1ZDg2NDZhMjVjNDY4ZTIxZGFmZjRjZjc2Yzc0NjJlMTlmYTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlZWVjNjc2YTIwMGZmYzY1NjI2ZjVjNTkyMDk3ODdjMGJjOTNkZTFlMjQ4OTNkOWEwZjgxZGRjMWM0YmU5OTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkNzU0YTQ0MzQ3NDZiZjFhNmNiZmJiNGNhZGY0NmVkMjJhNmJmNThjM2UyZTZlYzRkNDVlYmE2YjEwYzRhY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFlM2YxMWZlODU0NTE3NTc5ZWVlYjRmZDNhOTVlNWY1YzE3NmRhNTJiNTNkZTFhNDk2YzQzY2VlZjQ0MGRlMDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5859aef119394943a9c9ef1edd0fc30d",
+      "statement": "ExtractionError is always chained (raise ... from) from the underlying library error; root cause survives in __cause__ for debugging, ensuring failures are never swallowed",
+      "evidence": [
+        {
+          "resource": "repo://src/extraction.py#L54-L56",
+          "version": "repo-lines-v1:sha256:d8b16eba4068b928cb0e7fa44aa0ecc874659c6b793e629de0efd219c4adf2ff:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGJjMjAyOGRmMDZjNjBiOTIzMWEzZGRjMWJlMTc0ZTMxYWYzYjNlNWY0M2VjZWJjMDMyNmQ2NjgwOWE2MTNmMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzFiZjI5Yzk0NGM2OTMwNmNhOWE2NGRiYTNmZjMxNzIzM2M5MmNkZWU5MzcxNTFhNDVkYmRhZWJkMTczN2E4MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDZlMjYxMTEzMWMzM2YzNTZmYzBiY2IyZTBlNDIyZGQ3ZTg4MTQ0YzRjYzYwMWM1OGMwNjJhY2NhYjQ3M2Y1MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGQ5OTMyNTgzODc2ODNkN2YyMjFlMjQ0Y2UxN2E0NzhiNTIyYmUxODM4ZDcwNGJlNjk3OGExNmFhNjQ4YmY4NiJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py#L65-L66",
+          "version": "repo-lines-v1:sha256:430a6ecc9225827d5305c0a0a69799cca430b398cb73249fbaf12cb1d79ce211:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTQ5NjIxOTk5NTBiNWY4ODgyNDgzZmJkYWY4MmZhZjdkOGE3ZTA4M2MxZjhlMDZmMTY5MzVhMDk2MzAzNmMxOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUxZDc1NDFiZDYyMzhlM2VlYmVhNDQyNGNjNmRkOTJhNDQ2ZGMzNDMwYzQ3ZjZmMTE4YzZhNTY3NGIzOThhOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDZlZTJhYThlNWMzZjAxYjY0MzBhZDQyZmMxOTUyZGRmZmJkMGY5ZGJkMTA2MzdkNzAzOGM2MmM4ZGFmYWYxMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2FkM2I1Nzc4MzcwMTc2Zjc2MzNjNGJjNjQwOGU2NGI2ZDFhODFhZDZmZTJlYTYyNDQwNGI2YzQ0MGYxMmVjNCJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py#L87-L88",
+          "version": "repo-lines-v1:sha256:c1d3e85904b19bb8f97b54af7a736afbeabff2ba0eded6c557dfc8cd91a5bb77:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjM5ODIzMDRjYzVkMjdmZTg2MmE0YjBlNzM5YzAxMjE0Y2QxZDkyZDlhMDM5ZmJmMDE4MDk3NDRlODMyNTYwYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzBkZTQ5Y2U4MDQ2ODYxYjBiNzU1YjhjZTk1MTMzNGM0ZmUxZDY5ZjA1YjRmZjliZThmNzdhNzRhYTY4N2Q2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGVmYmE1NTRmN2I2ZTdmNDQyNzk3NWM3YmEwNmE4ODIxYTY4NDc3YTY1MDc5YWY1NmI3NGU1ZjI4MjJiNDI0MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzIwNDE5NjdjZWQxODVlZDUzZTRkMjI5ZjMyNDZjMzQyYjAwNjBlZjliZmNmY2Y4ZmMyNThiYzkwZmNlNTIzYSJ9"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L156-L161",
+          "version": "repo-lines-v1:sha256:9f0a92a4826b2f30f45abc940d282b1a02dba6839e4b41a3998c80ed259fa2ec:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjM0OGQ3ZDc4ZDQ4NWY5MzY5YTVlMjg0NjBlNTQ3MDQwZTEyMTMzMzkyOWU5MTU5NWI5YTI4MTlkMTAxMTNlOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODFlNzIwZTc0OWFkYjBiZjZkOGVkNDVhMjc0MTU0M2VhYWY1YjA1MjEzNWRjMjdlZjkzMTNlNjI4MTZkODFlZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDQ3Yzk0MDEzZjVmNWI4Mzk1Yzc5NDhmNDE3MzM2M2ViYTllNjZlNjk4ODZkYTkyMWZhMjVmOTAyZjE4ZmRlYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTAwYjI2YTNhM2IxZDRkMWJjMGJkM2ZjM2VhZDQzMjMyMzJhNjkzZmU0ZjM5ZjM4YmM1NmE4MGEyYjAxOWRkMCJ9"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L291-L293",
+          "version": "repo-lines-v1:sha256:dad277f1eedc9552e3a8746995f32677c2bb5cd7414d755dd4427ce309f7612a:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjE2MTk1MjRmOGFkNTM2MzFhNDAwMGM0OGNhNTcwNjcwNjBiZDY0NzgxODk3ZWVmZTM2NTg0Mzc2ODIyNmU2NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTg3ZGM5YjY0NzQzMWUwNTlhOTk3YzYyOWFmODMyMmIyMzlkN2YwZTliMDBmMTRjZTYxNGUzNDUzYWNmNTBiMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGNmOTE0MzJjOGIwNWFjNTY4ZDA4OWQ5ZGQ3N2IwNDY3NzViNjkyMThlYmQyYWU1ZGFmNmZkMmQzNTMxNmE1YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODFlNzIwZTc0OWFkYjBiZjZkOGVkNDVhMjc0MTU0M2VhYWY1YjA1MjEzNWRjMjdlZjkzMTNlNjI4MTZkODFlZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8357f70a89f34340bd38eafe687791dd",
+      "statement": "Plain-text formats are decoded raw (no structural parsing) to keep one strategy serving all text formats and avoid per-format parser dependencies; JSON/YAML/XML lose structural signal but gain raw text for classification",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0021-plain-text-extraction.md#L34-L37",
+          "version": "repo-lines-v1:sha256:4de5c41c3c0a5d09dc7f935c63a73180b5a026addf33ad878adf96da6c6eb607:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWI3MmJmNWQ4NWE5YzVkNmMwNjk4OThlYjEyMDdhMmIyMTJhZjc5MjVhMTExZDMxN2NlMDM4ODY3YWJlYjc1MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzRhN2I1Y2I1N2Y0MmUyOGU2ODNkZWIzYjcyODlmNTMyNTQwOWNmMDIzNjM2OTdiYzFkOTAwOWQ4YTlkODQ4NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWM5NzhhNDgyNDJiZTRlN2MyNjcxZmRiMTJkN2NjZTVjMzhmYzUzNzhjYTlmYzFlNmE0ZTBmZTY4Zjk1NDJhMCJ9"
+        },
+        {
+          "resource": "repo://spec/adr/0021-plain-text-extraction.md#L56-L57",
+          "version": "repo-lines-v1:sha256:7e0b7065c8dfda72288b395ff3ce24cb85c4b80969e869e4626d212a17837cc0:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzUwYmJiODMzOTQ0MDFlYTllYTIzZjEyM2QxOGRlYTVkNTQ0ODlhYWNiODVkZDgyZmVmMjg2YTQ3MGNiODkwNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzc4ZTUyNjc1YTJlZWI1YzNkZGE4ZDIxNTE3MzEzNmI3Y2Q2YmI5MzQyZTg0MjJlZTI1NGE3MjI0NGU4MWM3OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGY5NWRlOGM3MjE1NTZiMWM0ZjQyNTA2NzMyYzNhOGRhY2Q0YmZlNzRjNzU5NjlkMGFmZmJlMjA4NDA2MDcxYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWVmMzg0YjUzYjRiZjA4ZjZlYTAxMDVkODc5ZjIzMzY5ZWE2ZTQyNjZkNDE1YTM0MzY2YjQ2NzJjMTE5NzEwNiJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py#L74-L81",
+          "version": "repo-lines-v1:sha256:889288a8e699901833552484524e720a20a27651f26240335faf9fdc60a33692:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2RmOWMwZjhjOTZhOTMxMGM3ZmQ4YjM3MzM5OTBiNzE1YTY1MzE3MDliZDU2YjQ1ZGU3ZGNkMGZlY2I4MDE5YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ2MGRkZTgwYzc4OGE1NGViNzVlODQ0YjM1YmZhNjdiYjMyOWU3NGZkOGYwZGM4ZTE4NWUxZTk4ZmE0OWNkMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTQ3ZGM1NmI3OThmYjRiMTNlZTdhNzI3NWY4YzY3NGJlYTIxYTBmNjRmMzMzYzk5MWViMGZiNThiZGU3MzI2OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGU3M2YyYzgzMzFkNzY2MmMxYzM3MTY5NTRlZjU0MzlmY2U0YzU1NTUwYWM1ODgxNzE1ZGI4YzMyMTJhOThjYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e3dd98913c6e422baf62765870dcdac8",
+      "statement": "Suffix dispatch is case-insensitive (.pdf, .PDF, .Pdf all match); MIME dispatch normalizes by splitting on semicolon (stripping parameters), lowercasing, and checking the registry then text/* catch-all",
+      "evidence": [
+        {
+          "resource": "repo://src/extraction.py#L166-L166",
+          "version": "repo-lines-v1:sha256:d10659457f86edec5a7505d481343853d2a3814d3628692debc534bcb88804d1:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDEwNjU5NDU3Zjg2ZWRlYzVhNzUwNWQ0ODEzNDM4NTNkMmEzODE0ZDM2Mjg2OTJkZWJjNTM0YmNiODg4MDRkMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDEwNjU5NDU3Zjg2ZWRlYzVhNzUwNWQ0ODEzNDM4NTNkMmEzODE0ZDM2Mjg2OTJkZWJjNTM0YmNiODg4MDRkMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDg1MTdhNTU2MTE3ZjNiOWIyYWExZDNhZjM3OTkwNjY0ZGY4YzY0NDI2NjRjMGFkMzMzNWMwMDZkN2RiYWQxOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTBjZDdmYjAxYWJjYzBhOTZlZWFmYmI1YjlkYjczNTQwZWY5OWM3ZmE1OWZhMDkzYjMyNjgyMjE2ZDI2MDY3NCJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py#L185-L188",
+          "version": "repo-lines-v1:sha256:d8e4ce692352996287e0ae24d45648eba258376e5d8d74166e8e4167799fb504:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWQwNjJiNDc1N2MyNmVhMGFmZWFjZjE4MGZjNGYyOTk5YWViN2Y0ZjRjZjZiNTJmOGJkYzVmZDkxNzFlMDVmMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzJhOGVmZjM2MmE5MzRjODNlMjQ1NDQyNTQxNjk2ZjZhZTJiYTZhMmIxMmYzZWJiN2NiYWE3ZDA4ZWQwZmY5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjBiMGEzNzFjZWI0ZjgwMmU3NzgxODg4NDBkOTBkNzMzNzhmMzllMmQxYjA5Njg3YjIxYTJkOWZmNzY2MTU1OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2RlNDMxMGZiMDA2MDM1ZDdiODc0YjEwNGIwY2M5MmMzOGVjOTY0NzM1NTcyZWFjZWEzZDVmZGUyOWZiOTk4NSJ9"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L117-L124",
+          "version": "repo-lines-v1:sha256:a47a87747b1d3e7c167892c083fba4eb2406a4ae6df81b5bbf8a4d9ce7110075:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjNkMmQxZTE1MGM2YmY5NWQwZTdkYTYwYjhhNjhiZmEyMGY4NmJmM2FmMjQ3NGU3OGZhNWM3MGRkNDFmYjUzZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzg1YmZlZDFjNzVhYWJmM2YyNzk0NTM4M2ZiNDIyOTg3MzEzMjYwMjVhMjI2OWUzMWM0MTY2NzBjMjljNzhkNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWI5MDc2NzMwMzk3NDg3YjdjYzRlN2MwZjc3ZDdjMzViMjEwMWMxMmI4ZDI1ODI5NjUyOTQ2YzZjNjI3MzhmNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTY4MGIwZjI5MjhhYzBkYmYzZGQ0YTMxZDVjMTZlOTE5OGEyOWE2MDg2ZDM5Y2ZiNTdjMjBmNjBiZTMzYTY1ZCJ9"
+        },
+        {
+          "resource": "repo://tests/test_extraction.py#L243-L264",
+          "version": "repo-lines-v1:sha256:116b61f98af570a49de0b618cac819d1b456e4d1b3e69a873304a633acae996c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmMzQ1ODNhNTk4NzY3YmY1NmFlZmViNjVlMjAzM2ExNjUxY2M0YzhkN2U2ZjBhZjNlNWNmZDMyOTNmOTMzYjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4OGE2YzdkY2JlZjZlMGQ2M2E1ZmI2MjcxZTIwNjQ4Yzg2ZjdjNWE1NmIzOTYxYTcxNmVmNjZlN2RjODhlZGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZlMTE5ZTNjNDRiOGZjYWRiNjE2NTg1MjkxZDI1NDFiNzQ1OWRmZjg5YjkzOWRiYjY3YzQwYjExZDhiZmIxMTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2ODBiMGYyOTI4YWMwZGJmM2RkNGEzMWQ1YzE2ZTkxOThhMjlhNjA4NmQzOWNmYjU3YzIwZjYwYmUzM2E2NWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_86ed6cb0920e4ef6968e225d2ca6d93a",
+      "statement": "_join_nonblank() helper filters blank lines and joins stripped text fragments with single newlines; used by all extractors to produce consistent output",
+      "evidence": [
+        {
+          "resource": "repo://src/extraction.py#L196-L198",
+          "version": "repo-lines-v1:sha256:711e931b6f384400a629a377dee092c7031e4f6b0297a96e431713840d4c2e96:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiNjRjYTIyYWJkZDE0YmNmYWI1Mzk3NmQyNzdjYzg2NzhjZGE2MzkxODMwOGUyYjllNTYwNzMwNjE5M2M3ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWE0NGM3ZDNlODEzYzQzNGJiMDY4NzhlZjgxM2E0NTI5ZjMzODkxNGMyYWQ4MmY0NzZlYTVlYjZmMGRmYmYyOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGU3NDM0MDk5NWQ0YTBkZjYxMTdhMTEzMzUwMTlhYWY0NDU3MGRjNWQ2MzNlZjVjOWNmM2IxMTA4N2E5ZTdkNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py#L56-L56",
+          "version": "repo-lines-v1:sha256:71bf29c944c69306ca9a64dba3ff317233c92cdee937151a45dbdaebd1737a82:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzFiZjI5Yzk0NGM2OTMwNmNhOWE2NGRiYTNmZjMxNzIzM2M5MmNkZWU5MzcxNTFhNDVkYmRhZWJkMTczN2E4MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzFiZjI5Yzk0NGM2OTMwNmNhOWE2NGRiYTNmZjMxNzIzM2M5MmNkZWU5MzcxNTFhNDVkYmRhZWJkMTczN2E4MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjgyNmZjYjliNzJmNzllMTJmYjkyNjJmM2YzMTg0NDAwNzliOWI2MzNlZDIzOTk3MjI3MmE1N2RkNGYxODEwZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGQ5OTMyNTgzODc2ODNkN2YyMjFlMjQ0Y2UxN2E0NzhiNTIyYmUxODM4ZDcwNGJlNjk3OGExNmFhNjQ4YmY4NiJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py#L71-L71",
+          "version": "repo-lines-v1:sha256:c0fba5d4c8b50920ca0ad4018a0a19d60d3c8b3002d443129d8410c7830d9f36:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzBmYmE1ZDRjOGI1MDkyMGNhMGFkNDAxOGEwYTE5ZDYwZDNjOGIzMDAyZDQ0MzEyOWQ4NDEwYzc4MzBkOWYzNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzBmYmE1ZDRjOGI1MDkyMGNhMGFkNDAxOGEwYTE5ZDYwZDNjOGIzMDAyZDQ0MzEyOWQ4NDEwYzc4MzBkOWYzNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjlkYzFjNTAxNzQ4ZmNhMDJjZjFiZTU4ZGQ5NjQ3ODc4NjFjMDY2NDg5MjcyNzRlMTBkMjAxMjE2Y2EyOGIwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGJmY2QzM2ZmNWJkMGM2MmRhNDlhNzliMTRiNmUwZDNlMWNkZDQ3NTZlOThhZjQzYTM3YzRjZGE3NDE4MGFmMiJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-28T19:49:26.700Z"
+  }
+}

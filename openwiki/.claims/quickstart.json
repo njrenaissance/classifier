@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:7d3c15c2a3d209d61652342305c7cfdd8f42ad3e36eba8dd22ab386525f3cea7",
+  "claims": [
+    {
+      "id": "claim_1e0d9a2e6dd24b298063908ea7cc670b",
+      "statement": "The classifier supports two equally important deployment paths: Local CLI (single-machine batch processing, CSV output) and Cloud Pipeline (distributed SharePoint→PostgreSQL with Azure Queue decoupling and Azure Container Apps jobs)",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L66-L79",
+          "version": "repo-lines-v1:sha256:6a7823cee64267eb84f59eb45562288a652a400f96a043e6a2aa8ba513f07005:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5Yzg3YWYzZjMyYTUzNTg2OGRiOTgzMjE4Y2MyYTEyYjEyNjg1ZmYxNzZlNWViOTQzZjYxMmJkNzI4YjIxZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk4ZjVkNmJiYjViZmI5YjU3YTc4ZTA5NmUwNzNkYjQxMzQ2ZmU5ZGM0Y2M3ZmY2NWQwNWVlMGM3OTY4MmJiMzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5NTAxYjJlNDYwODVmNWE1OWYyMDcxOTczNTE3MmRlODU1MTM2NTk2ZWEwYjkzOWJiMDIzNmYxZjBmODEzYjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzYzU3MzZkM2IzYzYzNWU2Mjc3YjNjM2YxYTZhMDUwNTkxZmI1M2VkYzAzZDFhZDczNDJjODUyN2I1ZjBhYjIifQ"
+        },
+        {
+          "resource": "repo://spec/spec.md#L7-L32",
+          "version": "repo-lines-v1:sha256:f2a33023df2efafe73cb3c09fe8dd36ba315b30e48dbc2316338a32059ba7b23:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxNTQ3NWI4ZjlkOTA4MzcxNjhmZTViNGNjN2RjMzJkMzBkYmQ3NTI5OWRhMDk5MTgxYWE2MjA5NmJmMzM1N2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlNmE4MDkyZmQzZDUxZWJmMzRlOTg0YjdlMWZmNTUxMTNhZTYzNjQwOGE3MGE5ZDAyMjQzOWM3YTcwY2RhOWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgyZmYxMjA5MmViNDc1OGQ2YmI5N2NkZWMwZjRkYmM5ZjU2YzUwZDY3NjQzYWNiNGU3ODc2ZTZmYWViNDI4YTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlOTQ5ZTllOGM2N2UyYTRiNWNhMjVmMWU5M2EzMjVmYjVhMGIyMzAwOGI0ZGM0YzEyMmYxNzA0ZDEwNTA3ZDIifQ"
+        },
+        {
+          "resource": "repo://src/main.py#L1-L30",
+          "version": "repo-lines-v1:sha256:573d4a2c1739c23fd4309e8c863eee944ae483ffa43362ff6802054614467c12:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhODBiMDY0MWIwZDU1NDAzMzc2OTVhNjZhYjRjOGNlZjZlY2RkMzNhMjE0MmNlY2ZhMTEwMDA5Yzk4YWUyMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkODdjNzljZWI1OWM2ZTY3NDAwYzgzZmFiNzZkODE4MDgwOTkzOTgwYjcyNzQ2NDA0MTMyYTIwNDg2MjE3YTIifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L1-L37",
+          "version": "repo-lines-v1:sha256:765b5bb98646eee18ad7e930398e294c477991648deeffee86bbf9239e20f825:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4YjQzNWZiNDI4ZjZiYWE2YjAxNTA1NmE0MTlhMjc1YjY0NWEyODRkM2ZlNjBkOGU5MGFhZTFmMzA3YzM5ZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyZjc4Yzk2ZjVhOThiMGU0NTcwNzIzNmZjM2ZjZWU3NjJiYjljYjI0ZjE2NDY1YmM3ZjdiMDI2YzVjZDY0NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a17c000cc1744315bfd4215f1cc73e05",
+      "statement": "The local deployment category includes both a simple CLI entry point (uv run python src/main.py) and a full two-job testing stack (docker-compose with filesystem source, Azurite queue, and PostgreSQL) that shares the same production code paths, enabling integration testing and live-fire validation without cloud infrastructure",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L100-L118",
+          "version": "repo-lines-v1:sha256:8544eebd3659c8b0a033a94e5bcf0353bce004ce0b7e561ded22e58e72cddc1f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4NmUwYzhhZDZlZGE2MDlmODU2YTVmYmRjMzE2ZWEwZDFhOGU2YTFhNjQ2ZDlmNmI1ZGY0YTU5ZWI0NTU4ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0ZWM5OGRmNmI0ZjJiYTZhNDI5NDczMGVjNTQ5NTlmNzAyZjM1ZWZkOWUxZjRlMGIxMDcxODMwYWQ5NDI1MjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUxNzM4ZGNhYzhhYTIzNzc5NWEyN2Q1YTkwNTM1NGI0NTQxYmU1ZDk1MDhhNzNmZjE1MTYxY2Y3N2M0NWI0NTgifQ"
+        },
+        {
+          "resource": "repo://infra/README.md#L1-L22",
+          "version": "repo-lines-v1:sha256:f456118a38eed0b7172053bbeabc505c31ff335e110019165f069773aafcfc29:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3YjZlZDAzZGM0NTc1MDE3ZGFjYTVhNmFmY2VhMDJlOTRiYTgwZTUwODljMGNkNjA3NDYyZWFhMjFlZGU1MDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiZjE5MGQzOGE4NDVkNWIzMDYwOThkN2EzM2RmMzZmZTQyMWZjZGZiZGM2YWQ0MzFmM2I4NWU5YWExZDZhMDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5M2Y5OGU0NTYwNzNjNTY3ZDc0NzM2YTQxOGRiMmEwYjA5OWFiYTU4NjIxYWU1NGZkM2RlYjRkNDdlOGFiNTYifQ"
+        },
+        {
+          "resource": "repo://src/processor.py#L1-L30",
+          "version": "repo-lines-v1:sha256:3b8a26ac1fe428170fb4ad5526d9e3ce45cbdf6104767b68680b178609adafbf:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2ODU0YzZiNWYzOWZkN2E2ODVmNDQwZTcxN2RkY2NiNWY0MTAxMWJiMmZhNjg0ZWFlNDYwNTgwYTQwNjczOWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyZjc4Yzk2ZjVhOThiMGU0NTcwNzIzNmZjM2ZjZWU3NjJiYjljYjI0ZjE2NDY1YmM3ZjdiMDI2YzVjZDY0NTUifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L1-L37",
+          "version": "repo-lines-v1:sha256:765b5bb98646eee18ad7e930398e294c477991648deeffee86bbf9239e20f825:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4YjQzNWZiNDI4ZjZiYWE2YjAxNTA1NmE0MTlhMjc1YjY0NWEyODRkM2ZlNjBkOGU5MGFhZTFmMzA3YzM5ZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyZjc4Yzk2ZjVhOThiMGU0NTcwNzIzNmZjM2ZjZWU3NjJiYjljYjI0ZjE2NDY1YmM3ZjdiMDI2YzVjZDY0NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a4152580755440a18c7f919d4fa4875f",
+      "statement": "Filesystem source (ADR-0020) allows both walker and processor to enumerate and process documents from a mounted local directory instead of SharePoint, enabling end-to-end testing without Microsoft Graph credentials while maintaining identical two-job pipeline architecture",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L100-L118",
+          "version": "repo-lines-v1:sha256:8544eebd3659c8b0a033a94e5bcf0353bce004ce0b7e561ded22e58e72cddc1f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4NmUwYzhhZDZlZGE2MDlmODU2YTVmYmRjMzE2ZWEwZDFhOGU2YTFhNjQ2ZDlmNmI1ZGY0YTU5ZWI0NTU4ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0ZWM5OGRmNmI0ZjJiYTZhNDI5NDczMGVjNTQ5NTlmNzAyZjM1ZWZkOWUxZjRlMGIxMDcxODMwYWQ5NDI1MjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUxNzM4ZGNhYzhhYTIzNzc5NWEyN2Q1YTkwNTM1NGI0NTQxYmU1ZDk1MDhhNzNmZjE1MTYxY2Y3N2M0NWI0NTgifQ"
+        },
+        {
+          "resource": "repo://spec/spec.md#L7-L9",
+          "version": "repo-lines-v1:sha256:3948732c85f317913661a5b930ab7d1d25cbf746cf0b41ab65455d4ca41bf29f:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODE1NDc1YjhmOWQ5MDgzNzE2OGZlNWI0Y2M3ZGMzMmQzMGRiZDc1Mjk5ZGEwOTkxODFhYTYyMDk2YmYzMzU3ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzM4M2ExNjNmYWJmOTEyM2FhYTIyZjBlMzgzYTUyYjk5YjExMDQzZjdhNzRlMjM2NzNjNmNiNTllMGY2MDU5ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODJmZjEyMDkyZWI0NzU4ZDZiYjk3Y2RlYzBmNGRiYzlmNTZjNTBkNjc2NDNhY2I0ZTc4NzZlNmZhZWI0MjhhNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWY1YjgyMTVjYmFhODkzZmZiNjUzNzFiZTBkYjNkNTNjMzk0NTE4ZWMxZWYwZTBkZjdmZjE4OTE4M2UyOWNkZCJ9"
+        },
+        {
+          "resource": "repo://src/processor.py#L24-L29",
+          "version": "repo-lines-v1:sha256:80e7c1a80d0f304c4db913a314121020e3e3cca325e5a396b0e756085d5fd3a8:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWY2MzM0MzZiYjI1Y2RmY2I3MDdhODk4M2VmZjk4YTMyYzU5YjMxNTc1ZDkzMzk4MmZhNTZlNjY3MjNkOGQ0ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2Q2ODk0N2MxN2RlZTlhNzJlMjdkN2E5OTI0OTkwOGY2MDgyMWRmOTFlYTU2NTBhZDA4YzkzNmYwNTAyMTI1OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTA5MTdkMTM0ZmJmZTVmNjU1YzA0ZjgwMTU5MDllZTJkNGMxYmVmNWI3OGQ4NmEyYjhlZmM1MTBhZWFkMTdhMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODQ0ODEzMTQ1YWU3MjdkNjBjZTQxY2UyYjM0OTMxMzQ4NGY4MGFhY2VkMWM3MmFlYWE5ZjlmZTBjYWVmZjU4MyJ9"
+        },
+        {
+          "resource": "repo://src/walker.py#L23-L26",
+          "version": "repo-lines-v1:sha256:44ddf988378e91d45ee5e5e316e638f835e7cf99d3aca8699c0b78bd72a1f6f2:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDNlYjFjYWZiYzAyNjA1YTk0OTI3YmY3Yjg1MDU5ODljNmNkMDBlN2NmZDVmNmI1ODZjMGY3ZThmOGRjOTllOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzY1MGZmYzI2YzExOTk1ZGZlNTQzODQ4MzRiYzIzZmVjNDVlZjA3MDU4MjE3MzhhODY5OGM0MWQwYmZhYWRmMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzdhZTYxMDBiNGNjMTJhY2NhNjQyMTc3ZDY2MzA0NWI4NzNjNDhhNDc4YTBiMDcxMzI4ZTc5MjQ3NWFjZDQwYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWVmMDI0N2FkNmQ3ZDkzZjQ0NTg4N2E3M2YyMzliMDdkNmYzZjIzMGRjNmY3ZWZlODQ0MzQ2ZDUxNjYxOTFiMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a0874b4afb394025a410f45357d8819b",
+      "statement": "The classification core (categories parsing, text extraction, LLM classification, self-consistency voting) is identical across all deployment paths; path-specific differences are in document enumeration (CLI filesystem, walker+Graph, or walker+FilesystemWalker), state persistence (CSV, PostgreSQL, or PostgreSQL), and orchestration (sequential, Azure Queue, or Azure Queue)",
+      "evidence": [
+        {
+          "resource": "repo://spec/spec.md#L40-L50",
+          "version": "repo-lines-v1:sha256:1b5973a519ddeab06eb5167754445867e4b6d3563cc8d1371a594c66809ccf04:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhOWM2MGU5MTA5ZDZmYWVlMzdmMjYyMzkzNzZkZDNiMmNhMjBhNDZhNGJlYWQ2NDFlYTY0MTJmMDE2ZTBjNTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5YzczZDBkOTRhZDg1MWIyNzBhZGFkZWM2NDI0YTYwYjIzMzQ5ZmNlMGU4MTFjMmJlNTg5NWU3ODZhMTBkY2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZmYTQ4ODRlOWJhMGYwZTBjNjAxZjdmYmEwOTM5NDg5Y2MzZGU5YWEzMTRlODk0ZTk3OWQ5YzI0ZWIzYTQxYTMifQ"
+        },
+        {
+          "resource": "repo://src/main.py#L61-L83",
+          "version": "repo-lines-v1:sha256:fc07f2b83cb56e42e6531193f9585303e57cff46262b8c509e683c9029fdf226:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg5MTVkYjExMmVkMDdjZGIyNThjZWU3NjhmZDQ5MDQwNmU5NDk3OGFmZGJhNWIwNGQ4NjhhMDVhZDc0YWNkZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwZTRmYjRkNDIzZWMzZTYwYTFkMDNkYjA4OGU1N2U4YjM1MjIxZDkxMzg0OTM2YTg4ZmQ5Mzg5NzllZDlkOTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzYjkwNGI2NmE3OGYzMTIwZDQ4MDZjYWNlZGVlZTE4MTRiODM0ODdiNmJmZGE0MGY0YzY5ODIwOTI2ZjhhYTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIyYWY0NmEzZDdkNDBlYjEyOTRhY2JkZWM2MWVhMDBhOTljMWY3NzJhNjEwNjQ4ZjEyNjQ5MmE4NTYwYmVjMmYifQ"
+        },
+        {
+          "resource": "repo://src/processor.py#L1-L30",
+          "version": "repo-lines-v1:sha256:3b8a26ac1fe428170fb4ad5526d9e3ce45cbdf6104767b68680b178609adafbf:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2ODU0YzZiNWYzOWZkN2E2ODVmNDQwZTcxN2RkY2NiNWY0MTAxMWJiMmZhNjg0ZWFlNDYwNTgwYTQwNjczOWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyZjc4Yzk2ZjVhOThiMGU0NTcwNzIzNmZjM2ZjZWU3NjJiYjljYjI0ZjE2NDY1YmM3ZjdiMDI2YzVjZDY0NTUifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L1-L37",
+          "version": "repo-lines-v1:sha256:765b5bb98646eee18ad7e930398e294c477991648deeffee86bbf9239e20f825:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4YjQzNWZiNDI4ZjZiYWE2YjAxNTA1NmE0MTlhMjc1YjY0NWEyODRkM2ZlNjBkOGU5MGFhZTFmMzA3YzM5ZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyZjc4Yzk2ZjVhOThiMGU0NTcwNzIzNmZjM2ZjZWU3NjJiYjljYjI0ZjE2NDY1YmM3ZjdiMDI2YzVjZDY0NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_82fa67a81af44e189081612af123bf42",
+      "statement": "Self-consistency voting derives confidence by running classification N times and computing the agreement rate (e.g., 5/5 identical→1.0, 3/5→0.6); the winning category is the modal label across runs, with ties or low counts resolving to the reserved 'unknown' category",
+      "evidence": [
+        {
+          "resource": "repo://spec/spec.md#L45-L47",
+          "version": "repo-lines-v1:sha256:e04ae0c268b1c5a700118a337f97c77870f3974dfcccc70eb1bbfa159bc23cb5:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmNhNGUxYTRhZDYwYzAzNzA2NDEyNDg4NTNlY2QyOTlhMGQ0ODhhMWM1ZjE5MjI0OTgyYWEzNjk3YzU0ZmM4ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODEwMTc4M2UwZDU0YjBmMzhmODZlN2FiOTI5MzdhNGU1Y2I1MmU5MzhhYzc2NjI3YTk1Y2E2ZGU5YzRkYmI4NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzZhMGY3ZDQwMjFhZDU3YjZlMzUzMTcyYjc0MTAzNzRjNTE2ZWU2NjczM2RiYmUzNmM2ZTg2ZjJiYzYzMzJjNSJ9"
+        },
+        {
+          "resource": "repo://src/self_consistency.py",
+          "version": "repo-file-v1:sha256:8d51535a636412e289c5418893ab8f54e9e8f52a289228f83c91f5334605f362"
+        }
+      ]
+    },
+    {
+      "id": "claim_b85efb4311a24e8ba09d6475785c96bd",
+      "statement": "Text extraction is format-specific using registered per-format libraries: PDF (via pdfplumber or similar), DOCX (via python-docx), and plain-text formats (.txt, .json, .yaml, .md, .csv, .xml); unsupported file types are skipped with a WARNING during enumeration or rejected with UnsupportedFormatError if pointed at directly",
+      "evidence": [
+        {
+          "resource": "repo://spec/spec.md#L57-L62",
+          "version": "repo-lines-v1:sha256:313b792468f63fa8168c455b5a2ed50bacaa3c5c9e7f99e75fdee462f68cc591:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWIwYzljOWE3MzZkYzZkOTdiNjU4NTQwOTlhNzZiZmM3ODA5ZjU4M2I3MGMzZmM1Y2NhOWExNTJlNDk5MDAxMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzRkMGVhMjNiZjg3YmE1ZjcwYzk2MGZjYjFmNzUyYmMyMzU2NzJhMjE1ZGVlMTFiNjFhZTllMjliZmU0YWQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjllYzdmY2RlMTY0MTkxODUwYTFjZTUxYzVkOWIwMTYyYzBiMmJhMjVjN2RjMjdiMGE0ODBiMWUzZDUxNmRhMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGY5YjljNTdiYmMwYzU4MTY5OTcyMjI1MjcxZGJlODI1MGI4MjJjZDhiMzQ2NDA2ZDM3OGVmMDIzZDEwMTA5OCJ9"
+        },
+        {
+          "resource": "repo://src/extraction.py",
+          "version": "repo-file-v1:sha256:bf2b19e041647324b7ca577dc58b046d3ec46d4749b84a48a50488cbb3fffe0b"
+        }
+      ]
+    },
+    {
+      "id": "claim_fae494cd9a7242d38aff49ef2677ca8e",
+      "statement": "Categories are defined in a single Markdown file (format: ## <name> + description + - bullet few-shot examples) parsed once at startup; the model cannot invent labels—categories are always from the defined set or the reserved 'unknown' bucket",
+      "evidence": [
+        {
+          "resource": "repo://categories.md",
+          "version": "repo-file-v1:sha256:aa91e63b692087b37898fa32b7dc07b27de1d0dae28d115a2d5f428aeb519914"
+        },
+        {
+          "resource": "repo://spec/spec.md#L54-L56",
+          "version": "repo-lines-v1:sha256:69ec7fcde164191850a1ce51c5d9b0162c0b2ba25c7dc27b0a480b1e3d516da2:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGZlMDRmN2Y2Yzc2ZGFhZWZiMWU0NzBiNDUzOGU5M2RmYmMwODM4MmM2MmU0OGUyZThjYTIxNmI0OWU3YjRhNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTcxMzJkYmI5ZDA0M2VlNzYxNWNhNTQ4NWRiZTVjMDI4ZDBlMjIxY2E2MmRlZmFhYjE2NmE1MDg2ZGRlYmFkNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmZhNDg4NGU5YmEwZjBlMGM2MDFmN2ZiYTA5Mzk0ODljYzNkZTlhYTMxNGU4OTRlOTc5ZDljMjRlYjNhNDFhMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWExYzBmMzM4NGM3ZjNhYTE3NGI1YTdjNWM3ZDQxMGEzNzQ4MmUzYzA3Mzc5ZTIzNTExYjVhYTI5MDNhMTFkYyJ9"
+        },
+        {
+          "resource": "repo://src/categories.py",
+          "version": "repo-file-v1:sha256:9e805dfdf8b715ee12f8f584ecbc05436363c1ddd0ea8be65dfd353b3c5f583c"
+        }
+      ]
+    },
+    {
+      "id": "claim_3f15df8040d142edaa066af248496ef0",
+      "statement": "The walker (scheduled Azure Container Apps job) enumerates a SharePoint library via Microsoft Graph delta queries under a time budget, persists resumable position as sync_state (delta_token, resume_token, completion status), and enqueues one work item per changed/new file; idempotency comes from content-hash comparison, preventing re-enqueue of in-flight or unchanged files",
+      "evidence": [
+        {
+          "resource": "repo://spec/spec.md#L28-L32",
+          "version": "repo-lines-v1:sha256:4a3f97fa7c4b8db9e1cc0a1a54e1f6ac06438732970faeb3887c6a85e3496b94:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2U2YTgwOTJmZDNkNTFlYmYzNGU5ODRiN2UxZmY1NTExM2FlNjM2NDA4YTcwYTlkMDIyNDM5YzdhNzBjZGE5ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzBiMzViMDFmODA4NTUzNDA4MjUwMDgzYTFhMzVkY2Y5ZTAzOTUyNWQ2ZGU4OGRkYjFiYTY1NDQ1MWNjODAyMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2U5NDllOWU4YzY3ZTJhNGI1Y2EyNWYxZTkzYTMyNWZiNWEwYjIzMDA4YjRkYzRjMTIyZjE3MDRkMTA1MDdkMiJ9"
+        },
+        {
+          "resource": "repo://src/walker.py#L1-L37",
+          "version": "repo-lines-v1:sha256:765b5bb98646eee18ad7e930398e294c477991648deeffee86bbf9239e20f825:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4YjQzNWZiNDI4ZjZiYWE2YjAxNTA1NmE0MTlhMjc1YjY0NWEyODRkM2ZlNjBkOGU5MGFhZTFmMzA3YzM5ZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyZjc4Yzk2ZjVhOThiMGU0NTcwNzIzNmZjM2ZjZWU3NjJiYjljYjI0ZjE2NDY1YmM3ZjdiMDI2YzVjZDY0NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_dfe83a5a95c04b828a3381cfb2f13a38",
+      "statement": "The processor (queue-triggered Azure Container Apps job via KEDA scaler) handles one message per invocation: marks document processing, re-checks content hash, downloads bytes (Graph or filesystem per ADR-0020), extracts text, classifies with self-consistency voter, and UPSERTs result to PostgreSQL without overwriting manual classification_override; failures mark the row as failed and re-raise (chained) so the queue redelivers",
+      "evidence": [
+        {
+          "resource": "repo://spec/spec.md#L28-L32",
+          "version": "repo-lines-v1:sha256:4a3f97fa7c4b8db9e1cc0a1a54e1f6ac06438732970faeb3887c6a85e3496b94:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2U2YTgwOTJmZDNkNTFlYmYzNGU5ODRiN2UxZmY1NTExM2FlNjM2NDA4YTcwYTlkMDIyNDM5YzdhNzBjZGE5ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzBiMzViMDFmODA4NTUzNDA4MjUwMDgzYTFhMzVkY2Y5ZTAzOTUyNWQ2ZGU4OGRkYjFiYTY1NDQ1MWNjODAyMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2U5NDllOWU4YzY3ZTJhNGI1Y2EyNWYxZTkzYTMyNWZiNWEwYjIzMDA4YjRkYzRjMTIyZjE3MDRkMTA1MDdkMiJ9"
+        },
+        {
+          "resource": "repo://src/processor.py#L1-L30",
+          "version": "repo-lines-v1:sha256:3b8a26ac1fe428170fb4ad5526d9e3ce45cbdf6104767b68680b178609adafbf:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2ODU0YzZiNWYzOWZkN2E2ODVmNDQwZTcxN2RkY2NiNWY0MTAxMWJiMmZhNjg0ZWFlNDYwNTgwYTQwNjczOWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyZjc4Yzk2ZjVhOThiMGU0NTcwNzIzNmZjM2ZjZWU3NjJiYjljYjI0ZjE2NDY1YmM3ZjdiMDI2YzVjZDY0NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_278c143f887a41118a0e9996bc9aa5da",
+      "statement": "Configuration uses Pydantic Settings and environment variables; Local CLI requires ANTHROPIC_API_KEY (or Foundry settings) and optional classification tuning (N, temperature, confidence threshold); Cloud pipeline additionally requires database URL, Graph credentials (tenant, client ID/secret, drive ID), queue connection string, and processor category file path; filesystem source requires CLASSIFIER_SOURCE=filesystem and CLASSIFIER__FILESYSTEM_ROOT instead of Graph credentials",
+      "evidence": [
+        {
+          "resource": "repo://.env.example",
+          "version": "repo-file-v1:sha256:d7dff7764279831ffb3fb43ebfe99b7f32d8271340fa9294f0d97ed632ab7c68"
+        },
+        {
+          "resource": "repo://README.md#L119-L124",
+          "version": "repo-lines-v1:sha256:47bf2fe5c560fef1b0c1e3fc1a02444765789a05aa349a5fe3dca92b6fc29bee:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWQ0N2RiNzIwOTNiMTFmZjlhNWY0NDRkZjkwMWQyYzE5YTMzZGQyOTM5MzQ4ODI1YmM3YzZiM2FiMzc1MTM2NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDBmYTdmMDIzZTYxOTJjODU3ZjIyMjYyMjNkNDRiNmM0ZTgyZWMzMWRjZDdhN2Q1ODVjNjJhODE1NTg4YzNmMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzllYWYzN2M5Y2ZlZTM4MTQxMDk3N2ZjYTVjZTU1Y2RlNmJhYTUzMTUxZDRhYWNiYTZjZWIzY2I4NzFmMjJiNSJ9"
+        },
+        {
+          "resource": "repo://src/config.py",
+          "version": "repo-file-v1:sha256:da4bdb86065493b46cf07557d5e65de03e64261ee811c0a0ce0467bdfafceb98"
+        }
+      ]
+    },
+    {
+      "id": "claim_650dd8417c2c4d45b93c2e71818518ee",
+      "statement": "Local integration testing with filesystem source is available via either pytest -m integration (free, faked voter) or docker-compose -f infra/docker-compose.yml up (real LLM calls, real cost), both exercising real PostgreSQL and Azurite queue with a mounted directory of documents instead of SharePoint",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L113-L118",
+          "version": "repo-lines-v1:sha256:73a53cb2e8e695d32b19f9ad7a54ba294cb7d565e57985f687ddb709e105605f:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDRmODdmYzRiZWNhNDI5Mjc1MWI1NTgyMzRhZWE3ZGY2MGQ5Yzk3ZWE3MDJlZTFlODUwMGNiNzZhMTE4ZGNiNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTg4ZTAxZmJmMDFiMWQ0NDljMmYyNzNiY2Q2YWM1N2MyNDNkYWNkN2RjMGY2NDZlMDAyZDc3YzVkZWI2N2IyZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTE3MzhkY2FjOGFhMjM3Nzk1YTI3ZDVhOTA1MzU0YjQ1NDFiZTVkOTUwOGE3M2ZmMTUxNjFjZjc3YzQ1YjQ1OCJ9"
+        },
+        {
+          "resource": "repo://infra/README.md#L1-L22",
+          "version": "repo-lines-v1:sha256:f456118a38eed0b7172053bbeabc505c31ff335e110019165f069773aafcfc29:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3YjZlZDAzZGM0NTc1MDE3ZGFjYTVhNmFmY2VhMDJlOTRiYTgwZTUwODljMGNkNjA3NDYyZWFhMjFlZGU1MDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiZjE5MGQzOGE4NDVkNWIzMDYwOThkN2EzM2RmMzZmZTQyMWZjZGZiZGM2YWQ0MzFmM2I4NWU5YWExZDZhMDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5M2Y5OGU0NTYwNzNjNTY3ZDc0NzM2YTQxOGRiMmEwYjA5OWFiYTU4NjIxYWU1NGZkM2RlYjRkNDdlOGFiNTYifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-28T19:49:26.700Z"
+  }
+}
