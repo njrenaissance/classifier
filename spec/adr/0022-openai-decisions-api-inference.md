@@ -1,43 +1,45 @@
-# ADR-0022 — Inference layer: OpenAI Decisions API
+# ADR-0022 — Inference layer: TypeSafe Jev
 
-Status: proposed (blocked on general availability and account access — see Context)
+Status: proposed (gated on early-access access and a probe — see Consequences)
 
 ## Context
 
 Classification ([0001](0001-llm-based-classification.md)) currently calls Claude Haiku 4.5 through the Anthropic Messages API, directly or via Microsoft Foundry ([0002](0002-model-haiku-4-5.md), [0016](0016-foundry-inference-provider.md)). The per-call contract is a single label from a fixed set, enforced by structured output ([0008](0008-prompt-structured-output.md)), with confidence derived from N-run self-consistency ([0005](0005-confidence-self-consistency.md)).
 
-OpenAI has announced the [Decisions API](https://tech.ifeng.com/c/8wpIOhwDA3L), which returns one answer from a developer-supplied finite list instead of generating text. Its stated fit is routing and classification, which matches our per-call contract. Its status is not yet suitable for a production dependency:
+We want a purpose-built decision model rather than a text-generating one. Two candidates:
 
-- It is in **limited preview**. One developer reported a 403 saying the API is not enabled for the account, and documentation pages returned 404 ([eesel.ai](https://www.eesel.ai/de/blog/openai-decisions-api-erklaert)).
-- **Pricing, rate limits, and a confidence signal are unpublished.** Secondary coverage disagrees on whether it returns a probability-like score or a confidence value ([NYU RITS](https://rits.shanghai.nyu.edu/ai/openais-decisions-api-picks-answers-instead-of-writing-them/)). Neither is confirmed by OpenAI.
-- Its latency claim (~150 ms per decision) is OpenAI's own figure, with no independent measurement yet.
-- It is a specialized variant of an OpenAI model, not a Claude model. It is not hosted in Azure, so the in-tenant, managed-identity rationale in [0016](0016-foundry-inference-provider.md) does not carry over unless the API is also reachable through Azure.
+- **OpenAI Decisions API** returns one answer from a finite list. It is in limited preview, with a reported 403 for accounts not enabled and 404 documentation pages, and pricing and confidence are unpublished ([eesel.ai](https://www.eesel.ai/de/blog/openai-decisions-api-erklaert), [NYU RITS](https://rits.shanghai.nyu.edu/ai/openais-decisions-api-picks-answers-instead-of-writing-them/)). It is not hosted in Azure.
+- **TypeSafe Jev** is a "System One" decision model that returns a typed choice from a defined answer space, with Choice and Score question types ([Composio guide](https://composio.dev/content/typesafe-jev-guide-and-best-practical-usecases)). It is in early access behind a waitlist. Reported input pricing is about $0.042 per million tokens with output free ([eesel.ai](https://www.eesel.ai/blog/typesafe-jev-pricing)), and it has a reported 32,000-token context window ([LiteLLM](https://docs.litellm.ai/blog/typesafe_jev)). It is also listed on [OpenRouter](https://openrouter.ai/typesafe/jev-1.13).
+
+Speed and cost claims for both come from the vendors, and no independent replication was found. I could not locate TypeSafe's official pricing or docs pages.
 
 ## Decision
 
-Adopt the **OpenAI Decisions API as the inference layer** for classification. The classification core keeps its injected-client shape ([0016](0016-foundry-inference-provider.md)), with the client wrapping the Decisions API. Each call receives the category list plus `unknown` as the allowed answers, and returns exactly one of them, preserving the [0008](0008-prompt-structured-output.md) guarantee that every answer is in-set and canonical.
+Adopt **TypeSafe Jev as the inference layer** for classification, conditional on the probe below. The classification core keeps its injected-client shape ([0016](0016-foundry-inference-provider.md)), with the client wrapping Jev. Each call receives the category list plus `unknown` as the answer space and returns exactly one of them, preserving the [0008](0008-prompt-structured-output.md) guarantee that every answer is in-set and canonical.
 
-This ADR does **not** take effect until the probe below passes. On acceptance it supersedes [0002](0002-model-haiku-4-5.md) (model) and [0016](0016-foundry-inference-provider.md) (provider selection). Until then, the Claude path remains the working implementation.
+On acceptance this supersedes [0002](0002-model-haiku-4-5.md) (model) and [0016](0016-foundry-inference-provider.md) (provider selection). Until then, the Claude path remains the working implementation.
 
 ## Alternatives
 
-- **Keep Claude Haiku 4.5 via Anthropic or Foundry.** Working today and validated against the probe in [0016](0016-foundry-inference-provider.md). Rejected by the decision to move inference to OpenAI.
-- **OpenAI Structured Outputs on a general chat model.** Available now and GA, and gives an in-set label from a JSON schema enum. Not chosen: it is a generation path, not a purpose-built decision endpoint, and it leaves the same confidence gap as today.
-- **Wait for GA before deciding.** Would avoid building against a preview. Not chosen because the decision is made; the cost of waiting is carried by the probe gate below.
+- **OpenAI Decisions API.** Same purpose-built shape. Rejected for now: limited preview with no visible access path, and no published pricing. Revisit if it reaches GA.
+- **Keep Claude Haiku 4.5 via Anthropic or Foundry.** Working and validated against the probe in [0016](0016-foundry-inference-provider.md). Remains the fallback.
+- **OpenAI Structured Outputs on a general chat model.** GA and gives an in-set enum label. Not chosen: a generation path, not a decision endpoint.
 
 ## Tradeoffs
 
-- **Gain:** a purpose-built single-answer endpoint that matches the classification contract; OpenAI's claimed latency is well below a generation call; a single vendor for inference.
-- **Give up:** GA status and published pricing, prompt caching ([0008](0008-prompt-structured-output.md)), the managed-identity/Azure boundary ([0016](0016-foundry-inference-provider.md)) unless Azure access exists, and a Claude model choice ([0002](0002-model-haiku-4-5.md)).
+- **Gain:** a typed decision model matching the classification contract; a reported price far below generation models; available through an API and OpenRouter.
+- **Give up:** GA status and vendor-verified claims; the 32K context window versus Haiku's 200K (affects long documents, see [0008](0008-prompt-structured-output.md)); prompt caching; the managed-identity/Azure boundary in [0016](0016-foundry-inference-provider.md) unless Jev is reachable in-tenant; a Claude model.
 
 ## Consequences
 
-- **Probe before acceptance (gate).** Confirm all of the following against a live account:
-  1. The API is enabled for our account, with a stable endpoint and documented schema.
-  2. Whether it returns a confidence value. If not, the self-consistency design in [0005](0005-confidence-self-consistency.md) must be re-run on it: N calls per document at the new price and latency.
-  3. That `unknown` can be supplied as an allowed answer and is honored.
-  4. Per-call cost and rate limits, to re-check the cost model in [0002](0002-model-haiku-4-5.md) and [0005](0005-confidence-self-consistency.md).
-  5. Whether it is reachable under managed identity or only via API key, and whether the Azure/in-tenant boundary in [0016](0016-foundry-inference-provider.md) still holds.
-- **Config:** `CLASSIFIER_PROVIDER` gains an `openai` value; an `openai` nested settings section holds the API key or identity config. `ANTHROPIC_*` and `CLASSIFIER_FOUNDRY_*` remain until the superseding work is complete.
-- **Prompt caching and the static-prefix layout in [0008](0008-prompt-structured-output.md) no longer apply** to this path. The static-prefix design must be re-checked against whatever the Decisions API accepts.
-- **Dependency:** the project is blocked on preview access. If the API stays in preview, the Claude path is the fallback, and this ADR should be rejected rather than left proposed.
+- **Data-handling gate (blocks acceptance).** Extracted document text is sent to the inference provider, so this decision is also a data-residency decision. Before any real documents are sent, obtain in writing from TypeSafe: retention period for inputs and outputs, a no-training-on-customer-data commitment, sub-processors, hosting region, and SOC 2 status or timeline. A secondary directory listing (updated September 22, 2026) says no SOC 2 or HIPAA attestation is published and that the service runs from the US West Coast; treat that as unverified until TypeSafe confirms it. Until the gate passes, only synthetic or public documents may be sent to Jev. The current Foundry path ([0016](0016-foundry-inference-provider.md)) keeps inference in-tenant and is the safety baseline this ADR must not regress.
+- **Probe before acceptance (gate).** Against a live early-access account, confirm:
+  1. Access is granted, with a stable endpoint and documented schema.
+  2. How `unknown` is expressed in the answer space and that it is honored.
+  3. Whether a confidence or probability value is returned. Jev's Choice questions report probabilities per option per the Composio guide; if they are usable, self-consistency in [0005](0005-confidence-self-consistency.md) may be unnecessary. If not, re-cost N calls per document.
+  4. Actual per-call cost, latency, and rate limits, against the cost model in [0002](0002-model-haiku-4-5.md) and [0005](0005-confidence-self-consistency.md).
+  5. How the 32K context limit is handled for long extracted documents (chunk, truncate, or summarize; see [0008](0008-prompt-structured-output.md)).
+  6. Whether it is reachable under managed identity or only via API key, and whether the in-tenant boundary in [0016](0016-foundry-inference-provider.md) still holds.
+- **Config:** `CLASSIFIER_PROVIDER` gains a `jev` value with a nested `jev` settings section. `ANTHROPIC_*` and `CLASSIFIER_FOUNDRY_*` remain until superseding work is complete.
+- **Prompt caching and the static-prefix layout in [0008](0008-prompt-structured-output.md)** do not apply to this path and must be re-checked against Jev's request format.
+- **Dependency:** blocked on early-access approval. If access is not granted in a reasonable window, reject this ADR and keep the Claude path.
