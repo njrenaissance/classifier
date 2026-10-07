@@ -38,12 +38,12 @@ On acceptance this supersedes [0002](0002-model-haiku-4-5.md) (model) and [0016]
   |---|---|---|
   | No training on inputs | Vendor-stated | Confirm in contract |
   | Retention | "As long as reasonably necessary"; no number | Need a fixed period; zero retention only via sales |
-  | Residency | US only; no region choice | No EU option. Blocks EU/UK data unless accepted |
+  | Residency | US only; no region choice | Acceptable: no EU or UK documents in scope |
   | DPA: SCCs, UK Addendum, 72h breach notice, annual audit | Published | Reviewed; acceptable |
   | SOC 2 Type II | Reported by a third-party index | Unconfirmed. Request the report |
   | HIPAA BAA, ISO 27001 | Not reported | Needed only if such data is in scope |
 
-  Before real documents are sent, get in writing: a fixed retention period (or zero-retention terms), the SOC 2 Type II report, and a residency answer for any EU/UK data. Until then, only synthetic or public documents go to Jev. The current Foundry path ([0016](0016-foundry-inference-provider.md)) keeps inference in-tenant and is the safety baseline this ADR must not regress.
+  Before real documents are sent, get in writing: a fixed retention period (or zero-retention terms) and the SOC 2 Type II report. Residency is settled: no EU or UK documents are in scope. Until then, only synthetic or public documents go to Jev. The current Foundry path ([0016](0016-foundry-inference-provider.md)) keeps inference in-tenant and is the safety baseline this ADR must not regress.
 - **Probe before acceptance (gate).** Against a live early-access account, confirm:
   1. Access is granted, with a stable endpoint and documented schema.
   2. How `unknown` is expressed in the answer space and that it is honored.
