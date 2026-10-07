@@ -25,3 +25,4 @@ Each decision with meaningful tradeoffs gets its own file (`NNNN-<slug>.md`). AD
 | [0019](0019-config-driven-walk-scope.md) | Config-driven walk scope, enforced at the Graph delta level | accepted |
 | [0020](0020-local-filesystem-source.md) | Local-filesystem source for the two-job pipeline (source-mode toggle) | accepted |
 | [0021](0021-plain-text-extraction.md) | Plain-text format extraction (.txt/.json/.yml/.yaml/.md/.csv/.xml + text/*) | accepted |
+| [0022](0022-openai-decisions-api-inference.md) | Inference layer: OpenAI Decisions API | proposed · on acceptance would supersede [0002](0002-model-haiku-4-5.md) and [0016](0016-foundry-inference-provider.md); gated on preview access |
