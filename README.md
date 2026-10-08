@@ -15,11 +15,43 @@ A minimal Python project, managed with [uv](https://docs.astral.sh/uv/).
 
 ## Setup
 
-This project uses `uv` for package management, linting, and formatting.
+This project uses `uv` for package management, linting, and formatting. After
+cloning, run setup once — it installs dependencies and the local Git hooks:
 
 ```bash
-uv sync
+make setup
 ```
+
+(Equivalent to `uv sync && uv run pre-commit install && uv run pre-commit install --hook-type pre-push`.)
+
+## Git hooks
+
+Local quality gates run through the [`pre-commit`](https://pre-commit.com/)
+framework (config in `.pre-commit-config.yaml`): `git commit` runs `ruff` and
+`mypy`, and
+`git push` runs `pytest`. `make setup` (above) installs them. Git can't
+auto-install hooks on clone, so this one-time step is how they get wired up — but
+CI (`.github/workflows/ci.yml`) runs the same checks regardless, so it stays the
+real gate even when the local hooks aren't installed.
+
+## Staying in sync with the template
+
+This project was generated from the `basic` cookiecutter template and linked to it
+with [`cruft`](https://cruft.github.io/cruft/). The link lives in `.cruft.json`
+(template URL, the exact template commit, and the answers given at generation) — it
+is what lets template improvements be pulled in later instead of the scaffold going
+stale. Check whether the template has moved ahead:
+
+```bash
+uvx cruft check    # exit 0 = up to date; non-zero = behind
+```
+
+The **Template Sync** GitHub Actions workflow runs this check on demand (Actions tab
+→ *Template Sync* → *Run workflow*); it is intentionally not part of the PR gate and
+never blocks a merge. When the project is behind, run the `update-from-template`
+skill (or `uvx cruft update` by hand) to apply the delta, resolve any `*.rej`
+conflicts, and re-run the checks. See `.claude/standards/` and
+`.claude/skills/update-from-template/` for the agent-run procedure.
 
 ## Wiki
 

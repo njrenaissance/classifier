@@ -1,0 +1,28 @@
+{
+  "template": "https://github.com/njrenaissance/project-templates",
+  "commit": "d283fb8163838a7a264dfcbca9b9a5fafec4ab85",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "classifier",
+      "project_slug": "classifier",
+      "author": "Your Name",
+      "python_version": "3.13",
+      "app_config": "yes",
+      "structured_logging": "no",
+      "telemetry": "no",
+      "security": "no",
+      "diagrams": "no",
+      "_template": "https://github.com/njrenaissance/project-templates",
+      "_commit": "d283fb8163838a7a264dfcbca9b9a5fafec4ab85"
+    }
+  },
+  "directory": "basic",
+  "skip": [
+    ".git",
+    ".venv",
+    "uv.lock",
+    ".ruff_cache",
+    ".mypy_cache"
+  ]
+}
