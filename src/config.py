@@ -6,7 +6,7 @@ Import :func:`get_settings` wherever configuration is needed rather than
 reading ``os.environ`` directly.
 
 :class:`Settings` aggregates every configuration section as an **optional**
-nested model: the inference provider (``anthropic`` / ``foundry``), the
+nested model: the inference provider (``anthropic`` / ``foundry`` / ``jev``), the
 PostgreSQL state store (``database``), Microsoft Graph (``graph``), the
 work queue (``queue``), the walker job (``walker``), and the processor job
 (``processor``). A section is ``None`` when its environment is absent and a
@@ -24,10 +24,10 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import Field, SecretStr, model_validator
+from pydantic import AnyHttpUrl, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-Provider = Literal["anthropic", "foundry"]
+Provider = Literal["anthropic", "foundry", "jev"]
 Source = Literal["sharepoint", "filesystem"]
 
 DEFAULT_MODEL = "claude-haiku-4-5"  # ADR-0002 — pinned; never append a date suffix.
@@ -105,6 +105,35 @@ class FoundrySettings(BaseSettings):
                 "Foundry requires ANTHROPIC_FOUNDRY_RESOURCE and either ANTHROPIC_FOUNDRY_API_KEY, "
                 "or CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY=true for managed identity"
             )
+        return self
+
+
+class JevSettings(BaseSettings):
+    """Credentials/endpoint for TypeSafe Jev (ADR-0022).
+
+    Parses its own slice of the environment under the ``CLASSIFIER__JEV_``
+    prefix. Both ``api_key`` and ``base_url`` are required together: the
+    endpoint is only known after early access, so there is no default. A
+    *partially* configured section fails loudly at load; a wholly absent one
+    resolves to ``None``.
+    """
+
+    model_config = SettingsConfigDict(env_prefix="CLASSIFIER__JEV_", env_file=".env", extra="ignore")
+
+    api_key: SecretStr | None = None
+    base_url: AnyHttpUrl | None = None
+
+    @property
+    def is_configured(self) -> bool:
+        """True when both the API key and the endpoint are set."""
+        return self.api_key is not None and self.base_url is not None
+
+    @model_validator(mode="after")
+    def _reject_partial(self) -> "JevSettings":
+        """Fail loudly on a half-configured section, so a typo isn't silently ignored."""
+        intended = bool(self.api_key or self.base_url)
+        if intended and not self.is_configured:
+            raise ValueError("Jev requires both CLASSIFIER__JEV_API_KEY and CLASSIFIER__JEV_BASE_URL")
         return self
 
 
@@ -313,6 +342,7 @@ class Settings(BaseSettings):
 
     anthropic: AnthropicSettings | None = Field(default_factory=lambda: _load_section(AnthropicSettings))
     foundry: FoundrySettings | None = Field(default_factory=lambda: _load_section(FoundrySettings))
+    jev: JevSettings | None = Field(default_factory=lambda: _load_section(JevSettings))
     database: DatabaseSettings | None = Field(default_factory=lambda: _load_section(DatabaseSettings))
     graph: GraphSettings | None = Field(default_factory=lambda: _load_section(GraphSettings))
     queue: QueueSettings | None = Field(default_factory=lambda: _load_section(QueueSettings))

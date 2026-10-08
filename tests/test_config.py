@@ -302,3 +302,57 @@ def test_filesystem_section_configured_by_root(monkeypatch, tmp_path):
     s = Settings(_env_file=None)
     assert s.filesystem is not None
     assert s.filesystem.root == tmp_path
+
+
+def _jev_env(monkeypatch, *, api_key="jev-key", base_url="https://jev.example.com/v1"):
+    monkeypatch.setenv("CLASSIFIER_PROVIDER", "jev")
+    monkeypatch.setenv("CLASSIFIER__JEV_API_KEY", api_key)
+    monkeypatch.setenv("CLASSIFIER__JEV_BASE_URL", base_url)
+
+
+def test_jev_section_is_none_without_config():
+    s = Settings(_env_file=None)
+    assert s.jev is None
+
+
+def test_jev_provider_loads_from_env(monkeypatch):
+    _jev_env(monkeypatch)
+    s = Settings(_env_file=None)
+    assert s.provider == "jev"
+    assert s.jev is not None
+    assert str(s.jev.base_url) == "https://jev.example.com/v1"
+
+
+def test_jev_does_not_require_anthropic_key(monkeypatch):
+    _jev_env(monkeypatch)
+    s = Settings(_env_file=None)
+    assert s.anthropic is None
+
+
+def test_jev_api_key_is_kept_secret(monkeypatch):
+    _jev_env(monkeypatch, api_key="jev-secret-123")
+    s = Settings(_env_file=None)
+    assert s.jev is not None
+    assert "jev-secret-123" not in repr(s.jev)
+    assert s.jev.api_key.get_secret_value() == "jev-secret-123"
+
+
+@pytest.mark.parametrize(
+    "env",
+    [
+        pytest.param({"CLASSIFIER__JEV_API_KEY": "jev-key"}, id="key_without_base_url"),
+        pytest.param({"CLASSIFIER__JEV_BASE_URL": "https://jev.example.com/v1"}, id="base_url_without_key"),
+    ],
+)
+def test_jev_partial_config_errors(monkeypatch, env):
+    monkeypatch.setenv("CLASSIFIER_PROVIDER", "jev")
+    for key, value in env.items():
+        monkeypatch.setenv(key, value)
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)
+
+
+def test_jev_base_url_must_be_a_url(monkeypatch):
+    _jev_env(monkeypatch, base_url="not a url")
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)

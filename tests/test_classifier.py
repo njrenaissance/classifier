@@ -10,6 +10,7 @@ from categories import parse_categories
 from classifier import MODEL, Classifier, create_classifier
 from config import Settings
 from errors import ClassificationError
+from jev import JevClassifier
 
 pytestmark = pytest.mark.unit
 
@@ -183,4 +184,27 @@ def test_create_classifier_anthropic_without_key_raises(monkeypatch):
 def test_create_classifier_foundry_without_config_raises(monkeypatch):
     settings = _settings(monkeypatch, {"CLASSIFIER_PROVIDER": "foundry"})
     with pytest.raises(ValueError, match="Foundry is not configured"):
+        create_classifier(_categories(), settings)
+
+
+def _jev_settings(monkeypatch, *, api_key="jev-key", base_url="https://jev.example.com/v1"):
+    env = {
+        "CLASSIFIER_PROVIDER": "jev",
+        "CLASSIFIER__JEV_API_KEY": api_key,
+        "CLASSIFIER__JEV_BASE_URL": base_url,
+    }
+    return _settings(monkeypatch, env)
+
+
+def test_create_classifier_jev_builds_jev_client_and_classifier(mocker, monkeypatch):
+    fake_client = mocker.patch("jev.JevHttpClient")
+    classifier = create_classifier(_categories(), _jev_settings(monkeypatch, api_key="jk-1"))
+
+    fake_client.assert_called_once_with(api_key="jk-1", base_url="https://jev.example.com/v1")
+    assert isinstance(classifier, JevClassifier)
+
+
+def test_create_classifier_jev_without_config_raises(monkeypatch):
+    settings = _settings(monkeypatch, {"CLASSIFIER_PROVIDER": "jev"})
+    with pytest.raises(ValueError, match="Jev is not configured"):
         create_classifier(_categories(), settings)
