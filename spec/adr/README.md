@@ -5,10 +5,10 @@ Each decision with meaningful tradeoffs gets its own file (`NNNN-<slug>.md`). AD
 | ADR | Decision | Status |
 |---|---|---|
 | [0001](0001-llm-based-classification.md) | LLM-based classification (vs rules / classical ML) | accepted |
-| [0002](0002-model-haiku-4-5.md) | Model: Claude Haiku 4.5 | accepted |
+| [0002](0002-model-haiku-4-5.md) | Model: Claude Haiku 4.5 | superseded by [0022](0022-openai-decisions-api-inference.md) |
 | [0003](0003-cli-batch-interface.md) | CLI / batch interface (vs library / service) | accepted · extended by [0012](0012-cloud-two-job-pipeline.md) (CLI kept for local dev) |
 | [0004](0004-csv-file-output.md) | CSV file output (vs database) | accepted · superseded for production by [0013](0013-postgresql-state-store.md) (CSV kept for local dev) |
-| [0005](0005-confidence-self-consistency.md) | Confidence via self-consistency; reserved `unknown` category | accepted |
+| [0005](0005-confidence-self-consistency.md) | Confidence from API probabilities; reserved `unknown` category (amended; self-consistency superseded) | accepted |
 | [0006](0006-text-extraction-per-format-libs.md) | Per-format Python text extraction (`.doc` handling deferred → ADR-0009) | accepted |
 | [0007](0007-sharepoint-app-only-auth.md) | SharePoint access via app-only (client-credentials) auth | accepted |
 | [0008](0008-prompt-structured-output.md) | Prompt shape & structured output (label-only enum, cached prefix) | accepted |
@@ -19,7 +19,7 @@ Each decision with meaningful tradeoffs gets its own file (`NNNN-<slug>.md`). AD
 | [0013](0013-postgresql-state-store.md) | State + results in PostgreSQL via SQLAlchemy | accepted |
 | [0014](0014-sharepoint-delta-walker.md) | Incremental, resumable SharePoint delta walker | accepted |
 | [0015](0015-graph-authenticated-download.md) | Graph-authenticated on-demand file download | accepted |
-| [0016](0016-foundry-inference-provider.md) | Selectable inference provider: Anthropic API or Microsoft Foundry | accepted |
+| [0016](0016-foundry-inference-provider.md) | Selectable inference provider: Anthropic API or Microsoft Foundry | superseded by [0022](0022-openai-decisions-api-inference.md) |
 | [0017](0017-graph-content-hash-field.md) | Graph content-hash field for change detection (`quickXorHash` first) | accepted |
 | [0018](0018-store-folder-path-not-matter.md) | Store the driveItem folder path, not a derived matter | accepted |
 | [0019](0019-config-driven-walk-scope.md) | Config-driven walk scope, enforced at the Graph delta level | accepted |

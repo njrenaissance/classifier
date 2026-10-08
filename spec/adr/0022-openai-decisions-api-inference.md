@@ -47,8 +47,8 @@ On acceptance this supersedes [0002](0002-model-haiku-4-5.md) (model) and [0016]
 - **Probe before acceptance (gate).** Against a live early-access account, confirm:
   1. Access is granted, with a stable endpoint and documented schema.
   2. How `unknown` is expressed in the answer space and that it is honored.
-  3. Whether a confidence or probability value is returned. Jev's Choice questions report probabilities per option per the Composio guide; if they are usable, self-consistency in [0005](0005-confidence-self-consistency.md) may be unnecessary. If not, re-cost N calls per document.
-  4. Actual per-call cost, latency, and rate limits, against the cost model in [0002](0002-model-haiku-4-5.md) and [0005](0005-confidence-self-consistency.md).
+  3. Whether a deterministic probability value is returned per option. Per [0005](0005-confidence-self-consistency.md) (amended), `confidence` is that probability, so the probe must confirm it is returned on every call. If it is not, the classifier has no confidence signal and this ADR is not accepted.
+  4. Actual per-call cost, latency, and rate limits. Classification is one call per document ([0005](0005-confidence-self-consistency.md), amended).
   5. How the 32K context limit is handled for long extracted documents (chunk, truncate, or summarize; see [0008](0008-prompt-structured-output.md)).
   6. Whether it is reachable under managed identity or only via API key, and whether the in-tenant boundary in [0016](0016-foundry-inference-provider.md) still holds.
 - **Config:** `CLASSIFIER_PROVIDER` gains a `jev` value with a nested `jev` settings section. `ANTHROPIC_*` and `CLASSIFIER_FOUNDRY_*` remain until superseding work is complete.
