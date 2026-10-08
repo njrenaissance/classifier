@@ -78,3 +78,25 @@ output "database_connection_url" {
   value       = module.database.connection_url
   sensitive   = true
 }
+
+# --- Container Apps jobs (PR2) ------------------------------------------------
+
+output "container_app_environment_name" {
+  description = "Container Apps managed environment hosting the three jobs."
+  value       = module.container_apps.environment_name
+}
+
+output "walker_job_name" {
+  description = "Walker job — `az containerapp job start -g <rg> -n <this>` to run a walk on demand."
+  value       = module.container_apps.walker_job_name
+}
+
+output "processor_job_name" {
+  description = "Processor job — scales from the queue; start manually to drain on demand."
+  value       = module.container_apps.processor_job_name
+}
+
+output "migrate_job_name" {
+  description = "Migrate job — `az containerapp job start -g <rg> -n <this>` runs alembic upgrade head."
+  value       = module.container_apps.migrate_job_name
+}

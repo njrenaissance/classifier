@@ -22,10 +22,26 @@ locals {
   runtime_identity_name   = "id-${var.name_prefix}-runtime-${var.environment}"
   publisher_identity_name = "id-${var.name_prefix}-gha-publisher"
 
-  # Terraform-managed secret: the assembled DB connection URL (a generated infra
-  # credential). The Anthropic key and Graph client secret are seeded out of band
-  # in PR2 and never enter Terraform state.
-  secret_name_database_url = "database-url"
+  # Container Apps managed environment (hyphens allowed).
+  container_app_environment_name = "cae-${var.name_prefix}-${var.environment}"
+
+  # Image the three ACA jobs run — the ACR login server + repo + tag.
+  image_ref = "${module.registry.login_server}/classifier:${var.image_tag}"
+
+  # Key Vault secret names. Only database-url is Terraform-managed (a generated
+  # infra credential); the Anthropic key and Graph client secret are seeded out of
+  # band via `az keyvault secret set` and never enter Terraform state. The jobs
+  # reference all three by versionless Key Vault URI, so a plan never depends on a
+  # seeded secret already existing.
+  secret_name_database_url        = "database-url"
+  secret_name_anthropic_api_key   = "anthropic-api-key"
+  secret_name_graph_client_secret = "graph-client-secret"
+
+  # Versionless Key Vault secret ids (URI without a version suffix), so secret
+  # rotation needs no job redeploy.
+  database_url_secret_id        = "${module.keyvault.vault_uri}secrets/${local.secret_name_database_url}"
+  anthropic_api_key_secret_id   = "${module.keyvault.vault_uri}secrets/${local.secret_name_anthropic_api_key}"
+  graph_client_secret_secret_id = "${module.keyvault.vault_uri}secrets/${local.secret_name_graph_client_secret}"
 
   tags = merge(
     {

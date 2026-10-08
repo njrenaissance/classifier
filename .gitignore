@@ -39,6 +39,10 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 
+# Local-only operator runbook for the dev apply (E8, #46) — kept out of the repo
+# on purpose; infra/terraform/README.md is the committed reference.
+INSTRUCTIONS.md
+
 # OpenWiki maintains an AGENTS.md (the non-Claude counterpart to CLAUDE.md);
 # this project keeps it untracked so `openwiki code --update` (locally or in
 # CI) never commits it. CLAUDE.md, by contrast, is tracked and its OPENWIKI
