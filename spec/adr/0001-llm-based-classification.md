@@ -1,6 +1,6 @@
 # ADR-0001 — LLM-based classification
 
-Status: accepted
+Status: superseded by [0022](0022-openai-decisions-api-inference.md) (the inference layer is now a decision API, not a text-generating LLM)
 
 ## Context
 

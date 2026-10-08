@@ -1,6 +1,6 @@
 # ADR-0008 — Prompt shape & structured output
 
-Status: accepted
+Status: superseded by [0022](0022-openai-decisions-api-inference.md) (no prompt or structured-output schema is sent to a generation model; the answer space is a Jev Choice question)
 
 ## Context
 
