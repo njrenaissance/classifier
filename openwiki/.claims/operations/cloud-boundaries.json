@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:8eb7da34adb047ec2cfa349b687c6290881dbe0a08a1598e9fb6dc22734d6c67",
+  "claims": [
+    {
+      "id": "claim_3356330d490c47478d4e9cf8bad714db",
+      "statement": "The GraphClient abstraction owns app-only authentication to Microsoft Graph using either managed identity (DefaultAzureCredential) in production or client-secret credentials (tenant_id, client_id, client_secret) in local development, with the credential injected at construction so unit tests can fake it.",
+      "evidence": [
+        {
+          "resource": "repo://src/config.py#L133-L171",
+          "version": "repo-lines-v1:sha256:b30768782c8c0196a01c029f6490a5c12406ec425331f3fcba0269d08b2c1525:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3ZTBhNzRmMzk2ZjY4OWNkNzM4NzY1YzBiMmUxNThjNjI4NzllNzc1MzE0MWRiMzQzZDBiYTgwZDkwM2RkYjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM3MmExMzNkNTljZTk0MjRiNjhhNmQ1Yjc0MTUxZGE1OWRkZWY4MjIwYmVjYTFjZDEzNWI0NWFiYjNiNDM3ODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkYzcyMDk1ODAxYzkzYjUzNTIxMzQyMTI3NTJkNGE0YWYxMTMyYzIxZjhkNzA5ZmY4Y2E0YzY5NDYzMDRlYjUifQ"
+        },
+        {
+          "resource": "repo://src/graph_client.py#L1-L28",
+          "version": "repo-lines-v1:sha256:3b011d6e17b7bd4b1cbeefcbfd3f9de8ef6f8fa21839b9d741b0d8e4e855d765:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MTFjN2JlNjAyYWQ1M2Y1YTFhOGVhMTU5ZDMxNTc1YjUzNmVjOWJlNmUxYjkwNzNhNGU3MDQ1YjFmMzIwNjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBmMjI3OWQ0NzQ0Zjc3NmFlNDhiZGQ0MzdiY2VjMGQwODI3OTkwOThjNWY0M2MyMDExMWU3MWY0NmZjYjc1MWIifQ"
+        },
+        {
+          "resource": "repo://src/graph_client.py#L239-L258",
+          "version": "repo-lines-v1:sha256:c6ebae4e2cf894de1dd09074ce16e7c11529bce20afffd4fd6c554c06c2f3d5c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdhNzcxZDQzYTZmODM3YTE4M2E2NmJiN2MyMzU4NTRlNmE0Yjg5MGVmMjA1MDNkOWY1ZjAxZWRkMGU4YmU1NWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRjNTY1NmZlY2I1OTViZTFhOGZlZTBjYWFlYTFkNGQwNTc3NGNkOTE2YjllOWZhMTYyZDNjM2UxYWZiYmZmOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQyN2E1ZWMyZGFmZTQ0NzdhOWQzYzU5YjdkYzQ2NTRkYjMzNTg2YjQwZjYzNGU0YTM4ZTA5MWJhNjJhMGQ0ZmMifQ"
+        },
+        {
+          "resource": "repo://src/graph_client.py#L92-L124",
+          "version": "repo-lines-v1:sha256:f6c990d3f4ebf224970b45f83511df105c09f2f2bb50eff1293b3bcbd09d0d0d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4YmY2MjhiNDQyYWI2Mzg4ZGNlMDcwZDYwYTE0YWU5YTQ5NjkwNmNmNWQ5NWE4N2QyMzU0N2I4YTM2NTBlZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljZjZkYjJiMDhmNTcwNzAzYzZmZDYwYjQwODJmMzExYWJmY2I5NjgxNTRmYjIxZjY1YjYxOWFhYjgwNjFhNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3MDE0OWUwNjlhZDY3ZWNjZjQ3MzY0NmZmMWM3NTAwNTBkMzI5ZDExMDAxOGRjNTc2Njg3OGVhZmExZDYwN2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM5YmI4MDI0MmZiNjk4YTllM2ZiZDY1NGI5OThiMjA1OGEzOTQzNzdlY2ExMGVmZTRiNjFlMmRiMDQyN2VjODUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_eee3b99503544dc78e30a4f7e845751f",
+      "statement": "Delta pagination via iter_delta_pages() yields one page at a time with its @odata.nextLink, allowing the walker to persist resume_token at page boundaries when budget expires, and returns the terminal @odata.deltaLink as the generator's return value for storage as delta_token once a walk completes.",
+      "evidence": [
+        {
+          "resource": "repo://src/db.py#L68-L95",
+          "version": "repo-lines-v1:sha256:724b7afe0b8d9e2ce5d2e428328cd95b4df4125c0241f1ce848b2330e3117725:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyMDE1N2FlY2U2ZDU3MDQ3NmIzZDJhMjdlOGYzZDM5YzI3MDM0MzUxNTllOTFkMTJlZDRmY2JmOTA4MjM0NjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxNTg4OGQyYjQ5ZjhjMmIwZTVhYTIzZGFkZWJjY2M2NTVhMzQ5NDEyZjZjN2E3Y2NiMGU3M2ZlMjE4NzhiNzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRhMmZkYjkxNDNkMGZkNWUwOWMyY2FlYjY4ZjkxOTdkYTVhM2I0ZmE3YTI2ZjI0ZTcwMDE3MjNmZTkxODIzZmYifQ"
+        },
+        {
+          "resource": "repo://src/graph_client.py#L126-L172",
+          "version": "repo-lines-v1:sha256:f7522d41a5cafd4877955532a95bf9bd3897f0c65a9a0abed865215292372051:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0NjRlODZkOTRjM2I4YjEwZjM5Y2Y2NzJhNTMxY2M4ZWNjOTY3NjgyNTQ3MGY3MDBlNTFjMjAwMzFjODQwNzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmMTU0NzMxOGU1ZWRlMjU2YWI5YTNhZWJjYmM1NjRmZTk4YmM5ZDk3ZGNhZWZkMGJjNmNlNWRkMWZhYjVhYWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4NmY3ZWY5N2ZmYzk3N2JmM2ViOGE3NzdiMGVlOGRiNjhmMDNlZTU3MTdlMTIyNTk2ZmI1MjA3OGQ3NmI5MmIifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L113-L156",
+          "version": "repo-lines-v1:sha256:f220803d820097f9882ff2187a4f6b346661dc46c45948a10cfa1fda9ad4d2e1:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkNWIxMmZmYWIwZDczZmUzMjAxMTQ0OTJhNjViMDFiYjFhZmFhNzY3NDlmOTc4NjU3NGM2Njc2ZjY2YTJkYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5OGYwM2Y4ODA3MjBlNjdjYTIwMTRhMGRmMWM4YTgxMjZiYjRhZjMzYTRhZjhiYjg1ZTNkMTcxMDMzODg0YWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVjNThkMWIzZjc0ZmFkZTgyOWRmOWNjMDQ5ZGE4YzBjZjEwMmQ2ZjQ1OTY5ZWI5YmI1ODVjMDI2Y2JhMTQ2YzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJmMzg3Y2NlOTdhNTYzMjZlNTA0YmE1MjYwNDgyODY5NDQ0MThmNzE2MWViYzNlNjk1NGE1ZjZmMzYwYWRiMWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_86b02012fdfa4d859ea746e3514041f9",
+      "statement": "Content hash retrieval respects a preference order (quickXorHash > sha256Hash > crc32Hash) per ADR-0017, allowing the walker to capture change signals from different drive types (SharePoint/OneDrive-for-Business vs personal OneDrive) without reimplementation.",
+      "evidence": [
+        {
+          "resource": "repo://src/graph_client.py#L24-L90",
+          "version": "repo-lines-v1:sha256:01b389c38c113430d69be21526a33b19ea54806a91138e8a05fed7e8201f7bfb:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2MWMyZDNhYjA5YTdiYzI0MDI5MThjMzlhOTk5YmM4OWU1YzEwZDM1ZDAzNWVjMzdkODRmNTNmZGY0MGVkNWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyODZiMTMwZGU0Mjc3ZjIyYjg3MzViOWY2MzAxNmNiNmYyNWUzZWY5M2ZlMTM3YjE5NmNlZTg4OWExN2ZjNzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5OTgyZjc1NDE0Mjk4MjE0NjEwMzg1ODJmZWYwOWYwZDg2YzEzYmQ5OTIyYmMwZWU3M2MzZjBhZTZhM2Y3ZmUifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L170-L191",
+          "version": "repo-lines-v1:sha256:e8634a9c40e073444786ca0ad1fd06d643613cf16fe33872f0537f62402b41a9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyNmZlZGUwMjQ3MTBmMjk2YWU3ODE0ZjY5M2E0Zjk3Y2M5NjRiNjE1MzNjMjFkNTdhOGZlYTkwMGYyYjRlZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYWQzNjRhYjRiY2U1OWE1ZTcxMDk2YTllYThhOTRmMzI4ZDVlYTcwZjE3ZTIwYThkOWJlYzdjNjI1ZDQ5M2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2YzRiNWVmNTZhMDk1M2U4OTNhYTZiMWJhZTU1NzlkOWRhNDdmOGEwMzcxNjU3ZWZlNjVjNWM4NjJjMGQ3ZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjMmI4MjIwMWViZjBlOGQ2NTEyOTY3ZGNlYWZhN2YwY2FkNzU1OTM1M2EzZmFmMTFmZDk1Mzc4YTY3ZTFmMDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5143da62dabc4eb79294f6e1ae802f66",
+      "statement": "All Graph failures (auth, HTTP, JSON parsing) are translated to a chained GraphError at the boundary so callers depend on one domain type instead of raw httpx or Azure SDK exceptions.",
+      "evidence": [
+        {
+          "resource": "repo://src/errors.py#L41-L47",
+          "version": "repo-lines-v1:sha256:4fbbd582caf96f0119fc09d7f0683622c8d1e3a95423944d6252f01b96f86b86:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTdjMjZlZjc2ZmU4ZGNiYmZkMjJiZjYwMWE2NWZkOTJhYmNjNWZkOTBhZmE1YWRlNDBiNTE0M2ZlYTY1NWU0OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZhNzE1MjU3MmVlODRmMTA5MDZjNzRiOWYyYTkyNDM0ZGRhYjBlM2M0MjgxM2IwNGU1OTdlZmNlYzk1MWIyNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWY2ZDkyNjQ0YjRmM2VmZDM1MTY2Yzg1MzMwNjkyNDY3YmRkZDdmYmQyOWViN2U3NTEzMzBiOTMwYWFkMjdhYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDQyODQ3ODBmYzYyNmFiY2UyMTk2MGE4NjEwMTVkOGQwMjcxZDE0MWFiOTVkNmFjOWE1OTRjOGMxODQzOGE1ZSJ9"
+        },
+        {
+          "resource": "repo://src/graph_client.py#L188-L202",
+          "version": "repo-lines-v1:sha256:2625ce2c8093d32f125daf8bc611c7911fae334a4fc394d14f3dc68dffd7c57f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlMWU2MGI0NGNhYmExYjgwZjQ4ZWJlNTA5MmQ2ZWFjMDZhNTk5ZTQ1NThmZTNkNTg2MWQ0ZjUxMjEwNjRiNjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2NzZlNzNkMzM5ZGI2NGJhY2U5N2Q3MWVhNmJjMjc2NjA2YTRjMjhjZDIyZWI4NTU0Y2ZkMjA2ZDk1MDUzY2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkxNmJlZGM4NDYwNzI0NmI5Zjg4MzAyM2VlYzgyYzkzOTFiYmU3MzdhM2VkZjAzOGJkZGY5YjhlNmEyMDYwNTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhZjdiYWU0NTU3MjkwMjZlMTBkZjEyMjQ0MDM0ZWY2MTlhZmZhYWVhMmExZDBlNzBlMDNiMTZmZGUyNjNlZDcifQ"
+        },
+        {
+          "resource": "repo://src/graph_client.py#L217-L236",
+          "version": "repo-lines-v1:sha256:a068716e65d58616603ec342dd320ac00619edddcd905ecaee1136d2072c6593:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhZjFhYWViZjAyOGYwOWI4YjBlNTlhM2I5OWNhMjVmZmVkZjY5NjkzOWJiOWVlYjU4MmIxMWNmOTE5ZTA1OTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzNDU1NGUyNmY2NDcxNDA1NTczNGE0MWUwMjFlNmQ2ODY5ZDMyZDAxY2Y2YzM1YjNhMjUxYjYzM2Y0YjM0YTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIwNDliZGY3ZjZlMGQ1Y2M2M2ExMjY3ZGY0Y2NiMmU5MzM3MTBjM2EwZjY5OWIzOGRhNmJjYzIwMDQxNDFjMjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNkMzVkZWJmYzc4M2JkNmIxYWZkYTE5ZGE4YjY5ZGZiZTE1NDgyOTViYTNiOTBiNzVlYzFlNjViNmRiMTRlNTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e045f776403f4a318def08f461dd8907",
+      "statement": "The MessageQueue abstraction sends and receives Pydantic JSON-serialized Message work items, translating transport and validation failures to chained QueueError, with ReceivedMessage wrapping the parsed Message plus message_id, pop_receipt, and dequeue_count for deletion and poison-message detection.",
+      "evidence": [
+        {
+          "resource": "repo://src/message_queue.py#L56-L70",
+          "version": "repo-lines-v1:sha256:ad9b21d610ed1327ad0a07c4930221ed0829d702e63a05a688737e346ef679ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2OWExMzk3NWMyNTZlYzgzMjBlMjAxNjA4M2M5NmRmNjM3Y2EzZDM1YmViZGUyMzE0YmVlM2E0NzExYjU2Y2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlY2NhOGE4NDg1YTQ4MzEyMTkzODk5Y2ViNTdmNjRlYjc1MGYzNjQ0MGM0Yzc2MTNjMmUwYTBmN2I0Y2VkOTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjMzE1NGEzM2RhMWI4MGJlN2E4ZmFlYmMwNGRmZTMzMDI5ODZlOTk0YzA4OWI0Mzk1MjQ3NGFkMzRhNDIxNjAifQ"
+        },
+        {
+          "resource": "repo://src/message_queue.py#L72-L144",
+          "version": "repo-lines-v1:sha256:06f9a2c08886fc7801c7e70036132b9b8ddb0c04029f654f3b9504466a480a2f:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwOWNlYzY5YmY0M2Q2YTlmYjk3NDFhN2M0MWE3NjZiNTZmZDk0YzVjZjk4YzI1NzE4ZjI1ZGZhOTExZWIzZDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0YjcyZmFmYzgzNGMyNDYzYjViZmE3NjI5YmQyY2Y1MDhlYmQ3MDk0YWRkZWM3NDg3MDc3ZGY0MjcxODE4NmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3NjdmM2VkNDg2MDkyNTcyYTkzOTFiNTdiZWZmNzg4ZGJlNDlmMjAyYjdiYjgwMzliZTlmOTFkZWZmNTJiOGYifQ"
+        },
+        {
+          "resource": "repo://src/models.py#L49-L78",
+          "version": "repo-lines-v1:sha256:1adef3746b22f58cd91ee6c078b80078749ef23437c10d3ff8ee452ba893674a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNGRiNzc0NWQ4NmQ3ODI4MTc1N2VlODBmZjkzNGVhYzZlNDAyY2U3MWZhZmFiODRhMTcxY2VjMjc0NTgyZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4OGY1ZmUwNjI3NmJjN2QxYTI0ODAxM2FjMDMyZjY2ODg5MjQxYjg0ZGJkOGQ3MWM0MzQ4NjljMzhiMzNmZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2MWY1N2U1NGExZTMwYjU5MTdlZGZiNGU4NTM3NGI2MGE5MDEyOWNmOTVkY2RlOTRmNzExZDMyZjQ0OTI3YjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_26d875e0e97b414eb09a085a809dc591",
+      "statement": "The Message wire format carries source (sharepoint or filesystem), identity fields (drive_id, drive_item_id), metadata (file_name, mime_type), content_hash for re-validation, and timezone-aware enqueued_at; drive_item_id serves as a source-neutral locator (Graph item id or relative filesystem path).",
+      "evidence": [
+        {
+          "resource": "repo://src/enqueuer.py#L39-L52",
+          "version": "repo-lines-v1:sha256:3fb1befe4868be8177d2595ba5e173a47ff60990fd90c8daa1623cf7410026c0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2OWExMzk3NWMyNTZlYzgzMjBlMjAxNjA4M2M5NmRmNjM3Y2EzZDM1YmViZGUyMzE0YmVlM2E0NzExYjU2Y2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNTViZDI4ZmM0NTQ0NzQwMWQ1NWYzZmVlZThiZmE5ODlkYTJmNjhlOTUwMGVjMWY5YWViNDYxNzM4Nzk1ODciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxMjBkNDhkYmYyYjgwMjRjZWZiZGRmZjY0YWQ0MmY4MjlmMGE1MDEwM2E4NjA0OGY0ODFkM2Q4NDc1MzMzM2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRiYTNhYjFkZDU3MmExZmNjN2M2ZDhkNWQ5MDlmNDVkNDQxMDU0ZjVjNjgyYTg2NDQzMjFiZDA5OGZiZGE0OWIifQ"
+        },
+        {
+          "resource": "repo://src/models.py#L49-L78",
+          "version": "repo-lines-v1:sha256:1adef3746b22f58cd91ee6c078b80078749ef23437c10d3ff8ee452ba893674a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNGRiNzc0NWQ4NmQ3ODI4MTc1N2VlODBmZjkzNGVhYzZlNDAyY2U3MWZhZmFiODRhMTcxY2VjMjc0NTgyZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4OGY1ZmUwNjI3NmJjN2QxYTI0ODAxM2FjMDMyZjY2ODg5MjQxYjg0ZGJkOGQ3MWM0MzQ4NjljMzhiMzNmZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2MWY1N2U1NGExZTMwYjU5MTdlZGZiNGU4NTM3NGI2MGE5MDEyOWNmOTVkY2RlOTRmNzExZDMyZjQ0OTI3YjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3f564c11dd3b477280abf556cf7ac9b9",
+      "statement": "MessageQueue.receive() marks visibility timeout to hide a message while the processor works; on success the processor calls delete() with message_id and pop_receipt; on failure the message reappears after visibility timeout and its dequeue_count (Azure's redelivery counter) drives retry/poison shedding, never the message field.",
+      "evidence": [
+        {
+          "resource": "repo://src/message_queue.py#L96-L122",
+          "version": "repo-lines-v1:sha256:489f5f14f6cafe54e34bc7e7dfcf2e603b114dc4d15bf339ce1347e30d292080:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhOTIxMjAyYzI1OTE1YzdlYjk1MTc5ZjhiZmRjMmJlOTU4YjA1ZmNiZTk0NDdkNzc1MmY5ZDcyYTk1M2RlZDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYTJiMGNlZGQzNDdjODcyNjQxZmQ3MTc5NTc4NDc0NzFjMWQxNTgxNzdlNDY0NjY4MTU5YzE4MDg1ZmJlMzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE2NmEwNGFkNjAxMzQzMzQxODU3OTFlNTBlN2I1OGIwMTI0Mzg2NTJkYzQ5MDU5NGZkMmE3ZjUwM2IxNTEzNmYifQ"
+        },
+        {
+          "resource": "repo://src/processor.py#L101-L114",
+          "version": "repo-lines-v1:sha256:1cdcb25d19bf679ad3c3fcdfe98e0442fa328604a41f9a38faa7610637dd3d02:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhODNmNjY2OGVkZDIzODJkNzAzOTQwYzIyZTdlMjY2ZWVlOTYzYmY4MmFkOGZjZWNkNzhmNmIzMWYwY2EzOWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhMmMyMmRhZTI2ZDMxZTYwMzE5MmE5NzM3NTQxZjYyZGEwMmVhNjMwY2NhZjA1NzRmNjkxZjU0NTY2YTBlNjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiMGI3MmY1MDdlMjRiNDIzY2ZiZWM5ODZmZDFiNjU2ODVhZjIwMjc4NTVhMTUwZTVhN2Y0YzY4OWIwNDJmZjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcwZjU4YTg0NWM0NzVkZWYyOTI2OWUwMjg5YzAyZThlNTg0ZjZmZmExMWM3MTNiOTcyZDZjYTc4NzVlNzgwNGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_96ba2591fbfe4f6ea1fc55c8bc18875a",
+      "statement": "The database UPSERT on (sync_state_id, drive_item_id) includes a WHERE classification_override IS NULL guard so the classifier never overwrites a manual override; new files insert, hash changes update with rotation to previous_hash, and overridden files remain untouched.",
+      "evidence": [
+        {
+          "resource": "repo://src/db.py#L97-L145",
+          "version": "repo-lines-v1:sha256:b9bf7dfa9c62065f504a8b864101a08ce57ea714e0e5c8505f0ca2891e60633f:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxM2Y2MGY4ZTJlNWM3MTFmNmJiZmYxOTIwOWIzMjE3ZjRmYzNmN2UwYWY2NzNmYWI0ZDBiMTYxY2Q2ODc0NWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzYjE1MmU5MTZjZWY3NDhkZWYxOGEzODFlZjE1Njc1ZWZmOTYzMjFkOGQ0NzY1YzE2NzI5YmRlYTM1OTBmZTkifQ"
+        },
+        {
+          "resource": "repo://src/writer.py#L94-L125",
+          "version": "repo-lines-v1:sha256:1eb841c0e69a43dd3a1b84bb2c047915375d0caf1778a7ceb30e62abd4db253e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2MzUwMjc5NTYyZGM1NjJiNTMyMDMzNzU5YjkyOGM2OTYwYmEwYTVlYWQwNDUzZDEyOTRmNTBkMzk5NTkxZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1NGUwNDJjNjgwZDE4OTcyNDdiNzRmNDg0NTcxZmEyMzE5MjI2M2I1M2RkNjQ2N2YyMjUzYjUyZDE3MDFiOTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU5ZDkwOTY1NTI1MWI0YTQ2MGM2OWE2NjUwNWE5OTI1NGU1ZjQyMWJjNzgxNjBiZjZiZWI5MzE1YWIxZmJmZTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6eb30b598a9944c2ab2a5e3d4d1a45a4",
+      "statement": "SyncState manages walker position per library: delta_token (@odata.deltaLink) is stored only on completion as the sync watermark, resume_token (@odata.nextLink) is stored on interruption to resume at page boundary, and the next walk's start priority is resume_token > delta_token > full enumeration.",
+      "evidence": [
+        {
+          "resource": "repo://src/db.py#L68-L95",
+          "version": "repo-lines-v1:sha256:724b7afe0b8d9e2ce5d2e428328cd95b4df4125c0241f1ce848b2330e3117725:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyMDE1N2FlY2U2ZDU3MDQ3NmIzZDJhMjdlOGYzZDM5YzI3MDM0MzUxNTllOTFkMTJlZDRmY2JmOTA4MjM0NjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxNTg4OGQyYjQ5ZjhjMmIwZTVhYTIzZGFkZWJjY2M2NTVhMzQ5NDEyZjZjN2E3Y2NiMGU3M2ZlMjE4NzhiNzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRhMmZkYjkxNDNkMGZkNWUwOWMyY2FlYjY4ZjkxOTdkYTVhM2I0ZmE3YTI2ZjI0ZTcwMDE3MjNmZTkxODIzZmYifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L121-L157",
+          "version": "repo-lines-v1:sha256:e47733b51ea9e7e6bf60dfd49a578f49dc1c5e9bacaf78efb84d57a2a64b6ddb:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmNGJjMmRhMmNhOWVjY2FlZTVlMTk1OGZkMDFlMDM2Nzk4ZWUyZDU1OTIyNWQxZGFkMTQ3YjQ5NzE2YWNhZjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3YTljODRmZDcwNDQzZDYxMjNjYWQ3MzgxNjg2NGM1YzhiOWFhZGNiYTBmOGRmNGUxY2E1MDc3YzcxNGUzNDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcxZThkYzQxZGVhMjY1YTQzZTMyNDA3MTgzNDc2ZWQ4ODBmMTczODM3NDNmMWMwYTJlMjViMjMwYzM3MjQzYWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_28791d3288f740cd9e67c62783794896",
+      "statement": "Document status lifecycle (queued → processing → completed/skipped/failed) tracks per-file processing state; the processor marks processing before attempting classification and writes the terminal outcome (completed, skipped, or failed with error_message and retry_count).",
+      "evidence": [
+        {
+          "resource": "repo://src/db.py#L53-L62",
+          "version": "repo-lines-v1:sha256:4c2301276cd62398ba5d1b9a9d1511677df641e9e906bc2eada224d482b9a111:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhOWJlMDQ0ODliYWM0MWY2YjczN2I0YTJlMDJmNDUxZTAyY2E5MmE4YmMyODdlZmRjYTgzNWQ2NDM5NGU3ZGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEwMjg1NmQxZmY0MjQ2M2NkM2UzNTE5NTdhZGU4NzlhMDdjZThhZTk4NThjYmI5ZTE0MTk2NTQ4MWNjMWVjMjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4NzVkNTExZjAxYjAzY2VkODZlMjVhYzZhZjJlNzBkNmU4OTMzMWE3OGVlYmFiNTM1NWEwMTlhYmY1MGZkMGEifQ"
+        },
+        {
+          "resource": "repo://src/db.py#L97-L145",
+          "version": "repo-lines-v1:sha256:b9bf7dfa9c62065f504a8b864101a08ce57ea714e0e5c8505f0ca2891e60633f:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxM2Y2MGY4ZTJlNWM3MTFmNmJiZmYxOTIwOWIzMjE3ZjRmYzNmN2UwYWY2NzNmYWI0ZDBiMTYxY2Q2ODc0NWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzYjE1MmU5MTZjZWY3NDhkZWYxOGEzODFlZjE1Njc1ZWZmOTYzMjFkOGQ0NzY1YzE2NzI5YmRlYTM1OTBmZTkifQ"
+        },
+        {
+          "resource": "repo://src/processor.py#L116-L148",
+          "version": "repo-lines-v1:sha256:081fe6a0935c104f04231646cc5167e0653f8caa9722a23a8f1d678c26b0cc87:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ODU5ZDU5N2E4YTgwZGVjODhmODQ1MWUzMGNhN2UwZTcyYjkxYWQyYjc0YzQzNzIxOTk2NThlYzA1YzI3NzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiZGVmZDJjNTQ1ZTc3ZGFiZGRkOWI5YzJjYWI3MWRkODY3MDZmNTM5OWI0OTk0ZWNkNzZkNGZkYjM1NzBmNWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBhMmIzMDRlNWVmODI2MTk2MDU1NTY3YzRiMzY2YjU1ZDg5ZDVjNzQ2MjMyYTMzYjI4OWUyYjM1NmI1NWY1NjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzOTAyYzRiYzc0NDk2MjIwM2ZlYjZlMzhhNDQwYTZlODAzOTE3MmFjOTFkYmFhNWIxZmQxMmE1MWJiMDNkMzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8415ad9472d543559b70f7750c52d89c",
+      "statement": "The ContentSource protocol abstracts retrieval: GraphContentSource forwards to GraphClient for fetch_content_hash and download, while FilesystemContentSource resolves root-relative locators and reads from disk, rejecting absolute paths and escape attempts with SourceError.",
+      "evidence": [
+        {
+          "resource": "repo://src/content_source.py#L44-L104",
+          "version": "repo-lines-v1:sha256:10163015d575065eb34823456257cd68a10c38d9957ac58f46b5ef5e4abca09a:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2ZjIyNjdjZTgzMjFiZjQxYTIxMWEwY2FhYzQwNTVjZTMzM2FjOTkzOWEzN2M2YjdjMjA0NDBiNjVkNGZmNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2MjJiNzc0YjExYTI1NGRlOTU1MmMyMWIxOTYxMWE3MTg1NzY1YTIxMDZmY2QzOTJkZTQ1YWZjYWMwMzk5ODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4MDY3N2QxM2VjMzUwYzQxYTJiM2EyMmFkNTc0ODhkMzFjMTFlZjUwZGU4YTBlMTIzOTgwY2QwZjMxYjNhZDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/processor.py#L40-L58",
+          "version": "repo-lines-v1:sha256:87f1594425040e48d6276b656b0613dccbc342e076aa678af2c7b768a79806ec:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxNWRlMTE0NmM4ZjBmNjhiNjg4MmEyZjhiNGE2MjA3NGI3ZDk0N2FjZmUwY2Y1ZTRiZjExMmUwNjM4NTk4M2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3YmZlMTdmY2I1NTNiNDVkYzJlODk3ZTUxNTE4MTUwYWJlMjkxZjllMjZiMWM1OTE3ZTgyNzE4NjRjZTQyNmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI4MzNkMzFmODdiNzU0NGJjNWEyMmM2ZmVkN2U2YTg1MDczYjQxMWI2N2JmYzU4YTBlYjc5MDg3MjdlMWUwNTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c7830b5c88874f5892b81514871c5c0a",
+      "statement": "FilesystemWalker and FilesystemContentSource share hash_bytes(sha256) for change detection: the walker computes hash at enqueue time and stores it in content_hash; the processor re-checks with the same function and skips (lets walker re-enqueue) on mismatch.",
+      "evidence": [
+        {
+          "resource": "repo://src/content_source.py#L34-L41",
+          "version": "repo-lines-v1:sha256:08edcb7634da8f3ef2ae3d3b3036e23ca68d1dae4914e8dd2eea789e88bab6db:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTQwNDQ0OTdjOTRmYTA3ZjU2NmUyMGNkM2MyOGRhN2Q5NTM4ZjcwMmEyMzA1ZjVkZGU1MTcxMzYwMzYxNGRmNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTljNzFlMWJlNDgzZDUyMWFiYWUxNjI4NWFlODg2ZmQzZjQ0NTI4NzQ0ZTEwYzY4NmNhN2I0NWI0YzU3N2ZlOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmNmZjA2OGJmYzM5NGVmNjE1Y2QzMDBkNTIwNWJiNzFiZjRiOTkwY2M4NjViNTU2OWY2YWRhMWIwY2Y4ZTUzYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTIwMWE4M2Q5NzA1NWUxZTg2MDZkOTM3YWQ5MDE4NzMzMDM0MGVmY2Q4MzQzMmJkMTQwNzY1MzRkNjhjOWVjYSJ9"
+        },
+        {
+          "resource": "repo://src/filesystem_walker.py#L103-L118",
+          "version": "repo-lines-v1:sha256:01c77e2f66c031278bd797faed9612aeaea7bfdac5f6debe51eea1da12dde4a0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0NjFkOWRiMTcwOWFmNjFkYTkwNDI0ZTRjNjljZTljYTAzMTQ0YzliODg0OGI0ZDkyMWEwMTE4MTE3NTA5ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM0MTM2MDViMzQyODhhNDUwNmE2NDFhZTc2MTYzMzViYzA5NjUyZDMxOTA3MmZiNWI3ZDJiNGY3NmMzY2Q2NDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxY2I2ZGRlZDdhMjJlOTM4OGY3YjlmODQ5MzRkZjQzM2IxZDE2ZDVmYmUzNGM3OTU2MDkyODEwZDU1MWU0ZDEifQ"
+        },
+        {
+          "resource": "repo://src/processor.py#L132-L148",
+          "version": "repo-lines-v1:sha256:e1d8b17f286545ad2923bc96272bf4ae3f5ec53560778a060fd460a487538241:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlYjIwOTMzYmRjZDBhMDUxNjdkNWZmNGY1NzYxYzgwYjczODVhN2Q2MGVhYTQyYmU4NDljZjU5ZjE1YTk0Y2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiZGVmZDJjNTQ1ZTc3ZGFiZGRkOWI5YzJjYWI3MWRkODY3MDZmNTM5OWI0OTk0ZWNkNzZkNGZkYjM1NzBmNWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEzMjIzMDE5MTk2ZmYxOGFiZTFiODBhM2I0NWQ2MTRmN2E1ZWRlYTkxNWUxOWRkMzQ0MjQ1NmRjNjM4YWY5MjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzOTAyYzRiYzc0NDk2MjIwM2ZlYjZlMzhhNDQwYTZlODAzOTE3MmFjOTFkYmFhNWIxZmQxMmE1MWJiMDNkMzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fc27a78155ca4cc08ff8c1a82a82c2c3",
+      "statement": "Delta pagination is scoped at the Graph level via root_path: None or '/' queries /root/delta (whole drive), while a path like '/Matters' queries /root:/{percent-encoded path}:/delta with each segment percent-encoded and / separators preserved, allowing subtree enumeration without post-walk filtering.",
+      "evidence": [
+        {
+          "resource": "repo://src/graph_client.py#L173-L187",
+          "version": "repo-lines-v1:sha256:c93f46e65d3cac7fe1a198088cd7b2e3819df8a63640f29da3ee5115298b9f54:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzMzEwOWRjYTU2ZWIxZDI4OGViOTlkOGJhODI3ZmFhOTFjODNlNjc4ODBlNTEwZTgwMDEyZGRhODRlODk4NTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkxY2UxYjE2MzkxYmFmY2RjMmRlN2YyOWU5MWY1MjJmMzgwMDI0YjkwMzE5YTFlOWI1ZGU0NzNjYjIxOWU3OGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQyNzJkZjBhNTY2NWJhYzJlOWY0MjNhMjlmZTdkMDk1NGJlNjg5YWY5Yjg3MTdiM2JkYTljY2YxZmM4Y2EyMTMifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L113-L132",
+          "version": "repo-lines-v1:sha256:9e29befd5319fe0ad51e86522f17ac9e467917b5b27cc8ad8ddb022a809c0ee0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkNWIxMmZmYWIwZDczZmUzMjAxMTQ0OTJhNjViMDFiYjFhZmFhNzY3NDlmOTc4NjU3NGM2Njc2ZjY2YTJkYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhZWEzNmVmYjliY2Y3YzM0MGY1NzEyMGZiYjE5OGE2MDdhMWM0ODIwODE3ZWJiNjNmNWJmYjRiOGYxNTMzZWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVjNThkMWIzZjc0ZmFkZTgyOWRmOWNjMDQ5ZGE4YzBjZjEwMmQ2ZjQ1OTY5ZWI5YmI1ODVjMDI2Y2JhMTQ2YzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5YzJkYjg5MTg3MDNkMmRjNDNlOWI5OGZhZjdjYjlkNTY2OGFlZmYyZTEzYWU2NzY5ZjhjNjFlNTNhNTdjZjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_93931fb52f434fe68c4fafc0c142b020",
+      "statement": "Provider selection is configuration-driven (CLASSIFIER_PROVIDER=anthropic or foundry) and enforced at client-build time in _build_client(), not at Settings load time, so walker jobs that don't classify don't require inference credentials.",
+      "evidence": [
+        {
+          "resource": "repo://src/classifier.py#L116-L150",
+          "version": "repo-lines-v1:sha256:e51a95f6ef634c838a1208e6a7680d70f15dd90157c76c67522a1a9d2cc5dd93:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1MGRhYmMxMmJlODI1MjE2NmEyZDJlZjRlOTcxZjgxZWVmMDMzZjkyNTE4MDllMjMwZTE0MDYwYWZkNjhjZTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkMTU4OTA1YTI1MDE3OTYxYTkxODYyYjFlZmYwNjNhOWE2MmNlYzlhYTQyYjY4YzRmZjkyNjBhMzI3YjFkOTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4ZjczOWNjYWI3ODJmYWYzOTAxZDk3OTYxMDQwYjU5ODA4NmI5YjlmM2M1Zjc5OGE2NzhiNzhlNmQ2YjRiODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY3ZDgxZGMyODhkYjYwMWM1NmIyYjc3ODJlNmJjY2ZjYWU3Mzg4NDZjYTI1Yjk3OTA3MTRjM2NhZjQxYjFlNmIifQ"
+        },
+        {
+          "resource": "repo://src/config.py#L295-L330",
+          "version": "repo-lines-v1:sha256:f1345f661e97612baedaf1b341548d323c4444094ed089fd71221a4155ce3ec2:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjODYzMzFjOTBiNzhjZGI5MTdmZDViZDY5ZmMwNzE0ZDVhNWZlODQ2MGQ4NzYyNzllMTVmZjQyZmZjNzIzNWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmNjRjZjM5OTllY2I5ZjA2OTQ2ZjY2MzNmZDNiZmFhODQ5NzQ4ZDljMDZhZDhmMmIxYjFkMmU1OGRmYWIzOWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJmYWQ2OGU1MTgxMzFlZmJiYjg1MTc0MTYyYWMwZDQzYzdkMDAxYjNmYmNmOTdlMzM3YTBiZjFiNjUyZGQyYWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_23b70355ef9743e2b4aac8ef1c56e534",
+      "statement": "Anthropic authentication uses ANTHROPIC_API_KEY (required); Foundry authentication uses ANTHROPIC_FOUNDRY_RESOURCE (required) plus either managed identity (DefaultAzureCredential with get_bearer_token_provider) or ANTHROPIC_FOUNDRY_API_KEY, with both modes validated as mutually exclusive and complete at load time.",
+      "evidence": [
+        {
+          "resource": "repo://src/classifier.py#L116-L132",
+          "version": "repo-lines-v1:sha256:a85af7c03864a6d357bdab39857d4edb12abc118c34fce7762e9c55ff18e1369:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1MGRhYmMxMmJlODI1MjE2NmEyZDJlZjRlOTcxZjgxZWVmMDMzZjkyNTE4MDllMjMwZTE0MDYwYWZkNjhjZTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjODYzMWE2YmM4NDNhNzcwOTcwNjEwOTY3NWZiNzVlNDVjYWRkYjJhMDIxOGYxYTA1ZjdkOTgwOGQ4NTQyZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4ZjczOWNjYWI3ODJmYWYzOTAxZDk3OTYxMDQwYjU5ODA4NmI5YjlmM2M1Zjc5OGE2NzhiNzhlNmQ2YjRiODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBkNWYxOGZiMmFkOTBjMzQwNjkzN2U4OTZhNjBmZjJjOTIwZWRmM2Q3ZDlmNzJjZTQxMDhhZTYyNWFjNDk4MWEifQ"
+        },
+        {
+          "resource": "repo://src/config.py#L54-L108",
+          "version": "repo-lines-v1:sha256:3327815c55771e2eb1a198b9021d438127a59ad4402718c0a346b9dd66bde1ca:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3NTcyN2EzMmNkOWIxOTU1ZjZiMjY4NmFmNjcwNjc3MzM4NzNhNzFlMjhkNmRhYjg3ODgxZjBkMjIxMWJlNzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyYWIwOTBiY2QxNjIwZmE2MmVhZWUxNTdhNzRmY2E2MzVhYTI5ZTEyY2JmZmQ2MThiNTc5MmQ4N2JjMDNhM2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5ZjkzMDgzYzE5NzEyMWI5ODI3MDBiYThhZmFiZDE3MjJjZjFkM2U3NDA0NTA5ZTgwZWZhMjcyNDdmNjJmMDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYxZGJhMGI4NDFhMDZhNjkyYmZlZTc0NGEyMTQwNGM4ODZhYjEwZTFlMjMyYTA2ZWJiNzYxOWVhOTU5YTM0ZDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7e480c7f85bf4260bf3c684fb373e574",
+      "statement": "The Classifier uses prompt caching with ephemeral cache_control on the static category block so the category definitions and examples are cached across all calls in a run, achieving a 90% token cost reduction while remaining valid as long as the block is byte-identical.",
+      "evidence": [
+        {
+          "resource": "repo://src/classifier.py#L32-L98",
+          "version": "repo-lines-v1:sha256:6735d7b150b9b4f3acbcca4dbb318b140accc8e07124876b6942e5bdf73c7044:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljMzBhZWIyNzI3OTNlNDJjN2M1ZGQ2ZDhlMGFjMTZhN2QyYWZmNTEzZjMzM2MzY2Q4MWM1NjEwN2EyODBlMTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExYmE4ODNlNzFjNDA2NTZkMjg4MDc4YjllN2U3YTg0NzdmMjA4MzYzNjdiZWY5YWFiNWRmNTM0Y2FjMWRkYzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmYjgyODlhZTQ3YzA3NTgxNTI2YTE4NjA2OWQ5NWFjZGExYzUzNTI3YTQwZDNiMTQ4MGYxMmU4ZTI1ZDNmNjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUxNTJiY2Y2Njk1YzM3Y2YxYmI3OGIzZTkzNGZlZjBkY2JiMjk3MjY4OWE5OTFlY2EyNzM0YTdkOTVhN2ViYWMifQ"
+        },
+        {
+          "resource": "repo://src/classifier.py#L58-L79",
+          "version": "repo-lines-v1:sha256:efa2934f48d34f8542aa37a6d09d4fc2bbbd5ec1e90c276ee8faa7fdaf44b331:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhZjA3MzE2NTY3Yzc3OGQ4YTVkNzIxZmI5YzI5MzNkNThiYWU5ZDRlNjFjMWI3ODYyNjMxNTAxMmUwNGNiMDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMxMWQ3YjQ3ODQ0NjA2YTI0OGYzOWE1Y2EwNzg4YTIzOTcyNmJhMzQ1ZTJlMWE1ZTUxYTBhYjllNWZmYjMyNDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiZDZmZTBjMTgxNmE1Yzg2M2EyOGQzNDdjYTVkMjEyNzE5YmZlMGQ5MzRiZWExYTQ0M2M1YWFmM2ZhN2FiZTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9635ae4c38f944959d20e831902beb7c",
+      "statement": "The Enqueuer's commit-before-enqueue ordering persists the queued document row before calling queue.enqueue(), so a rare send failure leaves an at-most-once gap (stuck queued row, recoverable via pending reset) instead of a duplicate message.",
+      "evidence": [
+        {
+          "resource": "repo://src/enqueuer.py#L104-L122",
+          "version": "repo-lines-v1:sha256:b80f567a8b36f546b52274b0d91eec9a76ec11744b8e28c32c443d480a391075:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwZjVmYmY3ODQ1ZjNhNjI1OTdhZjM4Mjg4ZDQ1NjJjMGM2MDIyMzMyOGJmOGM2ZjI0MzVhMDFhMjlkMGVkZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwY2M3NDJjMTZkMjk1MzA0YTM3YTFlZGYzYWM2NzkxMDgyY2E5NGJhN2IxNDg5Y2NjNjQwNDc0NWZhYTVlODkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY5ZDc4MjVhNzYxM2Q0MTRjNTJiODRmZTJkMDVlNzM1ZTk1MWUxNjdmMTg5MTIxOGM2YjI4NTdhNWVhYjRkNWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiY2FlOTRjNTQ3NDUwZjA4ZWIwZGFkZTQwMjdmZjM0OTUwZmU3NjNiNzZmM2Y2NmNjN2VhNjM3NTk0YzVlNjYifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L170-L191",
+          "version": "repo-lines-v1:sha256:e8634a9c40e073444786ca0ad1fd06d643613cf16fe33872f0537f62402b41a9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyNmZlZGUwMjQ3MTBmMjk2YWU3ODE0ZjY5M2E0Zjk3Y2M5NjRiNjE1MzNjMjFkNTdhOGZlYTkwMGYyYjRlZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYWQzNjRhYjRiY2U1OWE1ZTcxMDk2YTllYThhOTRmMzI4ZDVlYTcwZjE3ZTIwYThkOWJlYzdjNjI1ZDQ5M2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2YzRiNWVmNTZhMDk1M2U4OTNhYTZiMWJhZTU1NzlkOWRhNDdmOGEwMzcxNjU3ZWZlNjVjNWM4NjJjMGQ3ZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjMmI4MjIwMWViZjBlOGQ2NTEyOTY3ZGNlYWZhN2YwY2FkNzU1OTM1M2EzZmFmMTFmZDk1Mzc4YTY3ZTFmMDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f2a45db053fd4436afb828d0411b72ee",
+      "statement": "FilesystemWalker performs full re-enumeration without delta/resume tokens (filesystem has no change feed), relying entirely on hash-based idempotency in the shared Enqueuer: unchanged file hashes skip enqueueing, so re-walking unchanged trees produces no messages.",
+      "evidence": [
+        {
+          "resource": "repo://src/enqueuer.py#L89-L102",
+          "version": "repo-lines-v1:sha256:510be0eb128cbdf1003d2044258ccf87f1be37e198b0bc45f05414bd564bc37d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxYWJjZDBjYzY5MTNkNGY1MWViMjFlNGY1YWZjMmU5MGY4NmQzNmE0NTBiYjQyY2IwNWM2ZjNlMGQ3MDZmOGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzZmY5MDE1MWQxMGNmNDViZGI5NzYzNzczZjBjMGQ3N2NkNjM3NzM3OTRmNWI0NGIyZGUxNjRhYzUzNjIyZmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ4YTgyOWY3ZDY5MDcxZmQ1YTEyZTRlNzBlM2E5ZjM3ZDE3Mjg5NjA1NzM1Y2IyNjgwYmMxOGUxMjhhMjU1ZGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRlNzU3YTM3NmVmMTE0NDNkMjI3ODZhZjc2ZWU2MDRlN2YwYWI1NzFkNzkxNDRiYWNhMTJlMmFjZmFjMzM0YjQifQ"
+        },
+        {
+          "resource": "repo://src/filesystem_walker.py#L1-L126",
+          "version": "repo-lines-v1:sha256:a16a195b3d01c3c9f7dcec435a0a444ede2563e566c786c63084a4ba2f67ff66:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmZjQzZjEyNWM4ZGRjMzMzZDE1ODMxNjY2MDE5YTJiZTM5ZWVlZjQyODFmNDVhZWRiN2QwZjZjNDhjM2Y5YWJjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI4MjBjOGIyZTE4MTM4MDI1Y2FiNWNiNDcyYmNjZWRhZmY1ZjRkYzBmOTgxNGJhNTUxYWQxZWE3OTdmZTg5NzNlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_f0b12398d4f74601838114369d95edaa",
+      "statement": "The Enqueuer's enqueue decision (new file, in-flight skip, pending re-classify, or hash change) is identical for both Graph and filesystem producers via shared _should_enqueue() logic, making idempotency byte-for-byte identical across source variants.",
+      "evidence": [
+        {
+          "resource": "repo://src/enqueuer.py#L68-L102",
+          "version": "repo-lines-v1:sha256:f8bfb1c64ac04b9548a5d0014d71bea6ca451c0c5fe844641cbaff249ca78f3a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmYzA0NDUzZTJkZjEyOTZkNTc5NmQ3NjYyNjJiNjMyODliYjhlYjBlZTM1MGExNjE2NzhkMmFhMjU5MDc3OWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzZmY5MDE1MWQxMGNmNDViZGI5NzYzNzczZjBjMGQ3N2NkNjM3NzM3OTRmNWI0NGIyZGUxNjRhYzUzNjIyZmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZjE1ODU3NmUzMjJhMTlkMjczZDgxY2QyNTM1NWM3ODk0YmZjYmJiZWM1NDViYjU0NmY1MzY3YmRkNzUwNDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRlNzU3YTM3NmVmMTE0NDNkMjI3ODZhZjc2ZWU2MDRlN2YwYWI1NzFkNzkxNDRiYWNhMTJlMmFjZmFjMzM0YjQifQ"
+        },
+        {
+          "resource": "repo://src/filesystem_walker.py#L72-L81",
+          "version": "repo-lines-v1:sha256:51b302d60adacd57fa48dee88d81999c9d1333fd113e78fc65e233cb72a791a2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkNWIxMmZmYWIwZDczZmUzMjAxMTQ0OTJhNjViMDFiYjFhZmFhNzY3NDlmOTc4NjU3NGM2Njc2ZjY2YTJkYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzMWVkNzRlZDYyYjNhZTZkYzNiMzljNmUxOGM0MDVlNzEyNmUxMjMzMzk5YmI4ODQ3YzEzMGFiNjdjNDY1MDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVjNThkMWIzZjc0ZmFkZTgyOWRmOWNjMDQ5ZGE4YzBjZjEwMmQ2ZjQ1OTY5ZWI5YmI1ODVjMDI2Y2JhMTQ2YzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBmMDg4ODZjYmZiYTNlNWU4ODRmZmZmMmZmOTc4MTQ4OWE5NWEyYzliOTBiZmZmZTRhN2Y4NGI2YTlhOTkxY2QifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L170-L191",
+          "version": "repo-lines-v1:sha256:e8634a9c40e073444786ca0ad1fd06d643613cf16fe33872f0537f62402b41a9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyNmZlZGUwMjQ3MTBmMjk2YWU3ODE0ZjY5M2E0Zjk3Y2M5NjRiNjE1MzNjMjFkNTdhOGZlYTkwMGYyYjRlZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYWQzNjRhYjRiY2U1OWE1ZTcxMDk2YTllYThhOTRmMzI4ZDVlYTcwZjE3ZTIwYThkOWJlYzdjNjI1ZDQ5M2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2YzRiNWVmNTZhMDk1M2U4OTNhYTZiMWJhZTU1NzlkOWRhNDdmOGEwMzcxNjU3ZWZlNjVjNWM4NjJjMGQ3ZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjMmI4MjIwMWViZjBlOGQ2NTEyOTY3ZGNlYWZhN2YwY2FkNzU1OTM1M2EzZmFmMTFmZDk1Mzc4YTY3ZTFmMDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_21a6aadced0d430bab5264617d6f52c7",
+      "statement": "Source selection (CLASSIFIER_SOURCE=sharepoint or filesystem) configures both walker and processor: walker selects which producer to run (Graph delta or filesystem re-enumeration), processor selects which ContentSource (GraphContentSource or FilesystemContentSource) to use for retrieval.",
+      "evidence": [
+        {
+          "resource": "repo://src/processor.py#L27-L29",
+          "version": "repo-lines-v1:sha256:ef78de69e54bd02c5345083d1e551ea8df38d32cb82a56c6b89fe6f195f6be09:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQ4MzRhZDg0NGQwYjk3NDA2NGUzODc4ZGIwZTJiNTMxNTIxOGE3OTkwYzNjNDJhMmU4MjdjZGJlZmE4NTI2YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2Q2ODk0N2MxN2RlZTlhNzJlMjdkN2E5OTI0OTkwOGY2MDgyMWRmOTFlYTU2NTBhZDA4YzkzNmYwNTAyMTI1OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjRhZjk1NTU5NDczOWIzNzZlYzE3YWQwNjE2YWYzYWE2ODMwODhkM2E4NmQ0MGFkMGFhNDdlZGZkZDgxOWJlMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODQ0ODEzMTQ1YWU3MjdkNjBjZTQxY2UyYjM0OTMxMzQ4NGY4MGFhY2VkMWM3MmFlYWE5ZjlmZTBjYWVmZjU4MyJ9"
+        },
+        {
+          "resource": "repo://src/walker.py#L236-L254",
+          "version": "repo-lines-v1:sha256:7ee44d574b8606ce79f8ea206258e6aefada7f80966c996a18e8bc3c5bd69dc0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxNzQ0OTNkYTVlZTRhNDY4NGQ1NmI5Y2Y1NDg1ZjJlZTc2N2I0MGEyOGQ1YzdhNzRmNzlhMWYzMmVhMzU0MDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0OWRkNDU1YzlhNTUzOGQxYzc2ZmMwZjdhMTk4YTE4M2U5ZGQwNWJhYTgzZmE0MTJjOTE5MDM5NGZkYjFkMTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYyZDFlZjIxOTFjM2M4MjUyNzZiYjAxNDk2ZTM3OTdiOWE0YWE2MDI5NzBkNWJmYzM0ODMzNjgyZTdjZjBmZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjMWI1YjU0OGU2N2VkNjY0OGJjOTVhMGMwZGI0MDYwODVhOTZkNzZlN2NmZjdiMTFhMTE3Y2ZhZmE4MDFmMGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5f28c99c7eff479cb7a52094d8d91dfc",
+      "statement": "GraphSettings and QueueSettings validation requires either managed identity or the full credential set (tenant_id + client_id + client_secret for Graph, connection_string or account_url + managed identity for Queue); a partially configured section fails loudly at load, not silently.",
+      "evidence": [
+        {
+          "resource": "repo://src/config.py#L133-L171",
+          "version": "repo-lines-v1:sha256:b30768782c8c0196a01c029f6490a5c12406ec425331f3fcba0269d08b2c1525:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3ZTBhNzRmMzk2ZjY4OWNkNzM4NzY1YzBiMmUxNThjNjI4NzllNzc1MzE0MWRiMzQzZDBiYTgwZDkwM2RkYjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM3MmExMzNkNTljZTk0MjRiNjhhNmQ1Yjc0MTUxZGE1OWRkZWY4MjIwYmVjYTFjZDEzNWI0NWFiYjNiNDM3ODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkYzcyMDk1ODAxYzkzYjUzNTIxMzQyMTI3NTJkNGE0YWYxMTMyYzIxZjhkNzA5ZmY4Y2E0YzY5NDYzMDRlYjUifQ"
+        },
+        {
+          "resource": "repo://src/config.py#L173-L210",
+          "version": "repo-lines-v1:sha256:3b9397a38d668647335b4b27985e6edf5bfe058c94a44807de316acdd5fa33d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImViNWIxODcwZWE0OGFjNTFkMzAwMTk5MjI1NzVkMWFlOTYyYjBiMDRiNzcyNzc3NjQ0NzA4MzAxYTQxMWQwYTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRiNTMwZWRlNGYzZTg4MmQ2ZTg1ZTllNmE3N2JiYTI5NTk5OTk3MWU2NTk5NGU0ZTA0MWJjMDAzYjE1NzhkMmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNmMGJjOGVlZDdhOGI2MGQ5YjdmNDI0ZWM4NDIzNzdiNzliYTUxMzVjOGNmNGRkOWY1ZDRhMDE3MTZjNmFiZDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bd64a98d925d45349ffa3d3c504f8d89",
+      "statement": "All external-service failures (Graph, Queue, Database, Inference) are translated to domain error types (GraphError, QueueError, PersistenceError, ClassificationError, SourceError) at their boundaries, always chained from the original exception, so the root cause survives in logs and tracebacks.",
+      "evidence": [
+        {
+          "resource": "repo://src/errors.py#L1-L56",
+          "version": "repo-lines-v1:sha256:7162ccecaede9be4088d06a316aad9b4b343fb31d299c49f623601dbdfd9b5d9:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0ZmE5MmEyYjJlOTAyNmQwNDlkZDc1ZjhiM2I0ZjVmODM4YTYxYWEzMThhY2U4NWJkYjY3OTAxMWQ2ZTVjZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2YTcxNTI1NzJlZTg0ZjEwOTA2Yzc0YjlmMmE5MjQzNGRkYWIwZTNjNDI4MTNiMDRlNTk3ZWZjZWM5NTFiMjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/graph_client.py#L217-L236",
+          "version": "repo-lines-v1:sha256:a068716e65d58616603ec342dd320ac00619edddcd905ecaee1136d2072c6593:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhZjFhYWViZjAyOGYwOWI4YjBlNTlhM2I5OWNhMjVmZmVkZjY5NjkzOWJiOWVlYjU4MmIxMWNmOTE5ZTA1OTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzNDU1NGUyNmY2NDcxNDA1NTczNGE0MWUwMjFlNmQ2ODY5ZDMyZDAxY2Y2YzM1YjNhMjUxYjYzM2Y0YjM0YTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIwNDliZGY3ZjZlMGQ1Y2M2M2ExMjY3ZGY0Y2NiMmU5MzM3MTBjM2EwZjY5OWIzOGRhNmJjYzIwMDQxNDFjMjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNkMzVkZWJmYzc4M2JkNmIxYWZkYTE5ZGE4YjY5ZGZiZTE1NDgyOTViYTNiOTBiNzVlYzFlNjViNmRiMTRlNTMifQ"
+        },
+        {
+          "resource": "repo://src/message_queue.py#L84-L128",
+          "version": "repo-lines-v1:sha256:19ae8fc9b83c495c99885c786dd1c31d6ccc8f16d2db7c52f7bf0b3cd73fe28f:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2MGE0OTVmMmVhZDk5NDRjYTc0MzJlYWRjNDQ3YTdiN2M2YWE5NGVkZGNmNTM5ZWZiNzZmOTVhODdmZGNiZDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmOTkwNTM0YWYwNDEyY2RjZWY2MmUxNDVlZWE0YTEwOGQ0MWFlMThlY2RmZjYzMzIyMWRmZWUzNTliMWI1MjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5OWZlMzY0YTRiM2ViNWZjYzgzZDBiNGRiZmI2ZmZiOGQ1YmY1NGUxN2JmMmNlMzM4YzUwYzFjN2Y4MTAzY2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3NGM0ZDU5MDBlZDc1YTMyNjY3MDU2ZDllMGMyNDJlN2VlM2JlZGIxMmUwYzAwMTc4MzMwOWQyMzdkMGM3YzMifQ"
+        },
+        {
+          "resource": "repo://src/writer.py#L145-L151",
+          "version": "repo-lines-v1:sha256:01353ef36aec7a614656cfd4ee2182fbae83ec8aee9ad6de546ea4234ae49049:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQ4ZTI4MGIyZTU3YTI3YzZlODI4YmQ0MjA5ZjBkNjViNmJkYzM1Zjc3ZmQ2MTY0ZTRjMjFhZTM2ZWZkNjE2YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzhmOWJkMWYxOWNkYTVmNDk4MmRkMmI2ZGFlN2JiMWY0NjFkYTQwODk1MDUzOTQwYjE1ZTNkMTQxYTIyNDVmYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzA1Y2JiYTZmMDg3ZTNkZWZhZWQyM2ZkYTQzYzdkZWU3MGUwMDIxZjA2NWY0NDQ3NTQxZWVlNjVhODZlY2M1OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzA4M2Q0ZDBhNTg5ZTA2Y2ZiY2U3ZGZlYWY3ZjJmODEzYmUyYjIwYzE3NTFiZWIyYTFlMzMzNWE0ZmQ1N2VkYiJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-28T19:49:26.700Z"
+  }
+}

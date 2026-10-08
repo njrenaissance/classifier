@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:87e36453be59014a2d982306f39383b179233e51dab693ea2e76ac10121f56d9",
+  "claims": [
+    {
+      "id": "claim_f71eb296dba544cbb2dfbba03a112e88",
+      "statement": "DocumentSource is a Protocol with a single method documents() -> Iterable[Path] that abstracts how the CLI discovers files to classify, enabling pluggable implementations for different sources (local filesystem, SharePoint, S3, etc.) without coupling the CLI to concrete enumeration logic.",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0010-uniform-document-source.md#L1-L20",
+          "version": "repo-lines-v1:sha256:9a15c498905c1d70afa16bedf106c9107c0ab1f3d2c112552968ac2c58284709:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0M2ZlN2IyNzdjNmIwOWNlMmQ3ODM2MjMzMTI0MjA4YTVlYmQzZjhhOTgyZTk2N2RlMDVmZTc4NDAzMTkwNTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmOGJjZTZjM2I0ZDdlOTEzODFiOTVmNjM1NDQ0NDNmZWZhODNmYWNiYmNiODAwZDY2ZmI0MjcyYzE1M2FjMWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ5MGZmNzA5ZWJkMzIzMDI2ZDQwNjhiNzFmZGMzZmRjZjBhMjc4ZWViZGI3NTgyYjAzNzQ2OTdjMzRiMTg1ZmEifQ"
+        },
+        {
+          "resource": "repo://src/sources.py#L31-L34",
+          "version": "repo-lines-v1:sha256:4cfafd9c8a37a9aadc42b89d4694a1ddecab272a04acc69e495efd94f85faf9d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjdlYzk5ZWRjYjFlYWIwZjJlNjc2NTRjMmQ0ZGZlZmFjZmNmZDgyMmJkMGMxNWY3OWQzNjc5OTUyOTIzZDA1ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg4ZGVhZTYzZTcyNDU3YjRiM2YzOWQxZjc1MTJkMDBiNGMzZTc5NmMzNTA0NzFkNTNkMDViMmExYjlkMzc5MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjIwMDk3ZTRhYTUwMDY4YmExNTdmOWEyNzM5ZmFkODY5OTVlMWUwY2RjY2RhZGM1ODk3YzIwMzRjNzRkM2VmYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjg1MDkxOWRjMjliN2ExOGZiNDU2NGU5OGNhNTE3ZGNmYWYwYTdiMmI3MDRlZDQ5NDU2OWQxNTQ4YmFhYjY2YSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8b724d5b47ff4e9f9a3ff19f64a1861f",
+      "statement": "LocalFileSystemSource implements DocumentSource by walking a local file or directory recursively, sorting results for determinism, filtering by supported file suffixes (reused from extraction.py to stay in sync), and skipping unsupported files with a WARNING log rather than failing.",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0010-uniform-document-source.md#L15-L20",
+          "version": "repo-lines-v1:sha256:ebedd6135c9e42881650e70e8b776598de1fa0b0a2802f632c31c2849a3cc2a1:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDdhNmYwMmRmMjQyNTRlNWVhM2M4MTJiN2I5ZTZkMzQzNTM1M2MzMjc2M2U2OTg3ZjQxNDkxODkxNjcxY2E3NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmY4YmNlNmMzYjRkN2U5MTM4MWI5NWY2MzU0NDQ0M2ZlZmE4M2ZhY2JiY2I4MDBkNjZmYjQyNzJjMTUzYWMxZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWM2NDMwZGM1NGRkODcyNzUxNDcxNzg4OWU2MDAxNWUzMTQwMTMxZTI1YjY0ZGIwMDkxODI2ZjQ3NWM2NjMwNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDkwZmY3MDllYmQzMjMwMjZkNDA2OGI3MWZkYzNmZGNmMGEyNzhlZWJkYjc1ODJiMDM3NDY5N2MzNGIxODVmYSJ9"
+        },
+        {
+          "resource": "repo://src/sources.py#L37-L73",
+          "version": "repo-lines-v1:sha256:351cdb730251bee3afcc13139befc7fadb43fda5ddd35f1c7ed38c82cbc509be:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwNmNmNmQ2N2NjZTk3Y2UxMGIxMzU3YmE2OWU1ZDE5NzlmOTQ5OTJiNGIxMTYxOGYzMjYxYTQwYzA5ZGY0ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0ZGQxY2Q0MDc5MWU5YjUzODQwNThmNmNjYjA2MTQ0Y2U0NGMyYTBjMjQ3MGFkMGMxOWJhYzQwMmI2ODJhODAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI1YTYwOWEyNTAyNThlODUxZTVkZTllOTBiOGE4MjJiZGJiODRlMmNiZThkNTNkM2I1YTFlOTczNzE4ZTVlZTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f41ab21238044f52bf178d17641ade2a",
+      "statement": "The cloud pipeline's two producers (Graph Walker and FilesystemWalker) do not use DocumentSource because they require custom per-source enumeration logic (delta pagination vs. full re-enumeration) and produce richer DocumentCandidate metadata that is captured at discovery time rather than lazy-evaluated.",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0020-local-filesystem-source.md#L16-L43",
+          "version": "repo-lines-v1:sha256:52a85072bcf49728292fbdda8a59a7bff9bdc158debf8096eae5b4e76fcf500d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhNTMyNDIwZTE1OGI1NmJhYmNjNDU3OGNlZmVkZTFiYTBkYWIyZDgwYWI0ODEzMGY3MjNjYTIxMWZkOWZiYjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1YzI2NzQzYzQ5ZWE2ZWVhNDQ3YTEwMDQxMTRmYWViMDQxMTFiNTJhNWM4MTU1ZjA0NzMwZWUyMzcxMGEwMTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZlNGVhMzlhZDY5NzQ1ODAxM2E2ZGFiZjdjNmMzZmJmNmI4MDY5ODNiNDM5YTM2MzcxOTJiNzMzNDAyNmY2MDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFlZDYyY2RlYzgxODJiMzg5ZDU4MDRjNWQ1NTRkYTU3N2NlYTJhNGI3NDI1OWQwMTdhNDQ5YTUzZDk1YTA5YmYifQ"
+        },
+        {
+          "resource": "repo://src/filesystem_walker.py#L1-L27",
+          "version": "repo-lines-v1:sha256:ef857c521898e832ce9bb67b8843fbf55eb33bafe042fdf5fa4a2062cba79ff7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmNDNmMTI1YzhkZGMzMzNkMTU4MzE2NjYwMTlhMmJlMzllZWVmNDI4MWY0NWFlZGI3ZDBmNmM0OGMzZjlhYmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1YTA0MzFiYjM1NWI3NmQ0NGY0ZTlmMjdmYmVjMjA3OTdhZDNiNzYzYTRhMDEyMTNiZjI0ODdjYTFiMTAxYzkifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L1-L36",
+          "version": "repo-lines-v1:sha256:2290ec27de6ee15c0e5efbb6491cdd115bef17337cc03ff51321078c19ae4c25:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4YjQzNWZiNDI4ZjZiYWE2YjAxNTA1NmE0MTlhMjc1YjY0NWEyODRkM2ZlNjBkOGU5MGFhZTFmMzA3YzM5ZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkNjg5NDdjMTdkZWU5YTcyZTI3ZDdhOTkyNDk5MDhmNjA4MjFkZjkxZWE1NjUwYWQwOGM5MzZmMDUwMjEyNTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg0NDgxMzE0NWFlNzI3ZDYwY2U0MWNlMmIzNDkzMTM0ODRmODBhYWNlZDFjNzJhZWFhOWY5ZmUwY2FlZmY1ODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e8e2f6ad1d8a41648cd510c690b76086",
+      "statement": "DocumentCandidate is a frozen dataclass carrying source-neutral file identity (drive_item_id as locator, content_hash, mime_type, folder_path, file_name) produced by either Walker or FilesystemWalker and fed to the shared Enqueuer for idempotency decisions.",
+      "evidence": [
+        {
+          "resource": "repo://src/enqueuer.py#L39-L53",
+          "version": "repo-lines-v1:sha256:fe21d608e48acaf5d97493b48cdb82ee30e613afd0fe6dbcaa5da5155cf6cdca:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2OWExMzk3NWMyNTZlYzgzMjBlMjAxNjA4M2M5NmRmNjM3Y2EzZDM1YmViZGUyMzE0YmVlM2E0NzExYjU2Y2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxMjBkNDhkYmYyYjgwMjRjZWZiZGRmZjY0YWQ0MmY4MjlmMGE1MDEwM2E4NjA0OGY0ODFkM2Q4NDc1MzMzM2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUxYjVmNmQyODViNWZiNzc1OTUwMWQ3NGMyOTVjYzQ0YmJhMTgxMjQyZTcwOWMxNDQ5M2I5Mjg3NTZjOWY1NWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_254a320622f14ea98655af2642d520ea",
+      "statement": "Enqueuer applies uniform idempotency rules across both producers: enqueue new files, skip in-flight files (queued/processing), enqueue pending resets, enqueue changed files (rotating old hash to previous_hash), skip unchanged files, and never touch rows with manual classification_override.",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0020-local-filesystem-source.md#L36-L44",
+          "version": "repo-lines-v1:sha256:4b2b840e44588c1679ac7429acf579ff3b2a164a58eb025b251f2cf601b03750:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2Q0MzY5N2JhOTQ0OTFhNGMwNjc4YTQxYjFhYTFiOWUwYTI3MGY0ZGVlOWZmODg4ZmY1MDI5Njk3ZTQwMTg0ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzgyMTVkYmM4MzQzMjdjN2EzMmMzNjU4NGVhZTU3NGZmNGJiNTA2MTlmMzk4NDZiZDVmNTYzYzAxMTExZDFkOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzE2NzExMTIxYTNiNDk4NTY3YzBmMjAwOGU3MGY1NjQ1NDNmZmFiOTkwOWRlNGUzNThhMTMzNzc2YjU3NDUwMyJ9"
+        },
+        {
+          "resource": "repo://src/enqueuer.py#L68-L102",
+          "version": "repo-lines-v1:sha256:f8bfb1c64ac04b9548a5d0014d71bea6ca451c0c5fe844641cbaff249ca78f3a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmYzA0NDUzZTJkZjEyOTZkNTc5NmQ3NjYyNjJiNjMyODliYjhlYjBlZTM1MGExNjE2NzhkMmFhMjU5MDc3OWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzZmY5MDE1MWQxMGNmNDViZGI5NzYzNzczZjBjMGQ3N2NkNjM3NzM3OTRmNWI0NGIyZGUxNjRhYzUzNjIyZmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZjE1ODU3NmUzMjJhMTlkMjczZDgxY2QyNTM1NWM3ODk0YmZjYmJiZWM1NDViYjU0NmY1MzY3YmRkNzUwNDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRlNzU3YTM3NmVmMTE0NDNkMjI3ODZhZjc2ZWU2MDRlN2YwYWI1NzFkNzkxNDRiYWNhMTJlMmFjZmFjMzM0YjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6b310946ca404128afca7617d8969bad",
+      "statement": "Commit-before-enqueue is an invariant ordering in Enqueuer._queue_document: the documents row is committed to the database before the message is sent to the queue, so a rare queue send failure leaves an at-most-once gap (stuck queued row, recoverable via pending reset) rather than a duplicate message.",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0020-local-filesystem-source.md#L40-L44",
+          "version": "repo-lines-v1:sha256:4f5b08c1508a51a847fce816936bc43f72c0595882c009a1b9b59b19a2fd6b99:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGQyZGQ0MzU1M2MxOThjMTJlNzUzYjhhNWQ4MGFlYmRhNDVlNGRjNWE4ZGU0YjUyMjUzNGE0ODNhNWY3YjAxYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2Q0MzY5N2JhOTQ0OTFhNGMwNjc4YTQxYjFhYTFiOWUwYTI3MGY0ZGVlOWZmODg4ZmY1MDI5Njk3ZTQwMTg0ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTQ0ZDQ5NTFmY2E5Njg0ZGNhMDU4Y2Q4MzQ5NDMyYzlhNjRmMjgxNDA5OWM0YzE0N2M0NjRmYzVlOTZmNDEyMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzE2NzExMTIxYTNiNDk4NTY3YzBmMjAwOGU3MGY1NjQ1NDNmZmFiOTkwOWRlNGUzNThhMTMzNzc2YjU3NDUwMyJ9"
+        },
+        {
+          "resource": "repo://src/enqueuer.py#L104-L122",
+          "version": "repo-lines-v1:sha256:b80f567a8b36f546b52274b0d91eec9a76ec11744b8e28c32c443d480a391075:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwZjVmYmY3ODQ1ZjNhNjI1OTdhZjM4Mjg4ZDQ1NjJjMGM2MDIyMzMyOGJmOGM2ZjI0MzVhMDFhMjlkMGVkZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwY2M3NDJjMTZkMjk1MzA0YTM3YTFlZGYzYWM2NzkxMDgyY2E5NGJhN2IxNDg5Y2NjNjQwNDc0NWZhYTVlODkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY5ZDc4MjVhNzYxM2Q0MTRjNTJiODRmZTJkMDVlNzM1ZTk1MWUxNjdmMTg5MTIxOGM2YjI4NTdhNWVhYjRkNWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiY2FlOTRjNTQ3NDUwZjA4ZWIwZGFkZTQwMjdmZjM0OTUwZmU3NjNiNzZmM2Y2NmNjN2VhNjM3NTk0YzVlNjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0e3518f743c547d99ff264748677318e",
+      "statement": "Walker (Graph producer) enumerates via Microsoft Graph delta pagination with resumable tokens, paginating within a time budget, extracting DocumentCandidate from each driveItem by parsing item.id, content hash, mime type, and folder path, then delegating enqueue decisions to Enqueuer.",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0014-sharepoint-delta-walker.md#L15-L30",
+          "version": "repo-lines-v1:sha256:38fb30945984b9084b2605745a23ea06bda07f126aeead108160b3d7c092957c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkM2RiYzRlN2U3Y2JlNWRkYzg5MWIwODA3MTJmNjM1MWM5NGI3MjhlYzhiZDg1NTZmNDYxMmIwNzBkMjdiNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlZjYwY2FlZTNmYjk3NjIyYmU4NjA1YjBjNmY4M2E5Zjc5NjU0ZGQ5MDcxZjhkMzA5NDFlYjBkY2I5NmY2MDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkOTE3ZGM0OTYzYWJmMmVmOTIxYzM2YjA5MzhmZGY2ZDU4YWVjYWQwZWE0MjlmZWVjZjZhYjdjMWI2MzhlZTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ5MGZmNzA5ZWJkMzIzMDI2ZDQwNjhiNzFmZGMzZmRjZjBhMjc4ZWViZGI3NTgyYjAzNzQ2OTdjMzRiMTg1ZmEifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L88-L191",
+          "version": "repo-lines-v1:sha256:3b4eddcab562a4fecfeb476b57c28b2182ea41c54bc3c7861c790cccb29f1d95:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlMGIwYzkxMDlmYjkzNDRhYmIxOWEzOTZjODVlZGFlOThjNzE3Y2ZhNmRmODgxZmViNWExNjlmNDQ4YzA5NjI5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1ZWFkMzY0YWI0YmNlNTlhNWU3MTA5NmE5ZWE4YTk0ZjMyOGQ1ZWE3MGYxN2UyMGE4ZDliZWM3YzYyNWQ0OTNlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkNzAxNDllMDY5YWQ2N2VjY2Y0NzM2NDZmZjFjNzUwMDUwZDMyOWQxMTAwMThkYzU3NjY4NzhlYWZhMWQ2MDdkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIyYzJiODIyMDFlYmYwZThkNjUxMjk2N2RjZWFmYTdmMGNhZDc1NTkzNTNhM2ZhZjExZmQ5NTM3OGE2N2UxZjA4In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_ba800466b98947bda973cbf5bbf968ea",
+      "statement": "FilesystemWalker (filesystem producer) performs full re-enumeration on each run (no delta tokens, no time budget), using LocalFileSystemSource to walk the root and extracting DocumentCandidate by reading file bytes and hashing with hash_bytes (sha256), delegating enqueue decisions to the same Enqueuer so idempotency is identical to Graph path.",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0020-local-filesystem-source.md#L30-L67",
+          "version": "repo-lines-v1:sha256:aaba49c74028461663782ab2731710b1e1483c25271cd4d7d6c1a51763878cf1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkM2RiYzRlN2U3Y2JlNWRkYzg5MWIwODA3MTJmNjM1MWM5NGI3MjhlYzhiZDg1NTZmNDYxMmIwNzBkMjdiNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyOWU3MTAzNzc1ZTk3NjZjYWRjMzcwODZhMjhhMzhiNzQ0ODNkYjJkNjE5MTZlZDNkNDY4MWZhODljZjUxYjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1YWFmOWIzYTA0NjE1ODVkZGFmNjViYjg3MmU5Y2NjZjM1ZjQxYTUxNWRmZTFhMmFiM2UzNWM0ZGM5OTBmYzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0ZDg2ZmZmZTk3MjIyOGI1YTQwNjVjMTNiOGYxYzUzMjcxY2E1YjQyM2EwZmQyMmFiZTNiMmEwZGQzYzUzYTEifQ"
+        },
+        {
+          "resource": "repo://src/filesystem_walker.py#L49-L126",
+          "version": "repo-lines-v1:sha256:1e958b7fd1abb6d8497c758069cd595ba956f5020c8660f5415bae92773892d4:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0MDlhMjY2YTQyNjA4NTE3YWFhZDQzYzdjYTkwZGU4YTIzNjUyY2NlMjM1MTc4Y2E2YmI4ZGY1YjIxYTY0ZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyMGM4YjJlMTgxMzgwMjVjYWI1Y2I0NzJiY2NlZGFmZjVmNGRjMGY5ODE0YmE1NTFhZDFlYTc5N2ZlODk3M2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a49031d95d74469fae1cac0cdbdfea0f",
+      "statement": "ContentSource is a Protocol with two methods (fetch_content_hash, download) that abstracts how the processor retrieves file bytes and re-validates content identity, enabling pluggable implementations (GraphContentSource for SharePoint, FilesystemContentSource for mounted filesystem) without coupling the processor to concrete retrieval logic.",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0020-local-filesystem-source.md#L46-L48",
+          "version": "repo-lines-v1:sha256:87a0b5fd3de0552083e50459f5dc84834452bf36085009c108d2e3fdea9759dd:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmZjMjZkNDA5Y2MzMjQ5NzYyZTgxMmRjYTQ2ZDQ3OTY1MWYzYWQ3ZTg1ZTcxZDU3MGExYWNmYTdjZWEzNGY3NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDBlMjVhMDJmNjU0ZDkxMDllMThmOTIxNDM3YzYwY2ZiNTcyN2YxMDhhOTRhZGFkMGNmNjIwMWRiMjA4ZmJkZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTA2OGNiNjg0MjYxN2NkYmY0OWRiODI0NTEwNzM4ZGNiY2Y1ZTI1ZmY3OTRjNDFmMzAzZTkwZjQ5NWYxMGMxMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDg4M2Q1MGMwM2M4MjEzMWQ2Y2Y0MWM1NTg2NTljMWMyYTNlMzc5ZDIzZWM4NTY0YTFjN2Q3MTkyM2IwYTBlMyJ9"
+        },
+        {
+          "resource": "repo://src/content_source.py#L44-L49",
+          "version": "repo-lines-v1:sha256:e92122bd936026c7e3f3e8047233d42091552c8a4207b9ccac15b46666221133:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDZmMjI2N2NlODMyMWJmNDFhMjExYTBjYWFjNDA1NWNlMzMzYWM5OTM5YTM3YzZiN2MyMDQ0MGI2NWQ0ZmY2MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGRjOWQ5MjZmNGIwZWJkZDk5Mjc1MjkzY2E4ZjM0NmIwOGU5YzIwMTk4MmY5MGU0MTU1YmIwZmIwMTg3YTU0NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTgwNjc3ZDEzZWMzNTBjNDFhMmIzYTIyYWQ1NzQ4OGQzMWMxMWVmNTBkZThhMGUxMjM5ODBjZDBmMzFiM2FkMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzM2MTc0NGJhODI3NmM2MTNmYzk1MjJjZWNjN2I2ZTE5YTZlY2U4MjFkNWQyZWQxNWEwMmI4YzYwYmQ2NmZiMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_09c8e1e47c5647e9b39332695ec84f0a",
+      "statement": "GraphContentSource implements ContentSource by forwarding fetch_content_hash and download calls to the injected GraphClient, which handles Microsoft Graph authentication and download for SharePoint document retrieval.",
+      "evidence": [
+        {
+          "resource": "repo://src/content_source.py#L52-L62",
+          "version": "repo-lines-v1:sha256:8d97406a31578bf361c40b9ebe753e5d9f3f7365046111c72c36c89fcf1a027d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2MmExMWJjYTc5MDMyMzYxNzkyZTljODJkNWVlMWI5NGQzNTNiNWVlOTQ2ZmRhM2E5NTdjODUzN2Q0YTA5NDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MjBhMTY4YTQ3YjY0Mjg3M2MxNDkyOWY4ODA5ODAyNDhjNWMyNzRiN2FkOTgxODIxMzM2N2Y0NzAxZDBlNGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZlNmZiM2RlNWYwYWM0ZWU3Mjk3M2QzNjMwYzBmODY5MjVmOTljZGZkZGU3MDllYjg1ZDZhYzcxMzg3ZDMxNDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwYjE1OWVjODliNWYxMjIwMmYxMWJiYjU2YzQyYWMyNjg5NDhiNDNhOTA0ODE3NTUzNWE5YmViODg2NTVkNTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1913c026e57f468cb0ca9767bd6ac6f5",
+      "statement": "FilesystemContentSource implements ContentSource by resolving message.drive_item_id (a root-relative POSIX path) against the configured mount root, rejecting absolute paths and escape attempts (..) with SourceError, and reading file bytes from disk, with fetch_content_hash re-reading and hashing via the same hash_bytes function the producer used.",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0020-local-filesystem-source.md#L58-L67",
+          "version": "repo-lines-v1:sha256:dcd69b36838b69395c18153029d9c6a6813beb7ce0a673204941ba56863b03f1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3ZWE3Y2YzMTI3MDM1NzEyMzUxOGY1NTQxMTVjMTJlNmUwMWZkYTJjOGQ0YjAzMzFkZDc1NDA2YWQxYjhjNWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyOWU3MTAzNzc1ZTk3NjZjYWRjMzcwODZhMjhhMzhiNzQ0ODNkYjJkNjE5MTZlZDNkNDY4MWZhODljZjUxYjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIwOGExNDRmOTIyYWMxZGZhOTYwOGZiMGRkMDM5ZWUxNWVkMTcyNTUyMTJkODZmMjc2NTM3ZjIxYmVlNjVmMTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0ZDg2ZmZmZTk3MjIyOGI1YTQwNjVjMTNiOGYxYzUzMjcxY2E1YjQyM2EwZmQyMmFiZTNiMmEwZGQzYzUzYTEifQ"
+        },
+        {
+          "resource": "repo://src/content_source.py#L65-L104",
+          "version": "repo-lines-v1:sha256:169e8487887fd00feabc36876de70667541af8269bfdd13dd889b39b4d58f041:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiMDc5MWNhYmUzOWMyYTI2MGMwNDY4ZTU5NjNiMDgzMGJlMzU3NzMwZDcyYzI0MzQ5MDI1ZTlkYjI3YmVmNjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2MjJiNzc0YjExYTI1NGRlOTU1MmMyMWIxOTYxMWE3MTg1NzY1YTIxMDZmY2QzOTJkZTQ1YWZjYWMwMzk5ODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMjgxOGFjNTQ5ZmVjMThhMmU3ZjA3MzE3ZjY1M2RiNDYwMTUxNGNiYmViYzZiMWVhYzViMTdhYjQ1MjljNzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f1025c9456084941886782e7b5a688df",
+      "statement": "hash_bytes is a single shared function (sha256 hex digest) imported by both the filesystem producer at enqueue time and FilesystemContentSource at processor re-check time, ensuring producer and processor agree on content identity: matching hashes mean the file is unchanged, mismatches trigger re-enumeration.",
+      "evidence": [
+        {
+          "resource": "repo://src/content_source.py#L34-L41",
+          "version": "repo-lines-v1:sha256:08edcb7634da8f3ef2ae3d3b3036e23ca68d1dae4914e8dd2eea789e88bab6db:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTQwNDQ0OTdjOTRmYTA3ZjU2NmUyMGNkM2MyOGRhN2Q5NTM4ZjcwMmEyMzA1ZjVkZGU1MTcxMzYwMzYxNGRmNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTljNzFlMWJlNDgzZDUyMWFiYWUxNjI4NWFlODg2ZmQzZjQ0NTI4NzQ0ZTEwYzY4NmNhN2I0NWI0YzU3N2ZlOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmNmZjA2OGJmYzM5NGVmNjE1Y2QzMDBkNTIwNWJiNzFiZjRiOTkwY2M4NjViNTU2OWY2YWRhMWIwY2Y4ZTUzYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTIwMWE4M2Q5NzA1NWUxZTg2MDZkOTM3YWQ5MDE4NzMzMDM0MGVmY2Q4MzQzMmJkMTQwNzY1MzRkNjhjOWVjYSJ9"
+        },
+        {
+          "resource": "repo://src/filesystem_walker.py#L37-L39",
+          "version": "repo-lines-v1:sha256:49d64e49647239a2bf49adf8a6ab99f8cff174f563cecce23b10e5ae20c94811:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGI2OTZkNzNhNDg0NDNiZTNhNGY4ZGUwYjRjYmJlNWNiMzcyMzQ3ODUyMzEwZWE4MDNlNjE4ZTMyZTJlNGMwOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODcyYTZmMjU2ZjQyYzQ3ZGUxZmVjZDQ2YTYwZmJiMjBjMDljYjFmYzliMzFmOTc0NDU1MDNlZjZlYTYzYWMyMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjMyZmIzMjQ5ZmJiYzE5MjkwODliMjY5NGM5YmEyYzY2YjNjZTA4OWQxNzIyNWViYjQ3OGFiMTI3NDNmNjZlZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmVlZWQ2ZWYwOWE2ZTc0YWExZjkwNjdlYWQyOGUzMTI3YTNmZGEyNjJmZTJlNjk3YzE3Y2QyODZiZGNhNjBkMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_35fcd57877b7435da71760241e456972",
+      "statement": "Message includes a source discriminator field (MessageSource enum: sharepoint or filesystem, default sharepoint) that self-describes message origin, enabling the processor to fail fast on misconfigured mixed queues where producer and consumer source modes do not match.",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0020-local-filesystem-source.md#L69-L77",
+          "version": "repo-lines-v1:sha256:640653841acf382e049a104becf1391214a9752fd2094e7cb6bf7c555055b8f0:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzAzMGQzMTI1OWJkNzNiNDk1OGRmN2IyN2I4ZmM0NTUyMzcxZTYwZjAxNGVlYTZkYmI4YWY2ZjliMTlhMDM0OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTMwYTk2YTZlMmM3NDM2NDU4N2M0ZDY0YWNjOGY1MWNiZTA2MWFiMjk0OWM4MmIzYmYzMzU5OTFkODI1NjlmNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmM3YTA5M2UwODNhOTgxNjQzODU3ZTRhZDJjZDhmY2ZlZDFmZGViYTlhOTMwOTg5OTY0OTYyYjNiYWU0N2ZkNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTMxOWNmZWU1MjMyNjQwOGU5NTYzMTZkYjQ0NzliOTdkMTM0NWIxYmIyMmExOWZkY2Q1YjFlNzk5MzM4NzMxNiJ9"
+        },
+        {
+          "resource": "repo://src/models.py#L20-L30",
+          "version": "repo-lines-v1:sha256:e1c83fbecb7ccc359e80837a277ddbbe956fd4e6476bc24184b90abb74e6a3cf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxYjYwMzRkMTNhMTAzYzc5YWVmNWIzZDhlYmVlZGZkZjZhZDJhMWRiZTAwNWY2M2U0ODQ1MjQzZWU0ZjFjNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg5NjE1ZjBiOWNhNGY3NzQ5Mzk5MzkwNTBmZmM1MTVjNmM0OWZhOTM1MGQyOTQwYjQ0M2E3NTJmMjBiY2IwMzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYyMGRhYjQ5MzVlM2U1MDMzZjdlMjkyNTkwZGE3Y2U2YWU4NDYwYWY2MWMzZGNkNDc5MDBkYTE3M2U1ODZkMWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljMTlkNmYzZDBiY2RiYzlkMzc1YTBhZDRjYmRjNDk4YjllMDYyMWVmYzQyNjI4MWU3YmU3ZmQ4ODU4OWE2ZjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_af8c1767f18f4c60adfc21f6d0084b58",
+      "statement": "Message.drive_item_id serves as a source-neutral locator: a Graph item ID for SharePoint sources, or a root-relative POSIX path for filesystem sources, reused to avoid duplication and because it is already the per-source identity and UPSERT key in the documents table.",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0020-local-filesystem-source.md#L58-L77",
+          "version": "repo-lines-v1:sha256:f6bee93a2c2b09d0c5970e97032f112e28ddc7501097453f162f74d6937378e3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3ZWE3Y2YzMTI3MDM1NzEyMzUxOGY1NTQxMTVjMTJlNmUwMWZkYTJjOGQ0YjAzMzFkZDc1NDA2YWQxYjhjNWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzMGE5NmE2ZTJjNzQzNjQ1ODdjNGQ2NGFjYzhmNTFjYmUwNjFhYjI5NDljODJiM2JmMzM1OTkxZDgyNTY5ZjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIwOGExNDRmOTIyYWMxZGZhOTYwOGZiMGRkMDM5ZWUxNWVkMTcyNTUyMTJkODZmMjc2NTM3ZjIxYmVlNjVmMTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzMTljZmVlNTIzMjY0MDhlOTU2MzE2ZGI0NDc5Yjk3ZDEzNDViMWJiMjJhMTlmZGNkNWIxZTc5OTMzODczMTYifQ"
+        },
+        {
+          "resource": "repo://src/models.py#L49-L78",
+          "version": "repo-lines-v1:sha256:1adef3746b22f58cd91ee6c078b80078749ef23437c10d3ff8ee452ba893674a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNGRiNzc0NWQ4NmQ3ODI4MTc1N2VlODBmZjkzNGVhYzZlNDAyY2U3MWZhZmFiODRhMTcxY2VjMjc0NTgyZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4OGY1ZmUwNjI3NmJjN2QxYTI0ODAxM2FjMDMyZjY2ODg5MjQxYjg0ZGJkOGQ3MWM0MzQ4NjljMzhiMzNmZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2MWY1N2U1NGExZTMwYjU5MTdlZGZiNGU4NTM3NGI2MGE5MDEyOWNmOTVkY2RlOTRmNzExZDMyZjQ0OTI3YjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_478198592f4f418d92fa54c680e978e3",
+      "statement": "Processor.process dequeues a message, loads the documents row, and calls _run_pipeline which uses the injected ContentSource to re-check hash, download bytes, extract text, and classify; if hash mismatches the file is skipped and the message stays on the queue for the walker to re-enqueue on next run.",
+      "evidence": [
+        {
+          "resource": "repo://src/processor.py#L116-L148",
+          "version": "repo-lines-v1:sha256:081fe6a0935c104f04231646cc5167e0653f8caa9722a23a8f1d678c26b0cc87:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ODU5ZDU5N2E4YTgwZGVjODhmODQ1MWUzMGNhN2UwZTcyYjkxYWQyYjc0YzQzNzIxOTk2NThlYzA1YzI3NzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiZGVmZDJjNTQ1ZTc3ZGFiZGRkOWI5YzJjYWI3MWRkODY3MDZmNTM5OWI0OTk0ZWNkNzZkNGZkYjM1NzBmNWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBhMmIzMDRlNWVmODI2MTk2MDU1NTY3YzRiMzY2YjU1ZDg5ZDVjNzQ2MjMyYTMzYjI4OWUyYjM1NmI1NWY1NjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzOTAyYzRiYzc0NDk2MjIwM2ZlYjZlMzhhNDQwYTZlODAzOTE3MmFjOTFkYmFhNWIxZmQxMmE1MWJiMDNkMzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ec3163548f6c4b6897117ce70da2cd5c",
+      "statement": "CLASSIFIER_SOURCE configuration setting (env CLASSIFIER_SOURCE, default sharepoint) selects whether the pipeline operates in sharepoint mode (Walker + GraphContentSource) or filesystem mode (FilesystemWalker + FilesystemContentSource), with wiring branch points in walker.run and processor.run.",
+      "evidence": [
+        {
+          "resource": "repo://src/config.py#L311-L312",
+          "version": "repo-lines-v1:sha256:ae78a83fc8b08e3bb01f3ae8c4e05deddf7e69678647e6578216798f4b1ebae5:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjg0ZDZhNWNkY2NlYjU2ZDI1YWMwNDc0YTM1MThjZjY2YTYwMjU1YjI3MTAxNDhhNjA3MmZkOTBjN2YyM2Y4ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjBjOGI2MTE1N2RlMzRhYzU4MDc1YzRiMzMzYzc2ZjI5MzI4N2VjZmRmZDE3M2MwN2FkMGNiNWUzOWE1ZDRjZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTQ3Y2ZlODA4NjQ5YWRmMDNiMTY2Y2Q2ZWVmZTc1OWEyMTdkMDEwYzM5NmRiMWUxYzVjMzZjZTJmNjlmZDZlZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjA5OTM3ZmFlZTUxMzY0Zjc0MWYyMzA0ZjA0M2UwNWU3MjE2YmFmM2JkZGYwMzk5OGYwMzExZDdkYThmMzUyOSJ9"
+        },
+        {
+          "resource": "repo://src/processor.py#L199-L260",
+          "version": "repo-lines-v1:sha256:c826c0794f8c372182cc27ae3e84788f8f09a681e38247c4b71dd6bc91b9f13d:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlNWFlMzQwODg1MmViZGJjNWE4MDA2OTRiMWZlMDRlNjM4NzJhNTEzZmZmODE4ZWUyMzEwOWQyYjczOTZjZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4MTM4ZjY5YWNhMmZmNzhmZGM5OTMxN2FhOWE4Y2NjYjIxZmViZjBkYWZhMmUzYmM2YmZhZWZmZjZmMGIwOTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmZDQ1MDNmYjIzNDNjYzQzMGJiMTkwYjk2NDZkMWVjMDkyZDgzOWE2OTFiODRkY2Y4MzYwY2UzMjk3ZGM5ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2NWYwNTUxNzEyMDEwOWE1MGY0YmJjOTk0ZDQ2NjljMjFlNWNkMzFjMmJiZTYyZGQwMWJmODU3NDFkNWExZTYifQ"
+        },
+        {
+          "resource": "repo://src/walker.py#L194-L250",
+          "version": "repo-lines-v1:sha256:39592802950b6275155fd53da188a5a98618aa205d48571d010fdf1b8decbce9:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyN2QxYWJhMmQ5OGU3ZjZiZWEzMTI2NjljOTI3Yjg0OGRjMzNhMmJlOTVjYjIxY2NlZTRjYzNmMTQ2ZDBmYzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5NWE1OTUxY2ViOWY1ZmQ0NjdiZGM5YmZmNjM3MjVlOWJkMjIzZGIxMzUxNzdhMDY0NjA3NDNkYjI5Y2M1OWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY5YTg2YjVmMTI0Y2M0ZjRmZjIyYTIzZmEwMTI0NTVlN2M4ZjQzZTQzZDMzNGNhZThhODhkMGE2MWJjMzY0M2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5MWUyMGEwZjBmMTJlNWY1OTkyYTI5Y2I0NjIxNmNjMWY0MTVjNWExNWM4Zjk4ZDI4MjZmYzVmMjZiOWU5ZjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c04637667dce4242938aa56052b9b0ea",
+      "statement": "FilesystemSettings section (CLASSIFIER__FILESYSTEM_ROOT env) provides the mounted directory root that FilesystemWalker enumerates and FilesystemContentSource resolves relative message paths against, required only when CLASSIFIER_SOURCE=filesystem.",
+      "evidence": [
+        {
+          "resource": "repo://src/config.py#L262-L281",
+          "version": "repo-lines-v1:sha256:6ce0e701868913b24a44f197a59447d4535bc73e730261074504f4d58ac15056:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkMjYzOTQxNzEyNGEyNDAyMDQxYzI4ZDU3MjM0YTY0Y2Y0MDQ0Y2VhMTU1YTkxMzY4YzI3MWZhZThiOTE2ZmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhMmFiMzI3NTZlYWQxNDU3ZGMwNmQzMDE0MWMwMmQzNzQ2N2FhMmY4ZTQzNzA1MWEwOWQ5YzgwNGE5NzkxZDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE0MmM5NWUwZDI5ZGZiYzEyOTE2NTM4MzNiMWNmYWRiYmIwZDFhNTljN2RiZjFiNWQ5NzkxZmE3MWMwODA4MWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM2MGJlMzIwNDFkOGY4MzkyNzU2NzViMTZlZGE3YzcyMDFlYmI3MzY4ODdiN2EwOGQ0MDg4MjVmM2RhMDRhNmQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fe5886b4727a463592943bfe9b7f4d6d",
+      "statement": "SyncState and Document tables reuse Graph-specific column names as source-neutral: drive_id becomes a synthetic filesystem key, drive_item_id carries relative paths for filesystem sources, content_hash stores sha256 for filesystem or quickXorHash for SharePoint, and delta_token/resume_token stay NULL for filesystem (no pagination/resume needed).",
+      "evidence": [
+        {
+          "resource": "repo://spec/adr/0020-local-filesystem-source.md#L50-L67",
+          "version": "repo-lines-v1:sha256:e447ff6609860375842a8f7c7a538c486f632ccb6e579e2c979aec1b08ec4647:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMTM2NjNlZTM5N2IwZjZlMjExNjYwOTc2YjQ1YmI4MGQxYmNmYzUyYWE0ZGUyNWM5MmI3ZGYxMjYyODEyZTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyOWU3MTAzNzc1ZTk3NjZjYWRjMzcwODZhMjhhMzhiNzQ0ODNkYjJkNjE5MTZlZDNkNDY4MWZhODljZjUxYjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE2YzZlOGFlNGYzMWIyMzA5YjQxNDVkNThhZTE5N2VlOGZkYjQzMDg2MGY5OWY4Y2VkMmY4NDk3YmE0MDI3NWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0ZDg2ZmZmZTk3MjIyOGI1YTQwNjVjMTNiOGYxYzUzMjcxY2E1YjQyM2EwZmQyMmFiZTNiMmEwZGQzYzUzYTEifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-28T19:49:26.700Z"
+  }
+}
