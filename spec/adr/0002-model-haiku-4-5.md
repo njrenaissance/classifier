@@ -1,6 +1,6 @@
 # ADR-0002 — Model: Claude Haiku 4.5
 
-Status: accepted
+Status: superseded by [0022](0022-openai-decisions-api-inference.md) (Claude models are no longer used for classification)
 
 ## Context
 

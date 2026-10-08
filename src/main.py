@@ -2,7 +2,7 @@
 
 The thin CLI wrapper that strings the classifier's components into one local
 end-to-end run (ADR-0003): point it at a local source path plus a category
-Markdown file and it extracts, classifies (self-consistency), and writes a CSV.
+Markdown file and it extracts, classifies (Jev, ADR-0022), and writes a CSV.
 
 The orchestration core (:func:`classify_documents`) is an importable function so
 a library or service can be added later without a rewrite; :func:`run` is the
@@ -19,10 +19,10 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from categories import parse_category_file
+from classifier import LabelClassifier, create_classifier
 from config import get_settings
 from errors import AppError, ClassificationError, ExtractionError
 from extraction import extract_text
-from self_consistency import SelfConsistencyClassifier, create_self_consistency_classifier
 from sources import DocumentSource, LocalFileSystemSource
 from writer import ClassificationResult, write_results_csv
 
@@ -60,13 +60,13 @@ def relative_name(path: Path, root: Path) -> str:
 
 def classify_documents(
     source: DocumentSource,
-    voter: SelfConsistencyClassifier,
+    classifier: LabelClassifier,
     root: Path,
     extract: Callable[[Path], str] = extract_text,
 ) -> list[ClassificationResult]:
     """Classify every document from ``source`` into a list of CSV-ready results.
 
-    Each document is extracted then classified N times (self-consistency). A file
+    Each document is extracted then classified in one call (ADR-0005, amended). A file
     whose extraction or classification fails is skipped with a ``WARNING`` and the
     run continues, so one bad document does not abort a batch. Enumeration
     failures (:class:`~errors.SourceError`) are not caught here — they propagate to
@@ -75,11 +75,13 @@ def classify_documents(
     results: list[ClassificationResult] = []
     for path in source.documents():
         try:
-            verdict = voter.classify(extract(path))
+            classification = classifier.classify(extract(path))
         except (ExtractionError, ClassificationError):
             logger.warning("Skipping %s after extraction/classification failure", path, exc_info=True)
             continue
-        results.append(ClassificationResult(relative_name(path, root), verdict.category, verdict.confidence))
+        results.append(
+            ClassificationResult(relative_name(path, root), classification.category, classification.confidence)
+        )
     return results
 
 
@@ -94,13 +96,13 @@ def run(argv: list[str]) -> int:
     try:
         settings = get_settings()
         categories = parse_category_file(args.categories)
-        voter = create_self_consistency_classifier(categories, settings)
+        classifier = create_classifier(categories, settings)
         source = LocalFileSystemSource(args.source)
-        results = classify_documents(source, voter, args.source)
+        results = classify_documents(source, classifier, args.source)
         write_results_csv(results, args.output)
     except (AppError, ValidationError):
         # System boundary: convert any domain failure — or a missing/invalid
-        # setting such as ANTHROPIC_API_KEY — into a clean, logged exit code.
+        # setting such as CLASSIFIER__JEV_API_KEY — into a clean, logged exit code.
         logger.exception("Classification run failed")
         return 1
     logger.info("Classified %d document(s); wrote %s", len(results), args.output)

@@ -1,6 +1,6 @@
 # ADR-0016 — Selectable inference provider: Anthropic API or Microsoft Foundry
 
-Status: accepted
+Status: superseded by [0022](0022-openai-decisions-api-inference.md) (Foundry is no longer a provider)
 
 ## Context
 

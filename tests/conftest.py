@@ -7,18 +7,7 @@ from config import get_settings
 # Every environment variable any settings section reads. Kept here as the single
 # source of truth so each test starts from a known-empty config.
 _SETTINGS_ENV_VARS = (
-    "CLASSIFIER_PROVIDER",
     "CLASSIFIER_SOURCE",
-    "ANTHROPIC_API_KEY",
-    "CLASSIFIER_ANTHROPIC_MODEL",
-    "ANTHROPIC_FOUNDRY_RESOURCE",
-    "ANTHROPIC_FOUNDRY_API_KEY",
-    "CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY",
-    "CLASSIFIER_FOUNDRY_MODEL",
-    "CLASSIFIER_FOUNDRY_TOKEN_SCOPE",
-    "CLASSIFIER_N",
-    "CLASSIFIER_TEMPERATURE",
-    "CLASSIFIER_CONFIDENCE_THRESHOLD",
     "CLASSIFIER__DATABASE_URL",
     "CLASSIFIER__JEV_API_KEY",
     "CLASSIFIER__JEV_BASE_URL",

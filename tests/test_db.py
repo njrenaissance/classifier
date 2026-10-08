@@ -115,7 +115,7 @@ def test_write_inserts_then_upserts_one_row(session: Session):
 
     def classify(category: str, confidence: float) -> DocumentClassification:
         return DocumentClassification(
-            sync_state_id=parent.id, drive_item_id="item-x", category=category, confidence=confidence
+            sync_state_id=parent.id, drive_item_id="item-x", category=category, confidence=confidence, raw={}
         )
 
     writer.write(classify("invoice", 0.6))
@@ -144,7 +144,9 @@ def test_write_never_overwrites_a_manual_override(session: Session):
     session.commit()
 
     DatabaseWriter(session).write(
-        DocumentClassification(sync_state_id=parent.id, drive_item_id="item-y", category="receipt", confidence=1.0)
+        DocumentClassification(
+            sync_state_id=parent.id, drive_item_id="item-y", category="receipt", confidence=1.0, raw={}
+        )
     )
 
     session.expire_all()

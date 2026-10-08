@@ -6,7 +6,7 @@ Status: approved · v2 (cloud pipeline)
 
 Classify document files into exactly one category from a user-defined category set, recording each file's assigned category and a confidence score.
 
-**v1 → v2.** v1 is a local CLI batch job that reads local files and writes a CSV ([ADR-0003](adr/0003-cli-batch-interface.md), [ADR-0004](adr/0004-csv-file-output.md)); it remains the local-development interface. v2 adds the production deployment: an incremental, resumable **SharePoint → PostgreSQL** pipeline running as two Azure Container Apps jobs, decoupled by an Azure queue ([ADR-0012](adr/0012-cloud-two-job-pipeline.md)–[ADR-0015](adr/0015-graph-authenticated-download.md)). The classification method (extract → self-consistency → verdict) is identical in both.
+**v1 → v2.** v1 is a local CLI batch job that reads local files and writes a CSV ([ADR-0003](adr/0003-cli-batch-interface.md), [ADR-0004](adr/0004-csv-file-output.md)); it remains the local-development interface. v2 adds the production deployment: an incremental, resumable **SharePoint → PostgreSQL** pipeline running as two Azure Container Apps jobs, decoupled by an Azure queue ([ADR-0012](adr/0012-cloud-two-job-pipeline.md)–[ADR-0015](adr/0015-graph-authenticated-download.md)). The classification method (extract → classify → result) is identical in both.
 
 ## Inputs / Outputs
 
@@ -15,11 +15,13 @@ Classify document files into exactly one category from a user-defined category s
 - **Sources:**
   - Local filesystem (a file or a directory of files) — local dev
   - SharePoint, via the Microsoft Graph API — production ([ADR-0012](adr/0012-cloud-two-job-pipeline.md))
-- **Category definitions:** a Markdown file that defines the allowed categories, each with few-shot examples. This is the single source of the label set — categories are never hardcoded.
+- **Category definitions:** a Markdown file that defines the allowed categories, each with a description and few-shot examples. This is the single source of the label set — categories are never hardcoded.
 
 ### Output
 - Fields: `filename` (or file identity), `category`, `confidence`.
-- **Local dev:** a **CSV** on the local filesystem. **Production:** rows in **PostgreSQL** ([ADR-0013](adr/0013-postgresql-state-store.md)).
+- **Production** also stores `raw_response`: the complete, unmodified provider response for the classification call, kept for audit. It is never logged.
+- **Local dev:** a **CSV** on the local filesystem (the three fields above; no raw response). **Production:** rows in **PostgreSQL** ([ADR-0013](adr/0013-postgresql-state-store.md)).
+> Decision: [ADR-0005](adr/0005-confidence-self-consistency.md) (amended) — `confidence` is the API probability.
 
 ## What we produce
 
@@ -28,7 +30,7 @@ Classify document files into exactly one category from a user-defined category s
 
 **Production — a two-job cloud pipeline** (one image, two entry points), decoupled by an Azure Queue:
 - **Walker** (scheduled ACA job): incremental Graph delta walk of a SharePoint library → enqueues one work item per changed/new file.
-- **Classifier** (queue-triggered ACA job): per work item → download → extract → classify (self-consistency) → UPSERT the result to PostgreSQL.
+- **Classifier** (queue-triggered ACA job): per work item → download → extract → classify (one Jev call) → UPSERT the result and its raw response to PostgreSQL.
 > Decision: [ADR-0012](adr/0012-cloud-two-job-pipeline.md) (two-job pipeline on Azure Container Apps).
 
 ## Where we persist
@@ -40,20 +42,20 @@ Classify document files into exactly one category from a user-defined category s
 
 ## Method
 
-**LLM-based classification using `claude-haiku-4-5`.** For each document: extract its text, then classify it against the category definitions + few-shot examples drawn from the Markdown file. The model assigns exactly one category from the defined set **or the reserved `unknown` category** when nothing fits, plus a **confidence** value. Low-confidence / `unknown` rows surface uncertainty for human review rather than being silently forced into a real category.
-> Decisions: [ADR-0001](adr/0001-llm-based-classification.md) (LLM vs rules vs classical ML); [ADR-0002](adr/0002-model-haiku-4-5.md) (model = Haiku 4.5).
+**Decision-API classification using TypeSafe Jev.** For each document: extract its text, then ask Jev to choose one option from the defined categories (each with its description) plus the reserved `unknown` option. Jev returns exactly one category from the defined set **or `unknown`** when nothing fits. Low-confidence / `unknown` rows surface uncertainty for human review rather than being silently forced into a real category.
+> Decisions: [ADR-0022](adr/0022-openai-decisions-api-inference.md) (inference layer = Jev; proposed, gated on early access and the data-handling review). Superseded: [ADR-0001](adr/0001-llm-based-classification.md) (LLM-generated labels), [ADR-0002](adr/0002-model-haiku-4-5.md) (Claude Haiku), [ADR-0016](adr/0016-foundry-inference-provider.md) (Foundry).
 
-**Confidence via self-consistency.** Logprobs are unavailable on the Anthropic Messages API (Haiku 4.5), so confidence is derived by **classifying each document N times and using the agreement rate as the score** (e.g. 5/5 identical → 1.0, 3/5 → 0.6). The winning category is the modal (most-frequent) label across the N runs; ties or a modal count at/below a threshold resolve to `unknown`.
-> Decision: [ADR-0005](adr/0005-confidence-self-consistency.md) — N-run self-consistency (default N configurable, e.g. 5) + reserved `unknown` category. Logprob-based scoring was rejected because the Anthropic API does not expose logprobs. Open tunables (N, the tie/threshold rule) are pinned during implementation planning.
+**Confidence from the API probability.** Each document is classified with **one call**. The inference API returns a deterministic probability for each option; the `confidence` stored is the probability of the chosen category (e.g. 0.82). Self-consistency (N repeated runs) is not used.
+> Decision: [ADR-0005](adr/0005-confidence-self-consistency.md) (amended) — API probability as confidence + reserved `unknown` category.
 
-**Prompt & output format.** Each call returns exactly one category via **structured output** (`output_config.format`, JSON schema whose `category` field is an `enum` of the defined categories + `unknown`, built once at run start), **label-only** (no per-call reasoning). The static category block (definitions + few-shot examples) is placed first as a **prompt-cache prefix**; the document text goes last. Variation across the N self-consistency runs comes from `temperature`.
-> Decision: [ADR-0008](adr/0008-prompt-structured-output.md). Tunables (`temperature`, over-context handling) pinned during implementation planning.
+**Request & result.** Each call asks one Choice question whose criteria are the category names (with descriptions) plus `unknown`. The result is the chosen category, its probability, and the complete provider response, which is stored as `raw_response` but not logged. Documents over the Jev input limit are rejected rather than truncated.
+> Decision: [ADR-0022](adr/0022-openai-decisions-api-inference.md).
 
 ## Constraints / Rules
 
 - **Single-label:** each file is assigned exactly one category (categories are mutually exclusive). `confidence` is metadata, not a second label.
-- **Reserved `unknown` category:** there is always an `unknown` bucket for documents that fit no defined category; the model is never forced to guess a real category. Uncertainty is expressed via both `unknown` and `confidence`.
-- **Config-driven label set:** the *real* categories come from the Markdown file, not code (`unknown` is the one built-in). A real category not defined in the Markdown file is never emitted. The category file keeps the **existing A1 format** (`## <name>` + description + `-` bullet few-shot examples) and supplies **label definitions + examples only** — it carries no output/confidence/reasoning instructions. The **code owns the output contract** (label-only structured output + self-consistency confidence), and the single reserved catch-all is `unknown` (any `other`-style bucket in a source taxonomy maps to `unknown`).
+- **Reserved `unknown` category:** there is always an `unknown` bucket for documents that fit no defined category; the classifier is never forced to pick a real category. Uncertainty is expressed via both `unknown` and `confidence`.
+- **Config-driven label set:** the *real* categories come from the Markdown file, not code (`unknown` is the one built-in). A real category not defined in the Markdown file is never emitted. The category file keeps the **existing A1 format** (`## <name>` + description + `-` bullet few-shot examples) and supplies **label definitions + examples only** — it carries no output/confidence/reasoning instructions. The **code owns the output contract** (a single Choice answer over the category set + `unknown`, with the API probability as confidence), and the single reserved catch-all is `unknown` (any `other`-style bucket in a source taxonomy maps to `unknown`).
 - Supported input types are exactly PDF, DOCX, DOC; anything else is handled explicitly (see done criteria).
 
 ## Text extraction
@@ -84,7 +86,7 @@ All architectural decisions are made (see the ADRs). These details are deliberat
 
 - Concrete legacy-`.doc` handler ([ADR-0006](adr/0006-text-extraction-per-format-libs.md)).
 - Graph app registration + exact scopes ([ADR-0007](adr/0007-sharepoint-app-only-auth.md)).
-- `temperature` and `N` tuning, and over-context (large-document) handling ([ADR-0008](adr/0008-prompt-structured-output.md)).
+- Over-context (large-document) handling and the Jev input limit ([ADR-0022](adr/0022-openai-decisions-api-inference.md)).
 - PostgreSQL schema/migrations, SQLAlchemy models, and the `DatabaseWriter` ([ADR-0013](adr/0013-postgresql-state-store.md)).
 - Walker delta-loop, queue-message contract, and `graph_client` ([ADR-0014](adr/0014-sharepoint-delta-walker.md), [ADR-0015](adr/0015-graph-authenticated-download.md)).
 - Azure infrastructure (ACA env + two jobs, Queue Storage, registry, Key Vault, managed identity, Log Analytics) as IaC, plus the Dockerfile ([ADR-0012](adr/0012-cloud-two-job-pipeline.md)).

@@ -6,17 +6,16 @@ Import :func:`get_settings` wherever configuration is needed rather than
 reading ``os.environ`` directly.
 
 :class:`Settings` aggregates every configuration section as an **optional**
-nested model: the inference provider (``anthropic`` / ``foundry`` / ``jev``), the
+nested model: the inference provider (Jev, ADR-0022), the
 PostgreSQL state store (``database``), Microsoft Graph (``graph``), the
 work queue (``queue``), the walker job (``walker``), and the processor job
 (``processor``). A section is ``None`` when its environment is absent and a
 validated model when present, so each job supplies only what it uses — the walker
 needs ``database``/``graph``/``queue``/``walker`` but no inference credentials,
 the processor needs ``database``/``graph``/``queue``/``processor`` plus the
-selected provider, Alembic migrations need only ``database``, and the local CLI
-needs only a provider. The *selected*
-provider's credentials are enforced where a client is built
-(``classifier.create_classifier``), not at load time, so loading ``Settings``
+Alembic migrations need only ``database``, and the local CLI needs only the Jev
+provider. Jev's credentials are enforced where its client is
+built (``classifier.create_classifier``), not at load time, so loading ``Settings``
 never demands credentials a job does not use.
 """
 
@@ -27,21 +26,10 @@ from typing import Any, Literal
 from pydantic import AnyHttpUrl, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-Provider = Literal["anthropic", "foundry", "jev"]
 Source = Literal["sharepoint", "filesystem"]
 
-DEFAULT_MODEL = "claude-haiku-4-5"  # ADR-0002 — pinned; never append a date suffix.
-
 DEFAULTS: dict[str, Any] = {
-    "provider": "anthropic",
     "source": "sharepoint",
-    "self_consistency_n": 5,
-    "temperature": 0.4,
-    "confidence_threshold": 0.6,
-    "anthropic_model": DEFAULT_MODEL,
-    "foundry_model": DEFAULT_MODEL,
-    "foundry_use_managed_identity": False,
-    "foundry_token_scope": "https://cognitiveservices.azure.com/.default",
     "graph_use_managed_identity": False,
     "graph_token_scope": "https://graph.microsoft.com/.default",
     "graph_base_url": "https://graph.microsoft.com/v1.0",
@@ -49,63 +37,6 @@ DEFAULTS: dict[str, Any] = {
     "walker_root_path": "/Matters",
     "walker_time_budget_seconds": 600,
 }
-
-
-class AnthropicSettings(BaseSettings):
-    """Credentials/model for the first-party Anthropic API.
-
-    ``api_key`` is read from the **unprefixed** ``ANTHROPIC_API_KEY`` (matching
-    the Anthropic SDK's own resolution). The section is considered *configured*
-    only when a key is present; :meth:`is_configured` drives whether
-    :class:`Settings` keeps it or resolves it to ``None``.
-    """
-
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-    api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")
-    model: str = Field(default=DEFAULTS["anthropic_model"], validation_alias="CLASSIFIER_ANTHROPIC_MODEL")
-
-    @property
-    def is_configured(self) -> bool:
-        """True once an API key is present — the only credential this provider needs."""
-        return self.api_key is not None
-
-
-class FoundrySettings(BaseSettings):
-    """Credentials/model for Microsoft Foundry (formerly Azure AI Foundry).
-
-    ``resource`` and ``api_key`` reuse the Foundry SDK's own env var names.
-    Authentication is **explicit**: set ``use_managed_identity`` for Entra ID /
-    managed identity, otherwise an ``api_key`` is required. A section that is
-    *partially* configured (e.g. a resource with no credential) fails loudly at
-    load; a wholly absent section resolves to ``None``.
-    """
-
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-    resource: str | None = Field(default=None, validation_alias="ANTHROPIC_FOUNDRY_RESOURCE")
-    api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_FOUNDRY_API_KEY")
-    use_managed_identity: bool = Field(
-        default=DEFAULTS["foundry_use_managed_identity"], validation_alias="CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY"
-    )
-    model: str = Field(default=DEFAULTS["foundry_model"], validation_alias="CLASSIFIER_FOUNDRY_MODEL")
-    token_scope: str = Field(default=DEFAULTS["foundry_token_scope"], validation_alias="CLASSIFIER_FOUNDRY_TOKEN_SCOPE")
-
-    @property
-    def is_configured(self) -> bool:
-        """True when a resource and a usable credential (key or managed identity) are set."""
-        return self.resource is not None and (self.api_key is not None or self.use_managed_identity)
-
-    @model_validator(mode="after")
-    def _reject_partial(self) -> "FoundrySettings":
-        """Fail loudly on a half-configured section, so a typo isn't silently ignored."""
-        intended = bool(self.resource or self.api_key or self.use_managed_identity)
-        if intended and not self.is_configured:
-            raise ValueError(
-                "Foundry requires ANTHROPIC_FOUNDRY_RESOURCE and either ANTHROPIC_FOUNDRY_API_KEY, "
-                "or CLASSIFIER_FOUNDRY_USE_MANAGED_IDENTITY=true for managed identity"
-            )
-        return self
 
 
 class JevSettings(BaseSettings):
@@ -271,7 +202,7 @@ class ProcessorSettings(BaseSettings):
 
     Parses its own slice of the environment (and ``.env``) under the
     ``CLASSIFIER__PROCESSOR_`` prefix. ``category_file`` points at the
-    category-definition Markdown the processor loads to build its voter; it is the
+    category-definition Markdown the processor loads to build its classifier; it is the
     section's one required input, so a job that never classifies (the walker, the
     local CLI which takes ``-c`` instead) simply gets ``Settings.processor is
     None``. The queue-triggered processor has no CLI args, so this is how the ACA
@@ -325,9 +256,8 @@ class Settings(BaseSettings):
     """Application settings resolved from the environment and ``.env``.
 
     Every section is optional and resolved to ``None`` when its environment is
-    absent (see :func:`_load_section`). ``provider`` selects which inference
-    section a classifier uses; that section's credentials are enforced in
-    :func:`~classifier.create_classifier`, not here, so building ``Settings``
+    absent (see :func:`_load_section`). The Jev section's credentials are enforced
+    in :func:`~classifier.create_classifier`, not here, so building ``Settings``
     never demands credentials a job does not use. ``source`` (ADR-0020) selects
     whether the walker/processor bind to SharePoint/Graph (``sharepoint``, the
     default) or a mounted directory (``filesystem``, requiring
@@ -337,11 +267,8 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    provider: Provider = Field(default=DEFAULTS["provider"], validation_alias="CLASSIFIER_PROVIDER")
     source: Source = Field(default=DEFAULTS["source"], validation_alias="CLASSIFIER_SOURCE")
 
-    anthropic: AnthropicSettings | None = Field(default_factory=lambda: _load_section(AnthropicSettings))
-    foundry: FoundrySettings | None = Field(default_factory=lambda: _load_section(FoundrySettings))
     jev: JevSettings | None = Field(default_factory=lambda: _load_section(JevSettings))
     database: DatabaseSettings | None = Field(default_factory=lambda: _load_section(DatabaseSettings))
     graph: GraphSettings | None = Field(default_factory=lambda: _load_section(GraphSettings))
@@ -349,14 +276,6 @@ class Settings(BaseSettings):
     walker: WalkerSettings | None = Field(default_factory=lambda: _load_section(WalkerSettings))
     processor: ProcessorSettings | None = Field(default_factory=lambda: _load_section(ProcessorSettings))
     filesystem: FilesystemSettings | None = Field(default_factory=lambda: _load_section(FilesystemSettings))
-
-    self_consistency_n: int = Field(default=DEFAULTS["self_consistency_n"], ge=1, validation_alias="CLASSIFIER_N")
-    temperature: float = Field(
-        default=DEFAULTS["temperature"], ge=0.0, le=1.0, validation_alias="CLASSIFIER_TEMPERATURE"
-    )
-    confidence_threshold: float = Field(
-        default=DEFAULTS["confidence_threshold"], ge=0.0, le=1.0, validation_alias="CLASSIFIER_CONFIDENCE_THRESHOLD"
-    )
 
 
 @lru_cache(maxsize=1)

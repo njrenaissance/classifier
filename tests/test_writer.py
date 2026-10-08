@@ -6,9 +6,9 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import Insert
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
-from classifier import MODEL
 from db import DocumentStatus
 from errors import AppError, OutputError, PersistenceError
+from jev import MODEL
 from models import DocumentClassification
 from writer import ClassificationResult, DatabaseWriter, build_document_upsert, write_results_csv
 
@@ -28,6 +28,7 @@ def _record(**overrides: object) -> DocumentClassification:
         "drive_item_id": "item-abc",
         "category": "invoice",
         "confidence": 0.8,
+        "raw": {"id": "resp-1"},
     }
     fields.update(overrides)
     return DocumentClassification(**fields)  # type: ignore[arg-type]
@@ -193,6 +194,7 @@ def test_upsert_targets_the_composite_unique_key():
         pytest.param("classified_at", id="classified_at"),
         pytest.param("processed_at", id="processed_at"),
         pytest.param("classified_by", id="classified_by"),
+        pytest.param("raw_response", id="raw_response"),
     ],
 )
 def test_repeat_upsert_updates_each_result_column(column: str):
@@ -218,6 +220,12 @@ def test_upsert_refreshes_updated_at_on_conflict():
 def test_upsert_records_classified_by_from_model_constant():
     params = build_document_upsert(_record()).compile(dialect=postgresql.dialect()).params
     assert params["classified_by"] == MODEL
+
+
+def test_upsert_stores_the_complete_raw_response():
+    raw = {"id": "resp-9", "answers": {"category": {"choice": "invoice"}}}
+    params = build_document_upsert(_record(raw=raw)).compile(dialect=postgresql.dialect()).params
+    assert params["raw_response"] == raw
 
 
 def test_write_executes_the_upsert_and_commits(mocker):

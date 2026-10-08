@@ -22,6 +22,7 @@ from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
 from functools import lru_cache
+from typing import Any
 
 from sqlalchemy import (
     BigInteger,
@@ -35,6 +36,7 @@ from sqlalchemy import (
 from sqlalchemy import (
     Enum as SAEnum,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 
@@ -102,7 +104,8 @@ class Document(Base):
     precise change signal; on a change the walker rotates the old value into
     ``previous_hash``. ``classification_override`` is a manual label that the
     classifier must **never** overwrite (ADR-0014); ``classified_by`` records the
-    model id (``classifier.MODEL``, ADR-0002). On a failed processing attempt the
+    model id (``jev.MODEL``, ADR-0022) and ``raw_response`` holds the complete,
+    unmodified provider response of the classification call. On a failed processing attempt the
     processor stamps ``error_message`` and bumps ``retry_count`` (an observed
     counter — the queue's ``dequeueCount`` still governs redelivery/poison).
     """
@@ -131,6 +134,7 @@ class Document(Base):
     confidence: Mapped[float | None] = mapped_column(default=None)
     classification_override: Mapped[str | None] = mapped_column(default=None)
     classified_by: Mapped[str | None] = mapped_column(default=None)
+    raw_response: Mapped[dict[str, Any] | None] = mapped_column(JSONB, default=None)
 
     error_message: Mapped[str | None] = mapped_column(default=None)
     retry_count: Mapped[int] = mapped_column(default=0, server_default="0")
