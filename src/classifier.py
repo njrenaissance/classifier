@@ -17,15 +17,25 @@ module owns only the single call.
 """
 
 import json
+from typing import Protocol
 
 import anthropic
 from anthropic.types import Message, TextBlock
 
+import jev
 from categories import CategorySet
 from config import DEFAULT_MODEL, FoundrySettings, Settings, get_settings
 from errors import ClassificationError
 
 MODEL = DEFAULT_MODEL  # ADR-0002 — pinned; stamped into ``classified_by`` (writer.py).
+
+
+class LabelClassifier(Protocol):
+    """Anything that turns document text into one in-set category label (one call per document)."""
+
+    def classify(self, document_text: str) -> str: ...
+
+
 _MAX_TOKENS = 64  # label-only reply (e.g. '{"category":"invoice"}') is tiny.
 
 
@@ -151,8 +161,27 @@ def _build_client(settings: Settings) -> tuple[anthropic.Anthropic, str]:
     return anthropic.Anthropic(api_key=settings.anthropic.api_key.get_secret_value()), settings.anthropic.model
 
 
-def create_classifier(categories: CategorySet, settings: Settings | None = None) -> Classifier:
-    """Build a :class:`Classifier` with a client for the selected provider."""
+def _build_jev_classifier(categories: CategorySet, settings: Settings) -> jev.JevClassifier:
+    """Build the Jev adapter from its nested settings (ADR-0022).
+
+    Like the other providers, the credentials are enforced here rather than at
+    settings load, so a job that never classifies needs no Jev configuration.
+    """
+    if settings.jev is None or not settings.jev.is_configured:
+        raise ValueError(
+            "Provider 'jev' is selected but Jev is not configured; "
+            "set CLASSIFIER__JEV_API_KEY and CLASSIFIER__JEV_BASE_URL."
+        )
+    assert settings.jev.api_key is not None  # narrowed by is_configured above
+    assert settings.jev.base_url is not None
+    client = jev.JevHttpClient(api_key=settings.jev.api_key.get_secret_value(), base_url=str(settings.jev.base_url))
+    return jev.JevClassifier(categories, client)
+
+
+def create_classifier(categories: CategorySet, settings: Settings | None = None) -> LabelClassifier:
+    """Build a classifier with a client for the selected provider."""
     settings = settings or get_settings()
+    if settings.provider == "jev":
+        return _build_jev_classifier(categories, settings)
     client, model = _build_client(settings)
     return Classifier(categories, client, model=model, temperature=settings.temperature)

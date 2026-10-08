@@ -9,14 +9,14 @@ Per ADR-0005, confidence is the **agreement rate** of the modal label
 **tie** for the top count or the agreement rate is **at or below** the configured
 threshold, in which case it resolves to the reserved ``unknown``. Run-to-run
 variation comes from ``temperature`` (ADR-0008), which already lives on the
-injected :class:`~classifier.Classifier`; this layer only owns N and the threshold.
+injected :class:`~classifier.LabelClassifier`; this layer only owns N and the threshold.
 """
 
 from collections import Counter
 from dataclasses import dataclass
 
 from categories import UNKNOWN_CATEGORY, CategorySet
-from classifier import Classifier, create_classifier
+from classifier import LabelClassifier, create_classifier
 from config import Settings, get_settings
 
 
@@ -36,11 +36,11 @@ class Verdict:
 class SelfConsistencyClassifier:
     """Votes over N single-call classifications to produce a :class:`Verdict`.
 
-    The inner :class:`~classifier.Classifier` is injected so the network boundary
+    The inner :class:`~classifier.LabelClassifier` is injected so the network boundary
     stays fakeable in tests, exactly as the core classifier is.
     """
 
-    def __init__(self, classifier: Classifier, *, n: int, confidence_threshold: float) -> None:
+    def __init__(self, classifier: LabelClassifier, *, n: int, confidence_threshold: float) -> None:
         if n < 1:
             raise ValueError(f"Self-consistency N must be >= 1, got {n}.")
         self._classifier = classifier
