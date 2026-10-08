@@ -2,6 +2,7 @@ import pytest
 from pydantic import ValidationError
 
 from config import (
+    BlobSettings,
     DatabaseSettings,
     FilesystemSettings,
     GraphSettings,
@@ -263,3 +264,19 @@ def test_jev_base_url_must_be_a_url(monkeypatch):
     _jev_env(monkeypatch, base_url="not a url")
     with pytest.raises(ValidationError):
         Settings(_env_file=None)
+
+
+def test_blob_section_is_none_without_a_container():
+    assert BlobSettings().is_configured is False
+    assert Settings(_env_file=None).blob is None
+
+
+def test_blob_source_is_selected_and_its_section_configured_from_env(monkeypatch):
+    monkeypatch.setenv("CLASSIFIER_SOURCE", "blob")
+    monkeypatch.setenv("CLASSIFIER__BLOB_ACCOUNT_URL", "https://acct.blob.core.windows.net")
+    monkeypatch.setenv("CLASSIFIER__BLOB_CONTAINER", "matters")
+    s = Settings(_env_file=None)
+    assert s.source == "blob"
+    assert s.blob is not None
+    assert s.blob.container == "matters"
+    assert s.blob.prefix == ""

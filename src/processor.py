@@ -37,6 +37,7 @@ from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from blob_source import BlobContentSource, create_container_client
 from categories import parse_category_file
 from classification import Classification
 from classifier import LabelClassifier, create_classifier
@@ -263,6 +264,22 @@ def _process_via_filesystem(settings: Settings, classifier: LabelClassifier) -> 
         Processor(session, source, queue, classifier, DatabaseWriter(session)).run_once()
 
 
+def _process_via_blob(settings: Settings, classifier: LabelClassifier) -> None:
+    """Process one work item, retrieving content from the Azure Blob container (issue #70).
+
+    No :class:`~graph_client.GraphClient` is constructed — the blob source needs no Graph
+    credentials, only managed-identity read access to the container.
+    """
+    blob = settings.blob
+    if blob is None or blob.account_url is None or blob.container is None:
+        raise ValueError(
+            "Blob source is not configured; set CLASSIFIER__BLOB_ACCOUNT_URL and CLASSIFIER__BLOB_CONTAINER."
+        )
+    source = BlobContentSource(create_container_client(blob.account_url, blob.container), blob.prefix)
+    with create_message_queue() as queue, get_sessionmaker()() as session:
+        Processor(session, source, queue, classifier, DatabaseWriter(session)).run_once()
+
+
 def run(argv: list[str]) -> int:
     """Parse ``argv``, process one work item against the configured source, and return an exit code.
 
@@ -284,6 +301,8 @@ def run(argv: list[str]) -> int:
         classifier = create_classifier(categories, settings)
         if settings.source == "filesystem":
             _process_via_filesystem(settings, classifier)
+        elif settings.source == "blob":
+            _process_via_blob(settings, classifier)
         else:
             _process_via_sharepoint(classifier)
     except (AppError, ValidationError):

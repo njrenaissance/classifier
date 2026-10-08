@@ -48,6 +48,8 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from blob_source import BlobLocation, create_container_client
+from blob_walker import BlobWalker
 from config import Settings, get_settings
 from db import SyncState, WalkStatus, get_sessionmaker
 from enqueuer import DocumentCandidate, Enqueuer, _utc_now
@@ -233,6 +235,24 @@ def _run_filesystem_walk(settings: Settings) -> tuple[WalkStatus, str]:
     return status, f"root={filesystem.root}"
 
 
+def _run_blob_walk(settings: Settings) -> tuple[WalkStatus, str]:
+    """Wire and run one blob-container re-enumeration; return its status and a log label (issue #70).
+
+    Like the filesystem source, the blob source builds no :class:`~graph_client.GraphClient`;
+    it needs only the container location and managed-identity access to it.
+    """
+    blob = settings.blob
+    if blob is None or blob.account_url is None or blob.container is None:
+        raise ValueError(
+            "Blob source is not configured; set CLASSIFIER__BLOB_ACCOUNT_URL and CLASSIFIER__BLOB_CONTAINER."
+        )
+    location = BlobLocation(blob.account_url, blob.container, blob.prefix)
+    container = create_container_client(blob.account_url, blob.container)
+    with create_message_queue() as queue, get_sessionmaker()() as session:
+        status = BlobWalker(session, queue, container, location).walk()
+    return status, f"container={location.drive_id}"
+
+
 def run(argv: list[str]) -> int:
     """Parse ``argv``, run one walk against the configured source, and return an exit code.
 
@@ -248,6 +268,8 @@ def run(argv: list[str]) -> int:
         settings = get_settings()
         if settings.source == "filesystem":
             status, label = _run_filesystem_walk(settings)
+        elif settings.source == "blob":
+            status, label = _run_blob_walk(settings)
         else:
             status, label = _run_sharepoint_walk(settings)
     except (AppError, ValidationError):

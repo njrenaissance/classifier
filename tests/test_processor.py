@@ -421,3 +421,41 @@ def test_run_returns_one_on_invalid_settings(mocker, caplog):
 
     assert exit_code == 1
     assert "Processing failed" in caplog.text
+
+
+def test_run_blob_wires_a_blob_content_source_without_graph(mocker):
+    settings = mocker.patch("processor.get_settings").return_value
+    settings.source = "blob"
+    settings.processor.category_file = Path("categories.md")
+    settings.blob.account_url = "https://acct.blob.core.windows.net"
+    settings.blob.container = "matters"
+    settings.blob.prefix = "evidence/"
+    mocker.patch("processor.parse_category_file")
+    mocker.patch("processor.create_classifier")
+    graph = mocker.patch("processor.create_graph_client")
+    container = mocker.patch("processor.create_container_client")
+    mocker.patch("processor.create_message_queue")
+    mocker.patch("processor.get_sessionmaker")
+    mocker.patch("processor.DatabaseWriter")
+    blob_source = mocker.patch("processor.BlobContentSource")
+    processor_cls = mocker.patch("processor.Processor")
+
+    exit_code = processor.run([])
+
+    assert exit_code == 0
+    graph.assert_not_called()  # the blob source never builds a Graph client
+    container.assert_called_once_with("https://acct.blob.core.windows.net", "matters")
+    blob_source.assert_called_once_with(container.return_value, "evidence/")
+    processor_cls.return_value.run_once.assert_called_once_with()
+
+
+def test_run_fails_loudly_when_the_blob_container_is_unconfigured(mocker):
+    settings = mocker.patch("processor.get_settings").return_value
+    settings.source = "blob"
+    settings.processor.category_file = Path("categories.md")
+    settings.blob = None  # source=blob but no account/container
+    mocker.patch("processor.parse_category_file")
+    mocker.patch("processor.create_classifier")
+
+    with pytest.raises(ValueError, match="Blob source is not configured"):
+        processor.run([])
