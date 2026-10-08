@@ -11,8 +11,8 @@ For one E2 work item (:class:`~models.Message`) the processor: marks the
 :class:`~content_source.ContentSource` and skips (letting the walker re-enqueue)
 on a mismatch; downloads the bytes through the same source (Graph, ADR-0015, or a
 mounted filesystem, ADR-0020); extracts text by ``mime_type`` (E4), recording
-``skipped`` for an unsupported type; classifies with the self-consistency voter
-(#10, ADR-0005); and UPSERTs the result via the E1
+``skipped`` for an unsupported type; classifies with the Jev classifier
+(#10, ADR-0022); and UPSERTs the result via the E1
 :class:`~writer.DatabaseWriter` — which never overwrites a manual
 ``classification_override`` (ADR-0014) — while appending a ``processing_log``
 audit row. A failure marks the row ``failed`` with an ``error_message``, bumps
@@ -21,10 +21,10 @@ deleted, so the queue redelivers it and its ``dequeueCount`` — never a message
 field — drives retry/poison shedding.
 
 The classification core (``categories``, ``extraction``, ``classifier``,
-``self_consistency``) and the seams (``content_source``, ``message_queue``,
+``jev``) and the seams (``content_source``, ``message_queue``,
 ``writer``, ``db``) are reused as-is; this module owns only the per-message
 orchestration. :class:`Processor` is the testable core (every boundary — the
-content source, queue, session, voter, writer — is injected); :func:`run` is the
+content source, queue, session, classifier, writer — is injected); :func:`run` is the
 system boundary that selects the source, wires them, catches domain failures once,
 and converts them into an exit code.
 """
@@ -38,6 +38,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from categories import parse_category_file
+from classification import Classification
+from classifier import LabelClassifier, create_classifier
 from config import Settings, get_settings
 from content_source import ContentSource, FilesystemContentSource, GraphContentSource
 from db import Document, DocumentStatus, ProcessingLog, get_sessionmaker
@@ -54,7 +56,6 @@ from extraction import extract_text_from_bytes
 from graph_client import create_graph_client
 from message_queue import MessageQueue, ReceivedMessage, create_message_queue
 from models import DocumentClassification, Message
-from self_consistency import SelfConsistencyClassifier, Verdict, create_self_consistency_classifier
 from writer import DatabaseWriter, Writer
 
 logger = logging.getLogger(__name__)
@@ -79,7 +80,7 @@ class Processor:
 
     Every boundary is injected so the core is trivially unit-testable: the queue
     (dequeue/delete), the content source (hash re-check + download — Graph or
-    filesystem, ADR-0020), the self-consistency voter, the SQLAlchemy session, and
+    filesystem, ADR-0020), the classifier, the SQLAlchemy session, and
     the result writer. The session's lifecycle is owned by the caller (see
     :func:`run`).
     """
@@ -89,13 +90,13 @@ class Processor:
         session: Session,
         source: ContentSource,
         queue: MessageQueue,
-        voter: SelfConsistencyClassifier,
+        classifier: LabelClassifier,
         writer: Writer,
     ) -> None:
         self._session = session
         self._source = source
         self._queue = queue
-        self._voter = voter
+        self._classifier = classifier
         self._writer = writer
 
     def run_once(self) -> None:
@@ -138,14 +139,14 @@ class Processor:
                 return
             data = self._source.download(message)
             text = extract_text_from_bytes(data, message.mime_type)
-            verdict = self._voter.classify(text)
+            classification = self._classifier.classify(text)
         except UnsupportedFormatError as err:
             self._record_skipped(document, received, f"unsupported mime type {message.mime_type!r}: {err}")
             return
         except _ATTEMPT_FAILURES as err:
             self._record_failure(document, received, err)
             raise
-        self._record_success(document, message, received, verdict)
+        self._record_success(document, message, received, classification)
 
     def _load_document(self, message: Message) -> Document:
         """Load the ``documents`` row the walker created for this work item."""
@@ -155,15 +156,16 @@ class Processor:
         return document
 
     def _record_success(
-        self, document: Document, message: Message, received: ReceivedMessage, verdict: Verdict
+        self, document: Document, message: Message, received: ReceivedMessage, classification: Classification
     ) -> None:
         """UPSERT the classification result and append a ``completed`` audit row."""
         self._writer.write(
             DocumentClassification(
                 sync_state_id=message.sync_state_id,
                 drive_item_id=message.drive_item_id,
-                category=verdict.category,
-                confidence=verdict.confidence,
+                category=classification.category,
+                confidence=classification.confidence,
+                raw=classification.raw,
                 status=DocumentStatus.completed,
             )
         )
@@ -172,16 +174,16 @@ class Processor:
                 document_id=document.id,
                 attempt=received.dequeue_count,
                 status=_LOG_COMPLETED,
-                category=verdict.category,
-                confidence=verdict.confidence,
+                category=classification.category,
+                confidence=classification.confidence,
             )
         )
         self._commit()
         logger.info(
             "Classified document id=%s category=%s confidence=%.2f",
             document.id,
-            verdict.category,
-            verdict.confidence,
+            classification.category,
+            classification.confidence,
         )
 
     def _record_override(self, document: Document, received: ReceivedMessage) -> None:
@@ -240,14 +242,14 @@ def configure_logging() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 
-def _process_via_sharepoint(voter: SelfConsistencyClassifier) -> None:
+def _process_via_sharepoint(classifier: LabelClassifier) -> None:
     """Process one work item, retrieving content via Microsoft Graph (ADR-0015)."""
     with create_graph_client() as graph, create_message_queue() as queue, get_sessionmaker()() as session:
         source = GraphContentSource(graph)
-        Processor(session, source, queue, voter, DatabaseWriter(session)).run_once()
+        Processor(session, source, queue, classifier, DatabaseWriter(session)).run_once()
 
 
-def _process_via_filesystem(settings: Settings, voter: SelfConsistencyClassifier) -> None:
+def _process_via_filesystem(settings: Settings, classifier: LabelClassifier) -> None:
     """Process one work item, retrieving content from the mounted root (ADR-0020).
 
     No :class:`~graph_client.GraphClient` is constructed — the filesystem source needs
@@ -258,7 +260,7 @@ def _process_via_filesystem(settings: Settings, voter: SelfConsistencyClassifier
         raise ValueError("Filesystem source is not configured; set CLASSIFIER__FILESYSTEM_ROOT.")
     source = FilesystemContentSource(filesystem.root)
     with create_message_queue() as queue, get_sessionmaker()() as session:
-        Processor(session, source, queue, voter, DatabaseWriter(session)).run_once()
+        Processor(session, source, queue, classifier, DatabaseWriter(session)).run_once()
 
 
 def run(argv: list[str]) -> int:
@@ -279,11 +281,11 @@ def run(argv: list[str]) -> int:
         if processor is None or processor.category_file is None:
             raise ValueError("Processor is not configured; set CLASSIFIER__PROCESSOR_CATEGORY_FILE.")
         categories = parse_category_file(processor.category_file)
-        voter = create_self_consistency_classifier(categories, settings)
+        classifier = create_classifier(categories, settings)
         if settings.source == "filesystem":
-            _process_via_filesystem(settings, voter)
+            _process_via_filesystem(settings, classifier)
         else:
-            _process_via_sharepoint(voter)
+            _process_via_sharepoint(classifier)
     except (AppError, ValidationError):
         logger.exception("Processing failed")
         return 1

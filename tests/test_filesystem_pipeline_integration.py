@@ -6,7 +6,7 @@ enumerates a temp directory of valid PDFs, hashes them, UPSERTs ``documents`` ro
 and enqueues work items onto a real Azurite queue; a :class:`~processor.Processor`
 wired with a :class:`~content_source.FilesystemContentSource` then consumes each
 message, reads the bytes from disk, extracts text, and UPSERTs a ``completed``
-result. Only the self-consistency voter is faked — real LLM verdicts are reserved
+result. Only the classifier is faked — real LLM verdicts are reserved
 for the manual live-fire run (``infra/``), which costs money.
 
 Both containers are ``testcontainers``-managed and the whole module skips when
@@ -62,12 +62,12 @@ def _build_pdf(text: str) -> bytes:
 
 
 class _FakeVoter:
-    """A deterministic stand-in for the self-consistency voter — no LLM call."""
+    """A deterministic stand-in for the classifier — no LLM call."""
 
     def classify(self, _text: str):
-        from self_consistency import Verdict
+        from classification import Classification
 
-        return Verdict(category="contract", confidence=0.9)
+        return Classification(category="contract", confidence=0.9, raw={})
 
 
 def _skip_without_docker(factory):

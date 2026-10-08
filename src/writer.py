@@ -31,9 +31,9 @@ from sqlalchemy.dialects.postgresql import Insert, insert
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from classifier import MODEL
 from db import Document
 from errors import OutputError, PersistenceError
+from jev import MODEL
 from models import DocumentClassification
 
 # The ``(sync_state_id, drive_item_id)`` conflict keys identify the row on an
@@ -53,7 +53,7 @@ class ClassificationResult:
 
     filename: str  # source-agnostic name (local FS and SharePoint alike) — ADR-0004
     category: str  # a real category name or the reserved "unknown"
-    confidence: float  # self-consistency agreement rate in [0.0, 1.0] — ADR-0005
+    confidence: float  # API probability for the category, in [0.0, 1.0] — ADR-0005 (amended)
 
     @classmethod
     def headers(cls) -> tuple[str, ...]:
@@ -96,7 +96,7 @@ def build_document_upsert(record: DocumentClassification) -> Insert:
 
     Inserts a new row, or on a ``(sync_state_id, drive_item_id)`` conflict updates
     the classification result and its timestamps. ``classified_by`` is stamped with
-    ``classifier.MODEL`` (ADR-0002). The ``WHERE classification_override IS NULL``
+    ``jev.MODEL`` (ADR-0022). The ``WHERE classification_override IS NULL``
     guard makes the update a no-op when a manual override exists, so the classifier
     **never** overwrites a human decision (ADR-0014).
     """
@@ -107,6 +107,7 @@ def build_document_upsert(record: DocumentClassification) -> Insert:
         "confidence": record.confidence,
         "status": record.status,
         "classified_by": MODEL,
+        "raw_response": record.raw,
         "classified_at": func.now(),
         "processed_at": func.now(),
     }

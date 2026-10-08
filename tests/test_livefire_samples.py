@@ -2,9 +2,9 @@
 
 This promotes issue #42's "a representative document per category classifies to the
 intended label" acceptance criterion into a repeatable, committed test over the
-`samples/` corpus. It makes **real** inference calls (N per document) through the
-configured provider, so it is marked ``integration`` and **skips** unless a provider
-is configured — CI (no credentials) and the ``-m unit`` pre-commit run never touch
+`samples/` corpus. It makes **real** inference calls (one call per document) through the
+configured inference provider (Jev, ADR-0022), so it is marked ``integration`` and
+**skips** unless Jev is configured — CI (no credentials) and the ``-m unit`` pre-commit run never touch
 the network here.
 
 Two of the original NYPD samples were dropped as un-extractable scanned PDFs
@@ -19,9 +19,9 @@ from pathlib import Path
 import pytest
 
 from categories import parse_category_file
+from classifier import LabelClassifier, create_classifier
 from config import get_settings
 from extraction import extract_text
-from self_consistency import SelfConsistencyClassifier, create_self_consistency_classifier
 
 pytestmark = pytest.mark.integration
 
@@ -45,16 +45,13 @@ EXPECTED_CLASSIFICATIONS = {
 
 
 @pytest.fixture(scope="module")
-def voter() -> SelfConsistencyClassifier:
-    """Build the real self-consistency classifier, or skip if no provider is configured."""
+def classifier() -> LabelClassifier:
+    """Build the real Jev classifier, or skip if Jev is not configured."""
     settings = get_settings()
-    provider_configured = (settings.provider == "anthropic" and settings.anthropic is not None) or (
-        settings.provider == "foundry" and settings.foundry is not None
-    )
-    if not provider_configured:
-        pytest.skip(f"live-fire test needs the {settings.provider!r} provider configured (real API call)")
+    if settings.jev is None or not settings.jev.is_configured:
+        pytest.skip("live-fire test needs Jev configured (real API call)")
     categories = parse_category_file(CATEGORY_FILE)
-    return create_self_consistency_classifier(categories, settings)
+    return create_classifier(categories, settings)
 
 
 @pytest.mark.parametrize(
@@ -62,7 +59,7 @@ def voter() -> SelfConsistencyClassifier:
     [pytest.param(name, category, id=name) for name, category in EXPECTED_CLASSIFICATIONS.items()],
 )
 def test_sample_classifies_to_expected_category(
-    voter: SelfConsistencyClassifier, filename: str, expected_category: str
+    classifier: LabelClassifier, filename: str, expected_category: str
 ) -> None:
-    verdict = voter.classify(extract_text(SAMPLES_DIR / filename))
-    assert verdict.category == expected_category
+    classification = classifier.classify(extract_text(SAMPLES_DIR / filename))
+    assert classification.category == expected_category

@@ -18,11 +18,11 @@ import pytest
 from pydantic import ValidationError
 
 import processor
+from classification import Classification
 from db import Document, DocumentStatus, ProcessingLog
 from errors import ClassificationError, ExtractionError, GraphError, PersistenceError, UnsupportedFormatError
 from models import Message
 from processor import Processor
-from self_consistency import Verdict
 
 pytestmark = pytest.mark.unit
 
@@ -130,10 +130,10 @@ def _make(mocker, *, document, dequeue_count=1, message=None):
     session = _FakeSession(document)
     queue = _FakeQueue(received)
     source = mocker.Mock()
-    voter = mocker.Mock()
+    classifier = mocker.Mock()
     writer = mocker.Mock()
-    proc = Processor(session, source, queue, voter, writer)
-    return proc, received, session, queue, source, voter, writer
+    proc = Processor(session, source, queue, classifier, writer)
+    return proc, received, session, queue, source, classifier, writer
 
 
 def _logs(session):
@@ -146,11 +146,11 @@ def _logs(session):
 
 def test_happy_path_classifies_and_completes(mocker):
     document = _document(status=DocumentStatus.queued)
-    proc, received, session, queue, source, voter, writer = _make(mocker, document=document, dequeue_count=1)
+    proc, received, session, queue, source, classifier, writer = _make(mocker, document=document, dequeue_count=1)
     source.fetch_content_hash.return_value = "H"
     source.download.return_value = b"pdf-bytes"
     extract = mocker.patch("processor.extract_text_from_bytes", return_value="hello world")
-    voter.classify.return_value = Verdict(category="contract", confidence=0.8)
+    classifier.classify.return_value = Classification(category="contract", confidence=0.8, raw={"id": "resp-1"})
 
     proc.run_once()
 
@@ -163,6 +163,7 @@ def test_happy_path_classifies_and_completes(mocker):
     assert record.drive_item_id == "item-1"
     assert record.category == "contract"
     assert record.confidence == 0.8
+    assert record.raw == {"id": "resp-1"}
     assert record.status is DocumentStatus.completed
     # Exactly one success processing_log row.
     logs = _logs(session)
@@ -180,7 +181,7 @@ def test_happy_path_classifies_and_completes(mocker):
 
 def test_content_hash_mismatch_skips_without_classifying(mocker):
     document = _document(content_hash="OLD")
-    proc, received, session, queue, source, voter, writer = _make(mocker, document=document)
+    proc, received, session, queue, source, classifier, writer = _make(mocker, document=document)
     source.fetch_content_hash.return_value = "NEW"  # differs from message content_hash "H"
     extract = mocker.patch("processor.extract_text_from_bytes")
 
@@ -189,7 +190,7 @@ def test_content_hash_mismatch_skips_without_classifying(mocker):
     assert document.status is DocumentStatus.skipped
     source.download.assert_not_called()
     extract.assert_not_called()
-    voter.classify.assert_not_called()
+    classifier.classify.assert_not_called()
     writer.write.assert_not_called()
     logs = _logs(session)
     assert len(logs) == 1
@@ -200,7 +201,7 @@ def test_content_hash_mismatch_skips_without_classifying(mocker):
 def test_unsupported_mime_type_skips(mocker):
     document = _document()
     message = _message(mime_type="application/x-weird")
-    proc, received, session, queue, source, voter, writer = _make(mocker, document=document, message=message)
+    proc, received, session, queue, source, classifier, writer = _make(mocker, document=document, message=message)
     source.fetch_content_hash.return_value = "H"
     source.download.return_value = b"bytes"
     mocker.patch(
@@ -211,7 +212,7 @@ def test_unsupported_mime_type_skips(mocker):
     proc.run_once()
 
     assert document.status is DocumentStatus.skipped
-    voter.classify.assert_not_called()
+    classifier.classify.assert_not_called()
     writer.write.assert_not_called()
     assert _logs(session)[0].status == "skipped"
     assert queue.deleted == [received]
@@ -220,20 +221,20 @@ def test_unsupported_mime_type_skips(mocker):
 # --- failure outcome -------------------------------------------------------
 
 
-def _fail_at_download(mocker, source, _voter, error):
+def _fail_at_download(mocker, source, _classifier, error):
     source.download.side_effect = error
     mocker.patch("processor.extract_text_from_bytes")
 
 
-def _fail_at_extraction(mocker, source, _voter, error):
+def _fail_at_extraction(mocker, source, _classifier, error):
     source.download.return_value = b"bytes"
     mocker.patch("processor.extract_text_from_bytes", side_effect=error)
 
 
-def _fail_at_classification(mocker, source, voter, error):
+def _fail_at_classification(mocker, source, classifier, error):
     source.download.return_value = b"bytes"
     mocker.patch("processor.extract_text_from_bytes", return_value="text")
-    voter.classify.side_effect = error
+    classifier.classify.side_effect = error
 
 
 @pytest.mark.parametrize(
@@ -246,9 +247,9 @@ def _fail_at_classification(mocker, source, voter, error):
 )
 def test_failure_marks_failed_bumps_retry_and_reraises(mocker, configure, error):
     document = _document(retry_count=2)
-    proc, received, session, queue, source, voter, writer = _make(mocker, document=document, dequeue_count=3)
+    proc, received, session, queue, source, classifier, writer = _make(mocker, document=document, dequeue_count=3)
     source.fetch_content_hash.return_value = "H"
-    configure(mocker, source, voter, error)
+    configure(mocker, source, classifier, error)
 
     with pytest.raises(type(error)) as excinfo:
         proc.run_once()
@@ -267,11 +268,11 @@ def test_failure_marks_failed_bumps_retry_and_reraises(mocker, configure, error)
 
 def test_persistence_failure_on_commit_is_translated(mocker):
     document = _document()
-    proc, received, session, queue, source, voter, writer = _make(mocker, document=document)
+    proc, received, session, queue, source, classifier, writer = _make(mocker, document=document)
     source.fetch_content_hash.return_value = "H"
     source.download.return_value = b"bytes"
     mocker.patch("processor.extract_text_from_bytes", return_value="text")
-    voter.classify.return_value = Verdict(category="contract", confidence=0.9)
+    classifier.classify.return_value = Classification(category="contract", confidence=0.9, raw={})
     from sqlalchemy.exc import SQLAlchemyError
 
     mocker.patch.object(session, "commit", side_effect=SQLAlchemyError("connection reset"))
@@ -287,13 +288,13 @@ def test_persistence_failure_on_commit_is_translated(mocker):
 
 def test_classification_override_is_not_overwritten(mocker):
     document = _document(status=DocumentStatus.queued, override="hand-labelled")
-    proc, received, session, queue, source, voter, writer = _make(mocker, document=document)
+    proc, received, session, queue, source, classifier, writer = _make(mocker, document=document)
     extract = mocker.patch("processor.extract_text_from_bytes")
 
     proc.run_once()
 
     writer.write.assert_not_called()
-    voter.classify.assert_not_called()
+    classifier.classify.assert_not_called()
     source.download.assert_not_called()
     source.fetch_content_hash.assert_not_called()
     extract.assert_not_called()
@@ -310,9 +311,9 @@ def test_classification_override_is_not_overwritten(mocker):
 def test_run_once_is_a_no_op_on_empty_queue(mocker):
     session = _FakeSession(None)
     queue = _FakeQueue(None)
-    source, voter, writer = mocker.Mock(), mocker.Mock(), mocker.Mock()
+    source, classifier, writer = mocker.Mock(), mocker.Mock(), mocker.Mock()
 
-    Processor(session, source, queue, voter, writer).run_once()
+    Processor(session, source, queue, classifier, writer).run_once()
 
     writer.write.assert_not_called()
     source.download.assert_not_called()
@@ -323,10 +324,10 @@ def test_missing_documents_row_raises_persistence_error(mocker):
     message = _message()
     session = _FakeSession(None)
     queue = _FakeQueue(_ReceivedMessage(message))
-    source, voter, writer = mocker.Mock(), mocker.Mock(), mocker.Mock()
+    source, classifier, writer = mocker.Mock(), mocker.Mock(), mocker.Mock()
 
     with pytest.raises(PersistenceError, match="No documents row for id 500"):
-        Processor(session, source, queue, voter, writer).run_once()
+        Processor(session, source, queue, classifier, writer).run_once()
 
     source.fetch_content_hash.assert_not_called()
     assert queue.deleted == []
@@ -340,7 +341,7 @@ def test_run_wires_the_processor_and_returns_zero(mocker):
     settings.source = "sharepoint"
     settings.processor.category_file = Path("categories.md")
     parse = mocker.patch("processor.parse_category_file")
-    voter = mocker.patch("processor.create_self_consistency_classifier")
+    classifier = mocker.patch("processor.create_classifier")
     mocker.patch("processor.create_graph_client")
     mocker.patch("processor.create_message_queue")
     mocker.patch("processor.get_sessionmaker")
@@ -351,7 +352,7 @@ def test_run_wires_the_processor_and_returns_zero(mocker):
 
     assert exit_code == 0
     parse.assert_called_once_with(Path("categories.md"))
-    voter.assert_called_once_with(parse.return_value, settings)
+    classifier.assert_called_once_with(parse.return_value, settings)
     processor_cls.return_value.run_once.assert_called_once_with()
 
 
@@ -361,7 +362,7 @@ def test_run_filesystem_wires_a_filesystem_content_source_without_graph(mocker):
     settings.processor.category_file = Path("categories.md")
     settings.filesystem.root = Path("/data")
     mocker.patch("processor.parse_category_file")
-    mocker.patch("processor.create_self_consistency_classifier")
+    mocker.patch("processor.create_classifier")
     graph = mocker.patch("processor.create_graph_client")
     mocker.patch("processor.create_message_queue")
     mocker.patch("processor.get_sessionmaker")
@@ -382,7 +383,7 @@ def test_run_returns_one_on_app_error(mocker, caplog):
     settings.source = "sharepoint"
     settings.processor.category_file = Path("categories.md")
     mocker.patch("processor.parse_category_file")
-    mocker.patch("processor.create_self_consistency_classifier")
+    mocker.patch("processor.create_classifier")
     mocker.patch("processor.create_graph_client", side_effect=GraphError("token boom"))
 
     with caplog.at_level("ERROR"):
@@ -406,7 +407,7 @@ def test_run_fails_loudly_when_the_filesystem_root_is_unconfigured(mocker):
     settings.processor.category_file = Path("categories.md")
     settings.filesystem = None  # source=filesystem but no mounted root
     mocker.patch("processor.parse_category_file")
-    mocker.patch("processor.create_self_consistency_classifier")
+    mocker.patch("processor.create_classifier")
 
     with pytest.raises(ValueError, match="Filesystem source is not configured"):
         processor.run([])

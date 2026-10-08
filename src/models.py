@@ -11,6 +11,7 @@ the walker (producer) enqueues and the processor (consumer) reads (ADR-0014).
 """
 
 from enum import StrEnum
+from typing import Any
 
 from pydantic import AwareDatetime, BaseModel
 
@@ -43,6 +44,7 @@ class DocumentClassification(BaseModel):
     drive_item_id: str
     category: str
     confidence: float
+    raw: dict[str, Any]  # complete, unmodified provider response (ADR-0022)
     status: DocumentStatus = DocumentStatus.completed
 
 
