@@ -1,0 +1,19 @@
+{
+  "template": "https://github.com/njrenaissance/project-templates",
+  "commit": "1e0761de8129ad131729338c84ab7ba3168fb653",
+  "checkout": "basic-v1.4.0",
+  "context": {
+    "cookiecutter": {
+      "project_name": "classifier",
+      "project_slug": "classifier",
+      "author": "Your Name",
+      "python_version": "3.13",
+      "app_config": "yes",
+      "structured_logging": "no",
+      "telemetry": "no",
+      "security": "no"
+    }
+  },
+  "directory": "basic",
+  "skip": [".git", ".venv", "uv.lock", ".ruff_cache", ".mypy_cache"]
+}
