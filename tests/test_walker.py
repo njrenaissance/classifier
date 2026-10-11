@@ -295,3 +295,35 @@ def test_run_returns_one_on_invalid_settings(mocker, caplog):
 
     assert exit_code == 1
     assert "Walk failed" in caplog.text
+
+
+def test_run_blob_wires_the_blob_walker_without_graph(mocker):
+    settings = mocker.patch("walker.get_settings").return_value
+    settings.source = "blob"
+    settings.blob.account_url = "https://acct.blob.core.windows.net"
+    settings.blob.container = "matters"
+    settings.blob.prefix = "evidence/"
+    graph = mocker.patch("walker.create_graph_client")
+    container = mocker.patch("walker.create_container_client")
+    mocker.patch("walker.create_message_queue")
+    mocker.patch("walker.get_sessionmaker")
+    blob_walker = mocker.patch("walker.BlobWalker")
+    blob_walker.return_value.walk.return_value = WalkStatus.completed
+
+    exit_code = walker.run([])
+
+    assert exit_code == 0
+    graph.assert_not_called()  # the blob source never builds a Graph client
+    container.assert_called_once_with("https://acct.blob.core.windows.net", "matters")
+    assert blob_walker.call_args.args[2] is container.return_value
+    assert blob_walker.call_args.args[3].container == "matters"
+    blob_walker.return_value.walk.assert_called_once_with()
+
+
+def test_run_fails_loudly_when_the_blob_container_is_unconfigured(mocker):
+    settings = mocker.patch("walker.get_settings").return_value
+    settings.source = "blob"
+    settings.blob = None  # source=blob but no account/container
+
+    with pytest.raises(ValueError, match="Blob source is not configured"):
+        walker.run([])

@@ -108,3 +108,12 @@ def test_aware_enqueued_at_is_preserved():
     message = _message(enqueued_at=_ENQUEUED_AT)
 
     assert message.enqueued_at.tzinfo is not None
+
+
+def test_blob_source_round_trips():
+    message = _message(source=MessageSource.blob, drive_item_id="case-7/alpha.pdf")
+
+    parsed = Message.model_validate_json(message.model_dump_json())
+
+    assert parsed.source is MessageSource.blob
+    assert parsed.drive_item_id == "case-7/alpha.pdf"

@@ -15,6 +15,7 @@ Classify document files into exactly one category from a user-defined category s
 - **Sources:**
   - Local filesystem (a file or a directory of files) — local dev
   - SharePoint, via the Microsoft Graph API — production ([ADR-0012](adr/0012-cloud-two-job-pipeline.md))
+  - Azure Blob Storage container, via managed identity — alternative production source; the authoritative evidence store ([ADR-0023](adr/0023-blob-source-mode.md))
 - **Category definitions:** a Markdown file that defines the allowed categories, each with a description and few-shot examples. This is the single source of the label set — categories are never hardcoded.
 
 ### Output
@@ -29,7 +30,7 @@ Classify document files into exactly one category from a user-defined category s
 > Decision: [ADR-0003](adr/0003-cli-batch-interface.md) (CLI/batch vs library vs service).
 
 **Production — a two-job cloud pipeline** (one image, two entry points), decoupled by an Azure Queue:
-- **Walker** (scheduled ACA job): incremental Graph delta walk of a SharePoint library → enqueues one work item per changed/new file.
+- **Walker** (scheduled ACA job): incremental Graph delta walk of a SharePoint library → enqueues one work item per changed/new file. Alternatively, with `CLASSIFIER_SOURCE=blob`, a full re-enumeration of an Azure Blob container, hashing each blob from its `sha256` metadata ([ADR-0023](adr/0023-blob-source-mode.md)).
 - **Classifier** (queue-triggered ACA job): per work item → download → extract → classify (one Jev call) → UPSERT the result and its raw response to PostgreSQL.
 > Decision: [ADR-0012](adr/0012-cloud-two-job-pipeline.md) (two-job pipeline on Azure Container Apps).
 
@@ -71,6 +72,9 @@ Microsoft Graph, app-only (client-credentials) auth.
 **Ingestion (walker).** Incremental **Graph delta** queries under a time budget, resumable via a two-token (`delta_token` / `resume_token`) `sync_state`; `file.hashes` content-hash change detection (ADR-0017); enqueue is idempotent (in-flight / unchanged files are skipped). The walk is scoped to a configurable library subtree (`WalkerSettings.root_path`, default `/Matters`), enforced at the Graph delta level (ADR-0019); each document's raw folder path is stored (ADR-0018) rather than a derived matter.
 > Decision: [ADR-0014](adr/0014-sharepoint-delta-walker.md).
 
+**Ingestion (blob).** With `CLASSIFIER_SOURCE=blob`, every run re-enumerates the configured container prefix with no resume token. Each blob's content hash is its `sha256` metadata property (downloaded and hashed only when absent), and idempotency follows the same enqueue rule as the other sources. The container must be in an online tier (Hot/Cool/Cold); Archive-tier blobs cannot be downloaded.
+> Decision: [ADR-0023](adr/0023-blob-source-mode.md).
+
 **Download (classifier).** Files stay in SharePoint; the classifier fetches bytes on demand via an authenticated `GET .../items/{id}/content` into memory (no local copy), and extraction reads the byte stream directly.
 > Decision: [ADR-0015](adr/0015-graph-authenticated-download.md).
 
@@ -100,7 +104,7 @@ Product-level, observable behaviors that define done. These are *what to verify*
 - Every file in a target source (local dir or SharePoint location) appears **exactly once** in the output (CSV row / `documents` row).
 - An unsupported file type is handled explicitly, not silently mis-processed. At the **source** (enumeration) it is **skipped with a `WARNING`** so a run over a mixed directory still proceeds ([ADR-0010](adr/0010-uniform-document-source.md)); at **extraction** time a file pointed at directly is rejected with `UnsupportedFormatError` ([ADR-0006](adr/0006-text-extraction-per-format-libs.md), [ADR-0009](adr/0009-defer-legacy-doc-extraction.md)).
 - The allowed categories are read from the Markdown file; a category not defined there is never emitted.
-- SharePoint and local-filesystem sources produce the same result shape for equivalent files (CSV row / `documents` row).
+- SharePoint, local-filesystem, and Azure Blob sources produce the same result shape for equivalent files (CSV row / `documents` row).
 - **(v2)** Every changed/new file in the library appears exactly once as a work item and one `documents` row; unchanged and in-flight files are not re-enqueued.
 - **(v2)** An interrupted walk resumes from its saved page; a completed walk advances the delta token; re-classification is a `status='pending'` reset that never overwrites a manual `classification_override`.
 - (Criteria refined as issues are planned; each issue decomposes the relevant ones into concrete tests.)

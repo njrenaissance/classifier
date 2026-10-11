@@ -22,13 +22,15 @@ class MessageSource(StrEnum):
     """Which source produced a work item — the message's self-describing origin (ADR-0020).
 
     ``sharepoint`` is the Graph delta pipeline (ADR-0014); ``filesystem`` is the
-    mounted-directory source (ADR-0020). The processor selects its retrieval seam
+    mounted-directory source (ADR-0020); ``blob`` is the Azure Blob Storage container
+    source (issue #70, ADR-0023). The processor selects its retrieval seam
     from configuration, but carrying the source on the wire lets it fail fast on a
     misconfigured queue whose messages do not match the configured source.
     """
 
     sharepoint = "sharepoint"
     filesystem = "filesystem"
+    blob = "blob"
 
 
 class DocumentClassification(BaseModel):
@@ -65,7 +67,8 @@ class Message(BaseModel):
     ``source`` (ADR-0020) discriminates the producer. It defaults to
     :attr:`~MessageSource.sharepoint` so a message written before the field
     existed still parses. ``drive_item_id`` doubles as the source-neutral
-    locator: a Graph item id for SharePoint, a root-relative path for filesystem
+    locator: a Graph item id for SharePoint, a root-relative path for filesystem, a
+    blob name relative to the configured prefix for blob
     — resolved against the configured mount root by the filesystem retrieval seam.
     """
 

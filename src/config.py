@@ -26,7 +26,7 @@ from typing import Any, Literal
 from pydantic import AnyHttpUrl, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-Source = Literal["sharepoint", "filesystem"]
+Source = Literal["sharepoint", "filesystem", "blob"]
 
 DEFAULTS: dict[str, Any] = {
     "source": "sharepoint",
@@ -241,6 +241,29 @@ class FilesystemSettings(BaseSettings):
         return self.root is not None
 
 
+class BlobSettings(BaseSettings):
+    """Azure Blob Storage source settings: the container to enumerate (issue #70, ADR-0023).
+
+    Parses its own slice of the environment (and ``.env``) under the
+    ``CLASSIFIER__BLOB_`` prefix. ``account_url`` and ``container`` are the section's
+    required inputs; ``prefix`` optionally narrows the walk to a virtual directory.
+    Authentication is always managed identity (``DefaultAzureCredential``), so no
+    secret is read. Selected by ``CLASSIFIER_SOURCE=blob`` — the walker/processor never
+    construct a ``GraphClient`` on this path.
+    """
+
+    model_config = SettingsConfigDict(env_prefix="CLASSIFIER__BLOB_", env_file=".env", extra="ignore")
+
+    account_url: str | None = None
+    container: str | None = None
+    prefix: str = ""
+
+    @property
+    def is_configured(self) -> bool:
+        """True once both the account URL and the container name are present."""
+        return self.account_url is not None and self.container is not None
+
+
 def _load_section[T: BaseSettings](section_type: type[T]) -> T | None:
     """Construct a nested settings section, or ``None`` when it is unconfigured.
 
@@ -260,8 +283,9 @@ class Settings(BaseSettings):
     in :func:`~classifier.create_classifier`, not here, so building ``Settings``
     never demands credentials a job does not use. ``source`` (ADR-0020) selects
     whether the walker/processor bind to SharePoint/Graph (``sharepoint``, the
-    default) or a mounted directory (``filesystem``, requiring
-    :class:`FilesystemSettings`); the wiring branch lives in ``walker.run`` /
+    default), a mounted directory (``filesystem``, requiring
+    :class:`FilesystemSettings`), or an Azure Blob container (``blob``, requiring
+    :class:`BlobSettings`); the wiring branch lives in ``walker.run`` /
     ``processor.run``.
     """
 
@@ -276,6 +300,7 @@ class Settings(BaseSettings):
     walker: WalkerSettings | None = Field(default_factory=lambda: _load_section(WalkerSettings))
     processor: ProcessorSettings | None = Field(default_factory=lambda: _load_section(ProcessorSettings))
     filesystem: FilesystemSettings | None = Field(default_factory=lambda: _load_section(FilesystemSettings))
+    blob: BlobSettings | None = Field(default_factory=lambda: _load_section(BlobSettings))
 
 
 @lru_cache(maxsize=1)
